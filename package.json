@@ -18,7 +18,7 @@
     "bootstrap": "lerna bootstrap --use-workspaces",
     "build": "lerna run build --parallel",
     "clean": "lerna run clean && lerna clean -y",
-    "dev": "lerna run --parallel dev",
+    "dev": "lerna run dev --parallel",
     "lint": "lerna run lint --parallel"
   },
   "license": "UNLICENSED",
