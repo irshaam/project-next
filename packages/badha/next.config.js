@@ -11,4 +11,7 @@ module.exports = {
   env: {
     CDN_URL: "https://bucket-next.s3.ap-southeast-1.amazonaws.com",
   },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
 };

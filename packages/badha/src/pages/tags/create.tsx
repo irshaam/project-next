@@ -1,5 +1,7 @@
 import client from "../../api/client";
+// eslint-disable-next-line import/order
 import MainLayout from "../../components/layouts/MainLayout";
+import CreateTagForm from "../../components/pages/tags/form";
 
 export async function getStaticProps(context: any) {
   const res = await fetch("http://localhost:5000/tag-types");
@@ -19,7 +21,6 @@ export async function getStaticProps(context: any) {
   };
 }
 
-import CreateTagForm from "./form";
 const UserCreate = ({ types, tags }: { types: any; tags: any }) => {
   const submit = () => {
     const response = client.post("/users/create");

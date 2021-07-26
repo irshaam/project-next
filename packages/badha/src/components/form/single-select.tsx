@@ -45,7 +45,8 @@ const SingleSelect = ({ label, ...props }: OtherProps & FieldHookConfig<string>)
               : "border-black border-opacity-10	 placeholder-gray-400"
           }`}
         >
-          <option defaultValue>...</option>
+          <option>...</option>
+          {/* <option defaultValue>...</option> */}
 
           {options.map((option: Record<string, any>) => (
             <option value={option.id} key={`tag_type_${option.id}`}>

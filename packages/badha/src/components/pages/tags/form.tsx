@@ -1,10 +1,10 @@
 import { withFormik, FormikProps, Form, Field, ErrorMessage, Formik } from "formik";
 import * as Yup from "yup";
 
-import TextInput from "../../components/form/input-text";
-import ThaanaInput from "../../components/form/input-thaana";
-import SingleSelect from "../../components/form/single-select";
-import { sluggify } from "../../utils/slugify";
+import { sluggify } from "../../../utils/slugify";
+import TextInput from "../../form/input-text";
+import ThaanaInput from "../../form/input-thaana";
+import SingleSelect from "../../form/single-select";
 interface FormValues {
   id?: number;
   typeId?: number;
@@ -92,7 +92,7 @@ const InnerForm = (props: FormikProps<FormValues> & MyFormProps) => {
             </div>
             {/* parent tag */}
             <div className="sm:col-span-2">
-              <SingleSelect label="Parent" name="parentId" options={tags} placeholder="...." />
+              <SingleSelect label="Parent" name="parentId" options={tags ? tags : []} placeholder="...." />
             </div>
 
             {/* description  en*/}

@@ -1,6 +1,7 @@
-import { Popover, SideMenu } from "../ui";
 import React from "react";
+
 import { text } from "../text";
+import { Popover, SideMenu } from "../ui";
 
 interface LayoutProps {
   children: React.ReactNode;

@@ -3,9 +3,8 @@ import Link from "next/link";
 import { useState } from "react";
 
 import client from "../../api/client";
-
-import MediaItem from "./media-item";
-import MediaSidebar from "./media-sidebar";
+import MediaItem from "../../components/media/media-item";
+import MediaSidebar from "../../components/media/media-sidebar";
 
 import { getMedia, getMediaById } from "@/api";
 import { MainLayout } from "@layouts";

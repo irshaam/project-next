@@ -2,7 +2,7 @@ import { GetStaticProps } from "next";
 
 import MainLayout from "../../../components/layouts/MainLayout";
 
-export async function getStaticProps(context: any) {
+export async function getServerSideProps(context: any) {
   //  get tag types
   const tagTypes = await fetch("http://localhost:5000/tags/types");
   const types = await tagTypes.json();

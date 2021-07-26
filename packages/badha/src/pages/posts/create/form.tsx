@@ -8,9 +8,8 @@ import { PostEditor } from "../../../components/editor";
 import TextInput from "../../../components/form/input-text";
 import ThaanaInput from "../../../components/form/input-thaana";
 import SingleSelect from "../../../components/form/single-select";
+import PostSettings from "../../../components/post/settings";
 import { sluggify } from "../../../utils/slugify";
-
-import PostSettings from "./settings";
 
 import HeadingInput from "@/components/post/input-heading";
 import DetailHeadingInput from "@/components/post/input-heading-detailed";
