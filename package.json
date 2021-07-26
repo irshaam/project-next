@@ -16,7 +16,7 @@
   ],
   "scripts": {
     "bootstrap": "lerna bootstrap --use-workspaces",
-    "build": "lerna run --stream build",
+    "build": "lerna run build --parallel",
     "clean": "lerna run clean && lerna clean -y",
     "dev": "lerna run --parallel dev",
     "lint": "lerna run lint --parallel"

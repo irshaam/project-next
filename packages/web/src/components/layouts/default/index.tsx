@@ -1,27 +1,26 @@
-import React, { useState } from 'react';
+import { MainMenu, MenuIcon } from "@ui";
+import ProfileDropdown from "@ui/profile-dropdown";
+import Search from "@ui/search";
+import UserrNotification from "@ui/user-notification";
+import React, { useState } from "react";
 
-import MainLogo from '../../../assets/svg/main-logo.svg';
-
-import { MainMenu, MenuIcon } from '@ui';
-import ProfileDropdown from '@ui/profile-dropdown';
-import Search from '@ui/search';
-import UserrNotification from '@ui/user-notification';
+import MainLogo from "../../../assets/svg/main-logo.svg";
 
 interface LayoutProps {
   children: React.ReactNode;
 }
 
 const subnav = [
-  'މީހުންގެ ވާހަކަ',
-  'ޕޮޑްކާސްޓްސް',
-  'ކުޅިވަރު',
-  'ފޮޓޯ ހަބަރު',
-  'ވީޑިއޯ ސްޓޯރީ',
-  'ކިޔުންތެރިން ޚިޔާރު',
-  'މަގުބޫލު',
-  'އެންމެ ފަސް',
-  'ކިޔާލާން ހާއްސަ',
-  'އެޑިޓަރުގެ ހޮވުން',
+  "މީހުންގެ ވާހަކަ",
+  "ޕޮޑްކާސްޓްސް",
+  "ކުޅިވަރު",
+  "ފޮޓޯ ހަބަރު",
+  "ވީޑިއޯ ސްޓޯރީ",
+  "ކިޔުންތެރިން ޚިޔާރު",
+  "މަގުބޫލު",
+  "އެންމެ ފަސް",
+  "ކިޔާލާން ހާއްސަ",
+  "އެޑިޓަރުގެ ހޮވުން",
 ];
 const MainLayout = ({ children }: LayoutProps): JSX.Element => {
   const [showMenu, toggleMenu] = useState<boolean>(false);

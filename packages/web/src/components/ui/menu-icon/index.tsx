@@ -8,14 +8,14 @@ const MenuIcon = () => {
         <span
           aria-hidden="true"
           className={`${
-            showMenu ? 'rotate-25' : '-translate-y-1.5'
+            showMenu ? "rotate-25" : "-translate-y-1.5"
           }  block absolute  h-0.6  w-10 bg-current transform transition duration-500 ease-in-out`}
         />
 
         <span
           aria-hidden="true"
           className={`${
-            showMenu ? '-rotate-25' : 'translate-y-1.5'
+            showMenu ? "-rotate-25" : "translate-y-1.5"
           }  block absolute h-0.6  w-10 bg-current transform transition duration-500 ease-in-out`}
         />
       </div>
