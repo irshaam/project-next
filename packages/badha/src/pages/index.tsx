@@ -6,7 +6,10 @@ const Index = () => {
   if (session) {
     return (
       <>
-        <MainLayout>HelloWorld</MainLayout>;
+        <MainLayout>
+          <div className="bg-red"></div>
+        </MainLayout>
+        ;
         {/* Signed in as {session.user.email} <br />
         <button onClick={() => signOut()}>Sign out</button> */}
       </>

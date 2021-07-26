@@ -5,6 +5,7 @@ import { useContainer } from 'class-validator';
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './common/filter/http-exception.filter';
 import { ErrorsInterceptor } from './common/interceptors/errors.interceptor';
+import { app_port } from './config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -22,6 +23,6 @@ async function bootstrap() {
   app.useGlobalFilters(new HttpExceptionFilter());
   app.useGlobalInterceptors(new ErrorsInterceptor());
 
-  await app.listen(process.env.PORT || 5000);
+  await app.listen(app_port);
 }
 bootstrap();

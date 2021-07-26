@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
+import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import * as ormconfig from './database/ormconfig';
@@ -24,6 +25,7 @@ import { UserModule } from './users/user.module';
     MediaModule,
     AuthModule,
   ],
+  controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {}

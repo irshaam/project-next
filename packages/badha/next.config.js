@@ -10,6 +10,8 @@ module.exports = {
   },
   env: {
     CDN_URL: "https://bucket-next.s3.ap-southeast-1.amazonaws.com",
+    API_URL: "https://api.badha.io",
+    NEXTAUTH_URL: "https://badha.io",
   },
   typescript: {
     ignoreBuildErrors: true,

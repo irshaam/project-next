@@ -1,3 +1,4 @@
+import { getUsers } from "@/api/user";
 import { PencilIcon, CheckCircleIcon, ChevronRightIcon } from "@heroicons/react/solid";
 import Image from "next/image";
 import Link from "next/link";
@@ -5,12 +6,9 @@ import Link from "next/link";
 import client from "../../api/client";
 import { MainLayout } from "../../components";
 import { imageLoader } from "../../utils";
+
 export async function getServerSideProps(context: any) {
-  const res = await fetch("http://localhost:5000/users");
-  const users = await res.json();
-
-  console.log(users);
-
+  const users = await getUsers();
   return {
     props: {
       users,
@@ -19,10 +17,7 @@ export async function getServerSideProps(context: any) {
 }
 
 // import CreateMediaForm from "./form";
-const UsersIndex = ({ users }: { user: any }) => {
-  const submit = () => {
-    const response = client.post("/users/create");
-  };
+const UsersIndex = ({ users }: { users: any }) => {
   return (
     <MainLayout>
       {/* !-- Page heading --> */}
