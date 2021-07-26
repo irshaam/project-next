@@ -1,0 +1,41 @@
+{
+  "name": "project-next",
+  "description": "A modular news platform powered by interactive and visual data-driven content that elevates journalism to a new level.",
+  "version": "0.0.1",
+  "private": "true",
+  "author": "Irshaam <mohamed.irshaam@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/CIAOadvertising/project-next.git"
+  },
+  "contributors": [
+    {
+      "name": "Ismail Zahee",
+      "email": "m3talloid@gmail.com"
+    }
+  ],
+  "scripts": {
+    "bootstrap": "lerna bootstrap --use-workspaces",
+    "build": "lerna run --stream build",
+    "clean": "lerna run clean && lerna clean -y",
+    "dev": "lerna run --parallel dev",
+    "lint": "lerna run lint --parallel"
+  },
+  "license": "UNLICENSED",
+  "workspaces": {
+    "packages": [
+      "packages/*"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^12.1.4",
+    "@commitlint/config-lerna-scopes": "^12.1.4",
+    "husky": "^6.0.0",
+    "lerna": "^4.0.0"
+  }
+}

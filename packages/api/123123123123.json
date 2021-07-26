@@ -1,0 +1,16 @@
+{
+  "type": "postgres",
+  "host": "localhost",
+  "port": 7432,
+  "username": "project_next",
+  "password": "project_next",
+  "database": "project_next",
+  "entities": ["./dist/**/*.entity{.ts,.js}"],
+  "migrations": ["./dist/migrations/ts,.js}"],
+  "cli": {
+    "entitiesDir": ["src/**/*.entity{.ts,.js}"],
+    "migrationsDir": "src/migrations"
+  },
+  "synchronize": false,
+  "logging": ["error"]
+}

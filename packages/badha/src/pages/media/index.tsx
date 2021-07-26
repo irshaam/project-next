@@ -1,0 +1,196 @@
+import { PencilIcon, ViewListIcon, ViewGridIcon } from "@heroicons/react/solid";
+import Link from "next/link";
+import { useState } from "react";
+
+import client from "../../api/client";
+
+import MediaItem from "./media-item";
+import MediaSidebar from "./media-sidebar";
+
+import { getMedia, getMediaById } from "@/api";
+import { MainLayout } from "@layouts";
+export async function getStaticProps(context: any) {
+  // const res = await fetch("http://localhost:5000/tag-types");
+  // const types = await res.json();
+
+  // // console.log(types);
+
+  // //  get tag types
+  // const tagsReponse = await fetch("http://localhost:5000/tags");
+  // const tags = await tagsReponse.json();
+  const media = await getMedia();
+
+  console.log(media);
+  return {
+    props: {
+      media,
+    }, // will be passed to the page component as props
+  };
+}
+
+// import CreateMediaForm from "./form";
+const MediaIndex = ({ media }: { media: any }) => {
+  const [currentItem, setCurrentItem] = useState<any>();
+
+  const handleClick = async (id: number) => {
+    const media = await getMediaById(id);
+    console.log(media);
+    setCurrentItem(media);
+  };
+  const submit = () => {
+    const response = client.post("/users/create");
+  };
+  return (
+    <MainLayout>
+      {/* !-- Page heading --> */}
+
+      <div className="space-y-6 mt-4 px-10">
+        <div className="bg-white shadow px-4 py-5 sm:rounded-lg sm:p-6">
+          {/* Main content */}
+          <div className="flex-1 flex items-stretch overflow-hidden">
+            <main className="flex-1 overflow-y-auto">
+              <div className="pt-8 w-full mx-auto px-4 sm:px-6 lg:px-8">
+                {/* <div className="pt-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"> */}
+                <div className="flex">
+                  {/* <h1 className="flex-1 text-2xl font-bold text-gray-900">Media Manager</h1> */}
+                  <div>
+                    <h1 className="text-lg leading-6 font-medium text-gray-900">Media Manager</h1>
+                    <p className="mt-1 text-sm text-gray-500">
+                      Collection of images, videos audios and cool stuff goes here...
+                    </p>
+                  </div>
+
+                  <div className="ml-6 bg-gray-100 p-0.5 rounded-lg flex items-center sm:hidden">
+                    <button
+                      type="button"
+                      className="p-1.5 rounded-md text-gray-400 hover:bg-white hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
+                    >
+                      {/* Heroicon name: solid/view-list */}
+                      <svg
+                        className="h-5 w-5"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                        aria-hidden="true"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                      <span className="sr-only">Use list view</span>
+                    </button>
+                    <button
+                      type="button"
+                      className="ml-0.5 bg-white p-1.5 rounded-md shadow-sm text-gray-400 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
+                    >
+                      {/* Heroicon name: solid/view-grid */}
+                      <svg
+                        className="h-5 w-5"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                        aria-hidden="true"
+                      >
+                        <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                      </svg>
+                      <span className="sr-only">Use grid view</span>
+                    </button>
+                  </div>
+                </div>
+                {/* Tabs */}
+                <div className="mt-3 sm:mt-2">
+                  {/* <div className="sm:hidden">
+                    <label htmlFor="tabs" className="sr-only">
+                      Select a tab
+                    </label>
+                    <select
+                      id="tabs"
+                      name="tabs"
+                      className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                    >
+                      <option selected>Recently Viewed</option>
+                      <option>Recently Added</option>
+                      <option>Favorited</option>
+                    </select>
+                  </div> */}
+                  <div className="hidden sm:block">
+                    <div className="flex items-center border-b border-gray-200">
+                      <nav className="flex-1 -mb-px flex space-x-6 xl:space-x-8" aria-label="Tabs">
+                        {/* Current: "border-indigo-500 text-indigo-600", Default: "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300" */}
+                        <a
+                          href="#"
+                          aria-current="page"
+                          className="border-indigo-500 text-indigo-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
+                        >
+                          Images
+                        </a>
+                        <a
+                          href="#"
+                          className="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
+                        >
+                          Collections
+                        </a>
+                      </nav>
+                      <div className="hidden ml-6 bg-gray-100 p-0.5 rounded-lg items-center sm:flex">
+                        <button
+                          type="button"
+                          className="p-1.5 rounded-md text-gray-400 hover:bg-white hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
+                        >
+                          <ViewListIcon className="h-5 w-5 currentColor" />
+                          <span className="sr-only">Use list view</span>
+                        </button>
+                        <button
+                          type="button"
+                          className="ml-0.5 bg-white p-1.5 rounded-md shadow-sm text-gray-400 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
+                        >
+                          <ViewGridIcon className="h-5 w-5 currentColor" />
+
+                          <span className="sr-only">Use grid view</span>
+                        </button>
+
+                        <Link href="/media/create" passHref>
+                          <button
+                            type="button"
+                            className=" ml-2 inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-50 focus:ring-purple-500"
+                          >
+                            <PencilIcon className="-ml-1 mr-2 h-5 w-5 text-gray-400" />
+                            Create
+                          </button>
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                {/* Gallery */}
+                <section className="mt-8 pb-16" aria-labelledby="gallery-heading">
+                  <h2 id="gallery-heading" className="sr-only">
+                    Recently viewed
+                  </h2>
+                  <ul
+                    role="list"
+                    className="grid grid-cols- 2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-6 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-8 xl:gap-x-8"
+                    // className="grid grid-cols- 2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-6 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8"
+                  >
+                    {media.map((item: any) => (
+                      <MediaItem
+                        currentItem={currentItem ? currentItem.id : ""}
+                        setCurrent={handleClick}
+                        media={item}
+                        key={`media_item_${item.id}`}
+                      />
+                    ))}
+                  </ul>
+                </section>
+              </div>
+            </main>
+            {/* Details sidebar */}
+            {currentItem && <MediaSidebar media={currentItem} />}
+          </div>
+        </div>
+      </div>
+    </MainLayout>
+  );
+};
+export default MediaIndex;

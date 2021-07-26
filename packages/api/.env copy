@@ -1,0 +1,16 @@
+# Database Configuration
+DB_HOST=localhost
+DB_PORT=7432
+DB_DATABASE=project_next
+DB_USERNAME=project_next
+DB_PASSWORD=project_next
+
+
+# AWS Config
+AWS_KEY=AKIAR7TQPJTWXYKOIKDB
+AWS_SECRET=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
+S3_BUCKET=bucket-next
+CDN_URL=https://bucket-next.s3.ap-southeast-1.amazonaws.com
+
+# Config
+CATEGORY_ID=1

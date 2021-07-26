@@ -1,0 +1,86 @@
+@import url("https://rsms.me/inter/inter.css");
+
+@tailwind base;
+
+@layer base {
+  @font-face {
+    font-family: "mv_waheed";
+    font-weight: normal;
+    src: url("/fonts/MVAWAheed.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+    font-display: auto;
+  }
+  @font-face {
+    font-family: "aammu";
+    font-weight: normal;
+    src: url("/fonts/aammufkF.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+    font-display: auto;
+  }
+  @font-face {
+    font-family: "mv_typewriter";
+    font-weight: normal;
+    src: url("/fonts/mvtyper.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+    font-display: auto;
+  }
+  @font-face {
+    font-family: "mv_typewriter_bold";
+    font-weight: normal;
+    src: url("/fonts/mvtypebold.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+    font-display: auto;
+  }
+
+  .thaana {
+    direction: rtl;
+    text-align: right;
+  }
+
+  .content-container {
+    height: calc(100vh - 70px);
+  }
+
+  input::-webkit-input-placeholder {
+    line-height: 1.5em;
+  }
+
+  textarea {
+    resize: none;
+  }
+
+  pre {
+    white-space: pre-wrap; /* css-3 */
+    white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
+    white-space: -pre-wrap; /* Opera 4-6 */
+    white-space: -o-pre-wrap; /* Opera 7 */
+    word-wrap: break-word; /* Internet Explorer 5.5+ */
+  }
+
+  [contenteditable="true"]:empty:before {
+    content: attr(placeholder);
+    pointer-events: none;
+    display: block; /* For Firefox */
+  }
+}
+
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .custom-height {
+    min-height: calc(100vh - 70px);
+  }
+}
+/* @font-face {
+  font-family: 'averta_stdbold';
+  src: url('/fonts/avertastd-bold-webfont.woff2') format('woff2'),
+    url('/fonts/avertastd-bold-webfont.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: auto;
+} */

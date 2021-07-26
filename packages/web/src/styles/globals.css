@@ -1,0 +1,131 @@
+@tailwind base;
+
+@layer base {
+  html,
+  body {
+    direction: rtl;
+    background: #f9f4ec;
+    /* @apply bg-primary; */
+  }
+
+  @font-face {
+    font-family: 'mv_waheed';
+    font-weight: normal;
+    src: url('/fonts/MVAWAheed.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: auto;
+  }
+  @font-face {
+    font-family: 'aammu';
+    font-weight: normal;
+    src: url('/fonts/aammufkF.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: auto;
+  }
+  @font-face {
+    font-family: 'mv_typewriter';
+    font-weight: normal;
+    src: url('/fonts/mvtyper.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: auto;
+  }
+  @font-face {
+    font-family: 'mv_typewriter_bold';
+    font-weight: normal;
+    src: url('/fonts/mvtypebold.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: auto;
+  }
+
+  .thaana {
+    direction: rtl;
+    text-align: right;
+  }
+
+  /* SOF Menu Icon */
+  /* Icon 1 */
+
+  #menu-icon {
+    margin: 0px;
+    padding: 0px;
+    width: 40px;
+    height: 40px;
+    position: relative;
+    /* margin: 50px auto; */
+    -webkit-transform: rotate(0deg);
+    -moz-transform: rotate(0deg);
+    -o-transform: rotate(0deg);
+    transform: rotate(0deg);
+    -webkit-transition: 0.5s ease-in-out;
+    -moz-transition: 0.5s ease-in-out;
+    -o-transition: 0.5s ease-in-out;
+    transition: 0.5s ease-in-out;
+    cursor: pointer;
+  }
+
+  #menu-icon span {
+    display: block;
+    position: absolute;
+    height: 3px;
+    width: 100%;
+    background: rgba(55, 71, 79, 1);
+    /* border-radius: 9px; */
+    opacity: 1;
+    left: 0;
+    -webkit-transform: rotate(0deg);
+    -moz-transform: rotate(0deg);
+    -o-transform: rotate(0deg);
+    transform: rotate(0deg);
+    -webkit-transition: 0.25s ease-in-out;
+    -moz-transition: 0.25s ease-in-out;
+    -o-transition: 0.25s ease-in-out;
+    transition: 0.25s ease-in-out;
+  }
+
+  /* Icon 3 */
+
+  #menu-icon span:nth-child(1) {
+    top: 15px;
+  }
+
+  #menu-icon span:nth-child(2) {
+    top: 25px;
+    /* top: 18px; */
+  }
+
+  /* #menu-icon.open span:nth-child(1) {
+    top: 10px;
+    width: 0%;
+    left: 50%;
+  } */
+
+  #menu-icon.open span:nth-child(2) {
+    top: 0px;
+    -webkit-transform: rotate(25deg);
+    -moz-transform: rotate(25deg);
+    -o-transform: rotate(25deg);
+    transform: rotate(25deg);
+    background: #000000;
+  }
+
+  #menu-icon.open span:nth-child(1) {
+    -webkit-transform: rotate(-25deg);
+    -moz-transform: rotate(-25deg);
+    -o-transform: rotate(-25deg);
+    transform: rotate(-25deg);
+    background: #000000;
+  }
+
+  /* #menu-icon.open span:nth-child(1),
+  #menu-icon.open span:nth-child(2) {
+    top: 20px;
+  } */
+
+  /* EOF Menu Icons  */
+}
+@tailwind components;
+@tailwind utilities;
