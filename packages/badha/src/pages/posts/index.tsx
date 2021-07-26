@@ -4,7 +4,7 @@ import Link from "next/link";
 import client from "../../api/client";
 import { MainLayout } from "../../components";
 
-export async function getStaticProps(context: any) {
+export async function getServerSideProps(context: any) {
   const res = await fetch("http://localhost:5000/tag-types");
   const types = await res.json();
 

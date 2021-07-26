@@ -3,10 +3,10 @@ import { useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import * as Yup from "yup";
 
-import TextInput from "../../../components/form/input-text";
-import ThaanaInput from "../../../components/form/input-thaana";
-import Select from "../../../components/form/select";
 import { sluggify } from "../../../utils/slugify";
+import TextInput from "../../form/input-text";
+import ThaanaInput from "../../form/input-thaana";
+import Select from "../../form/select";
 interface FormValues {
   files: any;
   caption?: string;

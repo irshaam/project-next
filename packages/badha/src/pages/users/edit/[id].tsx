@@ -6,14 +6,14 @@ import TextInput from "../../../components/form/input-text";
 import ThaanaInput from "../../../components/form/input-thaana";
 import MainLayout from "../../../components/layouts/MainLayout";
 
-export const getStaticPaths: GetStaticPaths<{ id: string | number }> = async () => {
-  return {
-    paths: [], //indicates that no page needs be created at build time
-    fallback: "blocking", //indicates the type of fallback
-  };
-};
+// export const getStaticPaths: GetStaticPaths<{ id: string | number }> = async () => {
+//   return {
+//     paths: [], //indicates that no page needs be created at build time
+//     fallback: "blocking", //indicates the type of fallback
+//   };
+// };
 
-export async function getStaticProps({ params }) {
+export async function getServerSideProps({ params }) {
   const res = await fetch(`http://localhost:5000/users/${params.id}`);
   const user = await res.json();
 

@@ -1,4 +1,6 @@
+import { getMedia, getMediaById } from "@/api";
 import { PencilIcon, ViewListIcon, ViewGridIcon } from "@heroicons/react/solid";
+import { MainLayout } from "@layouts";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -6,9 +8,7 @@ import client from "../../api/client";
 import MediaItem from "../../components/media/media-item";
 import MediaSidebar from "../../components/media/media-sidebar";
 
-import { getMedia, getMediaById } from "@/api";
-import { MainLayout } from "@layouts";
-export async function getStaticProps(context: any) {
+export async function getServerSideProps(context: any) {
   // const res = await fetch("http://localhost:5000/tag-types");
   // const types = await res.json();
 

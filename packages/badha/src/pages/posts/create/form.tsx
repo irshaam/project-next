@@ -1,4 +1,8 @@
+import HeadingInput from "@/components/post/input-heading";
+import DetailHeadingInput from "@/components/post/input-heading-detailed";
+import LatinHeading from "@/components/post/latin-heading";
 import { CogIcon } from "@heroicons/react/outline";
+import { thaanaToLatin } from "@utils";
 import { withFormik, FormikProps, Form, Field, ErrorMessage, Formik } from "formik";
 import React, { useState } from "react";
 import TextareaAutosize from "react-textarea-autosize";
@@ -11,10 +15,6 @@ import SingleSelect from "../../../components/form/single-select";
 import PostSettings from "../../../components/post/settings";
 import { sluggify } from "../../../utils/slugify";
 
-import HeadingInput from "@/components/post/input-heading";
-import DetailHeadingInput from "@/components/post/input-heading-detailed";
-import LatinHeading from "@/components/post/latin-heading";
-import { thaanaToLatin } from "@utils";
 interface FormValues {
   /**
    * Heading Stuff
