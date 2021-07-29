@@ -7,7 +7,7 @@ export class CreateTagDto {
 
   @IsNotEmpty()
   @IsString()
-  name_en: string;
+  nameEn: string;
 
   @IsNotEmpty()
   @IsString()
@@ -32,37 +32,37 @@ export class CreateTagDto {
   icon?: string;
 
   @IsOptional()
-  accent_color?: string;
+  accentColorr?: string;
 
   @IsOptional()
   @IsString()
-  og_image?: string;
+  ogImage?: string;
 
   @IsOptional()
   @IsOptional()
-  og_title?: string;
+  ogTitle?: string;
 
   @IsOptional()
   @IsOptional()
-  og_description?: string;
+  ogDescription?: string;
 
   @IsOptional()
   @IsOptional()
-  twitter_image?: string;
+  twitterImage?: string;
 
   @IsOptional()
   @IsOptional()
-  twitter_title?: string;
+  twitterTilte?: string;
 
   @IsOptional()
   @IsOptional()
-  twitter_description?: string;
+  twitterDescription?: string;
 
   @IsOptional()
   @IsOptional()
-  meta_title?: string;
+  metaTitle?: string;
 
   @IsOptional()
   @IsOptional()
-  meta_description?: string;
+  metaDescription?: string;
 }

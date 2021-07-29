@@ -1,32 +1,27 @@
 import { PencilIcon } from "@heroicons/react/solid";
 import Link from "next/link";
 
-import client from "../../api/client";
 import { MainLayout } from "../../components";
 
+import { getTags, getTagTypes } from "@/api";
+
 export async function getServerSideProps(context: any) {
-  const res = await fetch("http://localhost:5000/tag-types");
-  const types = await res.json();
-
-  // console.log(types);
-
-  //  get tag types
-  const tagsReponse = await fetch("http://localhost:5000/tags");
-  const tags = await tagsReponse.json();
+  const tagTypes = await getTagTypes();
+  const tags = await getTags();
 
   return {
     props: {
-      types,
+      tagTypes,
       tags,
     }, // will be passed to the page component as props
   };
 }
 
 // import CreateMediaForm from "./form";
-const TagsIndex = ({ types, tags }: { types: any; tags: any }) => {
-  const submit = () => {
-    const response = client.post("/users/create");
-  };
+const TagsIndex = ({ tagTypes, tags }: { tagTypes: any; tags: any }) => {
+  // const submit = () => {
+  //   const response = client.post("/users/create");
+  // };
   return (
     <MainLayout>
       {/* !-- Page heading --> */}
@@ -52,15 +47,15 @@ const TagsIndex = ({ types, tags }: { types: any; tags: any }) => {
                         All
                       </a>
 
-                      {types.map((type: any) => (
+                      {/* {tagTypes.map((tagType: any) => (
                         <a
-                          key={`tag_types_${type.id}`}
+                          key={`tag_types_${tagType.id}`}
                           href="#"
                           className="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-200 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
                         >
-                          {type.name}
+                          {tagType.name}
                         </a>
-                      ))}
+                      ))} */}
                     </div>
                     <div>
                       <Link href="/users/create" passHref>
@@ -91,13 +86,13 @@ const TagsIndex = ({ types, tags }: { types: any; tags: any }) => {
                             scope="col"
                             className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                           >
-                            Name
+                            Name En
                           </th>
                           <th
                             scope="col"
                             className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                           >
-                            Name En
+                            Name
                           </th>
                           <th
                             scope="col"
@@ -125,23 +120,23 @@ const TagsIndex = ({ types, tags }: { types: any; tags: any }) => {
                       <tbody>
                         {tags.map((tag: any, idx: any) => (
                           <tr className={idx % 2 == 0 ? "bg-white" : "bg-gray-50"} key={`taga_type_${tag.id}`}>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{tag.nameEn}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-gray-600 font-mv-typewriter-bold tracking-normal text-md">
                               {tag.name}
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{tag.name_en}</td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{tag.slug}</td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                               {tags.parent ? tags.parent : "-"}
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{tag.type.name}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{tag.tagType.name}</td>
+                            {/* <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                               <a href="#" className="text-indigo-600 hover:text-indigo-900 mr-4">
                                 Edit
                               </a>
                               <a href="#" className="text-indigo-600 hover:text-indigo-900">
                                 Delete
                               </a>
-                            </td>
+                            </td> */}
                           </tr>
                         ))}
                       </tbody>
@@ -152,97 +147,6 @@ const TagsIndex = ({ types, tags }: { types: any; tags: any }) => {
             </div>
 
             {/* Stacked list */}
-
-            {/* Pagination */}
-            <nav
-              className="border-t border-gray-200 px-4 flex items-center justify-between sm:px-0"
-              aria-label="Pagination"
-            >
-              <div className="-mt-px w-0 flex-1 flex">
-                <a
-                  href="#"
-                  className="border-t-2 border-transparent pt-4 pr-1 inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-200"
-                >
-                  {/* Heroicon name: solid/arrow-narrow-left */}
-                  <svg
-                    className="mr-3 h-5 w-5 text-gray-400"
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                    aria-hidden="true"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M7.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l2.293 2.293a1 1 0 010 1.414z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  Previous
-                </a>
-              </div>
-              <div className="hidden md:-mt-px md:flex">
-                <a
-                  href="#"
-                  className="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-200 border-t-2 pt-4 px-4 inline-flex items-center text-sm font-medium"
-                >
-                  1
-                </a>
-                {/* Current: "border-purple-500 text-purple-600", Default: "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-200" */}
-                <a
-                  href="#"
-                  className="border-purple-500 text-purple-600 border-t-2 pt-4 px-4 inline-flex items-center text-sm font-medium"
-                  aria-current="page"
-                >
-                  2
-                </a>
-                <a
-                  href="#"
-                  className="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-200 border-t-2 pt-4 px-4 inline-flex items-center text-sm font-medium"
-                >
-                  3
-                </a>
-                <a
-                  href="#"
-                  className="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-200 border-t-2 pt-4 px-4 inline-flex items-center text-sm font-medium"
-                >
-                  4
-                </a>
-                <a
-                  href="#"
-                  className="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-200 border-t-2 pt-4 px-4 inline-flex items-center text-sm font-medium"
-                >
-                  5
-                </a>
-                <a
-                  href="#"
-                  className="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-200 border-t-2 pt-4 px-4 inline-flex items-center text-sm font-medium"
-                >
-                  6
-                </a>
-              </div>
-              <div className="-mt-px w-0 flex-1 flex justify-end">
-                <a
-                  href="#"
-                  className="border-t-2 border-transparent pt-4 pl-1 inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-200"
-                >
-                  Next
-                  {/* Heroicon name: solid/arrow-narrow-right */}
-                  <svg
-                    className="ml-3 h-5 w-5 text-gray-400"
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                    aria-hidden="true"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </a>
-              </div>
-            </nav>
           </div>
         </main>
       </div>

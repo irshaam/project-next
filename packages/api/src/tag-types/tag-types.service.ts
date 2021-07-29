@@ -1,87 +1,88 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { PrismaService } from 'src/prisma.service';
 
 import { CreateTagTypeDto } from './dto/create-tag-type.dto';
 import { UpdateTagTypeDto } from './dto/update-tag-type.dto';
-import { TagType } from './entities/tag-type.entity';
 
 @Injectable()
 export class TagTypesService {
-  constructor(
-    @InjectRepository(TagType)
-    private readonly tagTypesRepository: Repository<TagType>,
-  ) {}
+  constructor(private prisma: PrismaService) {}
 
-  async create(createTagTypeDto: CreateTagTypeDto) {
-    const { name, slug } = createTagTypeDto;
+  async create(data: CreateTagTypeDto) {
+    return await this.prisma.tagType.create({ data });
 
-    const uniqueName = await this.tagTypesRepository.findOne({
-      where: { name: name },
+    // const { name, slug } = createTagTypeDto;
+    // const uniqueName = await this.tagTypesRepository.findOne({
+    //   where: { name: name },
+    // });
+    // if (uniqueName) {
+    //   throw new BadRequestException('Tag type already exist!');
+    // }
+    // const uniqueSlug = await this.tagTypesRepository.findOne({
+    //   where: { slug: slug },
+    // });
+    // if (uniqueSlug) {
+    //   throw new BadRequestException('Tag slug already exist!');
+    // }
+    // const tagType = this.tagTypesRepository.create(createTagTypeDto);
+    // await this.tagTypesRepository.save(tagType);
+    // // catch((error) => {
+    // //   console.log(error);
+    // //   throw new HttpException(
+    // //     {
+    // //       message: error.message,
+    // //       detail: error,
+    // //     },
+    // //     HttpStatus.BAD_REQUEST,
+    // //   );
+    // // });
+    // return tagType;
+  }
+
+  async findAll() {
+    return await this.prisma.tagType.findMany();
+  }
+
+  async findOne(id: number) {
+    return this.prisma.tagType.findFirst({
+      where: {
+        id: Number(id),
+      },
     });
+  }
 
-    if (uniqueName) {
-      throw new BadRequestException('Tag type already exist!');
-    }
+  async update(id: number, data: UpdateTagTypeDto) {
+    // if (id != updateTagTypeDto.id) {
+    //   throw new BadRequestException();
+    // }
 
-    const uniqueSlug = await this.tagTypesRepository.findOne({
-      where: { slug: slug },
-    });
-
-    if (uniqueSlug) {
-      throw new BadRequestException('Tag slug already exist!');
-    }
-
-    const tagType = this.tagTypesRepository.create(createTagTypeDto);
-    await this.tagTypesRepository.save(tagType);
-    // catch((error) => {
-    //   console.log(error);
-    //   throw new HttpException(
-    //     {
-    //       message: error.message,
-    //       detail: error,
-    //     },
-    //     HttpStatus.BAD_REQUEST,
-    //   );
+    // const tagType = await this.tagTypesRepository.preload({
+    //   id: id as number,
+    //   ...updateTagTypeDto,
     // });
 
-    return tagType;
-  }
+    // if (!tagType) {
+    //   throw new NotFoundException(`Tag type #${id} not found!`);
+    // }
 
-  findAll() {
-    return this.tagTypesRepository.find();
-  }
-
-  findOne(id: number) {
-    return this.tagTypesRepository.findOne(id);
-  }
-
-  async update(id: number, updateTagTypeDto: UpdateTagTypeDto) {
-    if (id != updateTagTypeDto.id) {
-      throw new BadRequestException();
-    }
-
-    const tagType = await this.tagTypesRepository.preload({
-      id: id as number,
-      ...updateTagTypeDto,
+    return await this.prisma.tagType.update({
+      where: {
+        id: Number(id),
+      },
+      data,
     });
-
-    if (!tagType) {
-      throw new NotFoundException(`Tag type #${id} not found!`);
-    }
-
-    return this.tagTypesRepository.save(tagType);
   }
 
   async remove(id: number) {
-    const tagType = await this.tagTypesRepository.findOne(id);
-    if (!tagType) {
-      throw new NotFoundException();
-    }
-    return await this.tagTypesRepository.remove(tagType);
+    return await this.prisma.tagType.delete({
+      where: {
+        id: Number(id),
+      },
+    });
+    // const tagType = await this.tagTypesRepository.findOne(id);
+    // if (!tagType) {
+    //   throw new NotFoundException();
+    // }
+    // return await this.tagTypesRepository.remove(tagType);
   }
 }

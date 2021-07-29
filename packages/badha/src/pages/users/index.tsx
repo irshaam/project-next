@@ -1,4 +1,3 @@
-import { getUsers } from "@/api/user";
 import { PencilIcon, CheckCircleIcon, ChevronRightIcon } from "@heroicons/react/solid";
 import Image from "next/image";
 import Link from "next/link";
@@ -6,6 +5,8 @@ import Link from "next/link";
 import client from "../../api/client";
 import { MainLayout } from "../../components";
 import { imageLoader } from "../../utils";
+
+import { getUsers } from "@/api/user";
 
 export async function getServerSideProps(context: any) {
   const users = await getUsers();
@@ -63,6 +64,8 @@ const UsersIndex = ({ users }: { users: any }) => {
                         <div className="min-w-0 flex-1 flex items-center">
                           <div className="flex-shrink-0">
                             <Image
+                              blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
+                              placeholder="blur"
                               loader={imageLoader}
                               width={70}
                               height={70}

@@ -1,0 +1,343 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model gb_oauth_access_token {
+  id                       String          @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  access_token             String          @db.VarChar(80)
+  refresh_token            String          @unique @db.VarChar(80)
+  access_token_expires_at  DateTime        @db.Timestamp(6)
+  refresh_token_expires_at DateTime        @db.Timestamp(6)
+  userId                   String?         @db.VarChar
+  scope                    String?         @db.VarChar(500)
+  created_on               DateTime        @default(now()) @db.Timestamp(6)
+  created_from             Json?
+  clientId                 String          @db.Uuid
+  gb_oauth_client          gb_oauth_client @relation(fields: [clientId], references: [id])
+
+  @@id([id, access_token])
+}
+
+model gb_oauth_client {
+  id                     String                  @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name                   String
+  clientId               String                  @unique
+  client_secret          String?
+  grants                 String                  @default("client_credentials,refresh_token")
+  scope                  String                  @db.VarChar(500)
+  access_token_lifetime  Int                     @default(3600)
+  refresh_token_lifetime Int                     @default(7200)
+  private_key            String
+  public_key             String
+  cert                   String
+  cert_expires_at        DateTime                @db.Timestamp(6)
+  created_at             DateTime                @default(now()) @db.Timestamp(6)
+  deleted_at             DateTime?               @db.Timestamp(6)
+  gb_oauth_access_token  gb_oauth_access_token[]
+}
+
+model Media {
+  id                Int              @id @default(autoincrement())
+  file              String           @db.VarChar
+  original_filename String           @db.VarChar
+  path              String           @db.VarChar
+  content_size      String?          @db.VarChar
+  mime_type         String?          @db.VarChar
+  type              String           @db.VarChar
+  caption           String?          @db.VarChar
+  caption_en        String?          @db.VarChar
+  has_watermark     Boolean          @default(false)
+  is_active         Boolean          @default(true)
+  is_featured       Boolean          @default(false)
+  collection        MediaCollection? @relation(fields: [collectionId], references: [id])
+  collectionId      Int?
+  creator           User?            @relation("media_created_byTouser", fields: [createdBy], references: [id])
+  createdBy         Int?             @unique
+  updater           User?            @relation("media_updated_byTouser", fields: [updatedBy], references: [id])
+  updatedBy         Int?             @unique
+  tags              TagsOnMedia[]
+  createdAt         DateTime         @default(now()) @db.Timestamp(6)
+  updatedAt         DateTime         @default(now()) @db.Timestamp(6)
+}
+
+model MediaCollection {
+  id          Int                     @id @default(autoincrement())
+  name        String                  @db.VarChar
+  name_en     String                  @db.VarChar
+  created_at  DateTime                @default(now()) @db.Timestamp(6)
+  updated_at  DateTime                @default(now()) @db.Timestamp(6)
+  is_active   Boolean                 @default(true)
+  is_featured Boolean                 @default(false)
+  created_by  Int?                    @unique
+  updated_by  Int?                    @unique
+  creator     User?                   @relation("media_collection_created_byToUser", fields: [createdBy], references: [id])
+  updater     User?                   @relation("media_collection_updated_byTouser", fields: [updatedBy], references: [id])
+  media       Media[]
+  tags        TagsOnMediaCollection[]
+}
+
+model TagsOnMediaCollection {
+  collection   MediaCollection @relation(fields: [collectionId], references: [id])
+  collectionId Int
+  tag          Tag             @relation(fields: [tagId], references: [id])
+  tagId        Int
+
+  @@id([collectionId, tagId])
+  @@index([tagId], name: "IDX_97c783b779932832076bf0dfba")
+  @@index([collectionId], name: "IDX_dfa38fbe09dca9c5456b8e3216")
+}
+
+model TagsOnMedia {
+  media   Media @relation(fields: [mediaId], references: [id])
+  mediaId Int
+  tag     Tag   @relation(fields: [tagId], references: [id])
+  tagId   Int
+
+  @@id([mediaId, tagId])
+  @@index([tagId], name: "IDX_438b67ec9b74348a1ae2011422")
+  @@index([mediaId], name: "IDX_97c2aa8b3e35568336b5becd91")
+}
+
+model Persmission {
+  id          Int    @id @default(autoincrement())
+  name        String @db.VarChar
+  permissions Json   @db.Json
+}
+
+model Post {
+  id               Int              @id @default(autoincrement())
+  nanoid           String           @unique @db.VarChar(20)
+  categoryId       Int
+  topicId          Int?
+  slug             String?          @unique @db.VarChar
+  featuredImage    String?          @db.VarChar
+  heading          String           @unique @db.VarChar
+  heading_detailed String?          @db.VarChar
+  latin_heading    String?          @unique @db.VarChar
+  lead_text        String?          @db.VarChar
+  hightlights      String?          @db.VarChar
+  content          String?          @db.VarChar
+  content_html     String?          @db.VarChar
+  feedback         String?
+  changes          String?
+  locale           String           @default("dv") @db.VarChar
+  layout           String           @default("base") @db.VarChar
+  status           post_status_enum @default(draft)
+  currentVersion   Int              @default(0)
+  isLocked         Boolean          @default(true)
+  showAuthors      Boolean          @default(true)
+  isFeatured       Boolean?         @default(false)
+  isPublished      Boolean          @default(false)
+  scheduledAt      DateTime?        @db.Timestamp(6)
+  editor           User?            @relation("post_edited_byTouser", fields: [editedBy], references: [id])
+  editedBy         Int?             @unique
+  editedAt         DateTime?        @db.Timestamp(6)
+  categoryId       Tag              @relation("post_categoryIdTotag", fields: [categoryId], references: [id])
+  topicId          Tag?             @relation("post_topicIdTotag", fields: [topicId], references: [id])
+  creator          User?            @relation("post_created_byTouser", fields: [createdBy], references: [id])
+  createdBy        Int?             @unique
+  createdAt        DateTime         @default(now()) @db.Timestamp(6)
+  publisher        User?            @relation("post_published_byTouser", fields: [publishedBy], references: [id])
+  publishedBy      Int?             @unique
+  publishedAt      DateTime?        @db.Timestamp(6)
+  updater          User?            @relation("post_updated_byTouser", fields: [updated_by], references: [id])
+  updatedBy        Int?             @unique
+  updatedAt        DateTime         @default(now()) @db.Timestamp(6)
+  authors          AuthorsOnPosts[]
+  meta             PostMeta?
+  revisions        ReviewsOnPosts[]
+  tags             TagsOnPosts[]
+}
+
+model AuthorsOnPosts {
+  post   Post @relation(fields: [postId], references: [id])
+  postId Int
+  user   User @relation(fields: [userId], references: [id])
+  userId Int
+
+  @@id([postId, userId])
+  @@index([postId], name: "IDX_39d4105b9adc8c0aaa8740162c")
+  @@index([userId], name: "IDX_9fbb47414c6728d008ec3b92e5")
+}
+
+model PostMeta {
+  id                 Int     @id @default(autoincrement())
+  post               Post?   @relation(fields: [postId], references: [id])
+  postId             Int?    @unique
+  metaTitle          String? @db.VarChar(300)
+  metaDescription    String? @db.VarChar(500)
+  ogImage            String? @db.VarChar
+  ogTitle            String? @db.VarChar(300)
+  ogDescription      String? @db.VarChar(500)
+  twitterImage       String? @db.VarChar
+  twitterTitle       String? @db.VarChar(300)
+  twitterDescription String? @db.VarChar(500)
+}
+
+model ReviewsOnPosts {
+  id             Int            @id @default(autoincrement())
+  feedback       String?
+  changes        String?
+  created_at     DateTime       @default(now()) @db.Timestamp(6)
+  updated_at     DateTime       @default(now()) @db.Timestamp(6)
+  revisionId     Int            @unique
+  editor         User?          @relation(fields: [editorId], references: [id])
+  editorId       Int?
+  post_revisions post_revisions @relation(fields: [revisionId], references: [id])
+}
+
+model RevisionsOnPosts {
+  id                                   Int           @id @default(autoincrement())
+  heading                              String        @unique @db.VarChar
+  heading_detailed                     String?       @db.VarChar
+  latin_heading                        String?       @unique @db.VarChar
+  lead_text                            String?       @db.VarChar
+  hightlights                          String?       @db.VarChar
+  content_html                         String?       @db.VarChar
+  feedback                             String?
+  changes                              String?
+  current_version                      Int           @default(0)
+  created_at                           DateTime      @default(now()) @db.Timestamp(6)
+  updated_at                           DateTime      @default(now()) @db.Timestamp(6)
+  created_by                           Int?          @unique
+  updated_by                           Int?          @unique
+  postId                               Int?
+  content_feedback                     Json?         @db.Json
+  content                              Json?         @db.Json
+  user_post_revisions_created_byTouser user?         @relation("post_revisions_created_byTouser", fields: [created_by], references: [id])
+  post                                 post?         @relation(fields: [postId], references: [id])
+  user_post_revisions_updated_byTouser user?         @relation("post_revisions_updated_byTouser", fields: [updated_by], references: [id])
+  post_reviews                         post_reviews?
+}
+
+model TagsOnPosts {
+  postId Int
+  tagId  Int
+  post   post @relation(fields: [postId], references: [id])
+  tag    tag  @relation(fields: [tagId], references: [id])
+
+  @@id([postId, tagId])
+  @@index([tagId], name: "IDX_192ab488d1c284ac9abe2e3035")
+  @@index([postId], name: "IDX_5df4e8dc2cb3e668b962362265")
+}
+
+model RefreshToken {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  is_revoked Boolean
+  expires    DateTime @db.Timestamp(6)
+}
+
+model Role {
+  id         Int          @id @default(autoincrement())
+  name       String       @db.VarChar
+  role_users role_users[]
+}
+
+model RolesOnUsers {
+  roleId Int
+  userId Int
+  role   role @relation(fields: [roleId], references: [id])
+  user   user @relation(fields: [userId], references: [id])
+
+  @@id([roleId, userId])
+  @@index([userId], name: "IDX_1dc3ce23874f906d8306186671")
+  @@index([roleId], name: "IDX_790a8ca58c37fd1f31944ae65e")
+}
+
+model Tag {
+  id                        Int                     @id @default(autoincrement())
+  name                      String                  @unique @db.VarChar
+  name_en                   String                  @unique @db.VarChar
+  slug                      String                  @unique @db.VarChar
+  description               String?
+  description_en            String?
+  parentId                  Int?
+  typeId                    Int
+  image                     String?                 @db.VarChar
+  icon                      String?                 @db.VarChar
+  primary_color             String?                 @db.VarChar
+  secondry_color            String?                 @db.VarChar
+  layout                    String?                 @db.VarChar
+  ogImage                   String?                 @db.VarChar
+  og_title                  String?                 @db.VarChar(300)
+  og_description            String?                 @db.VarChar(500)
+  twitterImage              String?                 @db.VarChar
+  twitter_title             String?                 @db.VarChar(300)
+  twitter_description       String?                 @db.VarChar(500)
+  meta_title                String?                 @db.VarChar(300)
+  meta_description          String?                 @db.VarChar(500)
+  created_on                DateTime                @default(now()) @db.Timestamp(6)
+  created_by                Int
+  updated_on                DateTime                @default(now()) @db.Timestamp(6)
+  updated_by                Int?
+  tag                       tag?                    @relation("tagTotag_parentId", fields: [parentId], references: [id])
+  tag_types                 tag_types               @relation(fields: [typeId], references: [id])
+  media_collection_tags     media_collection_tags[]
+  media_tags                media_tags[]
+  post_post_categoryIdTotag post[]                  @relation("post_categoryIdTotag")
+  post_post_topicIdTotag    post[]                  @relation("post_topicIdTotag")
+  post_tags                 post_tags[]
+  other_tag                 tag[]                   @relation("tagTotag_parentId")
+
+  @@index([name_en], name: "IDX_bf383c7548a0ac5390de0d4b68")
+}
+
+model TagType {
+  id         Int      @id @default(autoincrement())
+  name       String   @unique @db.VarChar
+  slug       String?  @unique @db.VarChar
+  layout     String   @default("default") @db.VarChar
+  meta       Json?    @db.Json
+  created_on DateTime @default(now()) @db.Timestamp(6)
+  updated_on DateTime @default(now()) @db.Timestamp(6)
+  tag        tag[]
+}
+
+model User {
+  id                                                 Int               @id @default(autoincrement())
+  uuid                                               String            @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name                                               String            @db.VarChar
+  name_en                                            String?           @db.VarChar
+  slug                                               String?           @db.VarChar
+  email                                              String            @unique @db.VarChar
+  password                                           String            @db.VarChar
+  picture                                            String?           @db.VarChar
+  cover_picture                                      String?           @db.VarChar
+  bio                                                String?           @db.VarChar
+  bio_en                                             String?           @db.VarChar
+  twitter                                            String?           @db.VarChar
+  facebook                                           String?           @db.VarChar
+  is_active                                          Boolean           @default(true)
+  created_at                                         DateTime          @default(now()) @db.Timestamp(6)
+  updated_at                                         DateTime          @default(now()) @db.Timestamp(6)
+  media_media_created_byTouser                       media?            @relation("media_created_byTouser")
+  media_media_updated_byTouser                       media?            @relation("media_updated_byTouser")
+  media_collection_media_collection_created_byTouser media_collection? @relation("media_collection_created_byTouser")
+  media_collection_media_collection_updated_byTouser media_collection? @relation("media_collection_updated_byTouser")
+  post_post_created_byTouser                         post?             @relation("post_created_byTouser")
+  post_post_edited_byTouser                          post?             @relation("post_edited_byTouser")
+  post_post_published_byTouser                       post?             @relation("post_published_byTouser")
+  post_post_updated_byTouser                         post?             @relation("post_updated_byTouser")
+  post_authors                                       post_authors[]
+  post_reviews                                       post_reviews[]
+  post_revisions_post_revisions_created_byTouser     post_revisions?   @relation("post_revisions_created_byTouser")
+  post_revisions_post_revisions_updated_byTouser     post_revisions?   @relation("post_revisions_updated_byTouser")
+  role_users                                         role_users[]
+}
+
+enum post_status_enum {
+  draft
+  review
+  rejected
+  approved
+  scheduled
+  published
+  unpublished
+  archived
+}

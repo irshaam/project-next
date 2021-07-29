@@ -18,6 +18,18 @@ export enum PostStatus {
 
 export class CreatePostDto {
   @IsNotEmpty()
+  @IsString()
+  heading: string;
+
+  @IsOptional()
+  @IsString()
+  headingDetailed?: string;
+
+  @IsOptional()
+  @IsString()
+  latinHeading?: string;
+
+  @IsNotEmpty()
   @IsNumber()
   categoryId: number;
 
@@ -26,27 +38,15 @@ export class CreatePostDto {
   topicId?: number;
 
   @IsNotEmpty()
-  slug: string;
+  slug?: string;
 
   @IsOptional()
   @IsString()
-  featured_image?: string;
-
-  @IsNotEmpty()
-  @IsString()
-  heading: string;
+  featuredMedia?: string;
 
   @IsOptional()
   @IsString()
-  heading_detailed?: string;
-
-  @IsOptional()
-  @IsString()
-  latin_heading?: string;
-
-  @IsOptional()
-  @IsString()
-  lead_text?: string;
+  leadText?: string;
 
   @IsOptional()
   @IsString()
@@ -56,7 +56,7 @@ export class CreatePostDto {
   content?: string;
 
   @IsOptional()
-  content_html?: string;
+  contentHtml?: string;
 
   @IsOptional()
   @IsString()
@@ -71,7 +71,7 @@ export class CreatePostDto {
   status?: PostStatus;
 
   @IsOptional()
-  current_version?: number;
+  currentVersion?: number;
 
   @IsOptional()
   @IsBoolean()
@@ -91,4 +91,7 @@ export class CreatePostDto {
   @IsOptional()
   @IsBoolean()
   isPublished?: boolean;
+
+  @IsOptional()
+  locationId: number;
 }

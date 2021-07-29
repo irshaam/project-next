@@ -14,7 +14,7 @@ export class CreateUserDto {
 
   @IsNotEmpty()
   @IsString()
-  name_en: string;
+  nameEn: string;
 
   @IsNotEmpty()
   @IsString()
@@ -34,7 +34,7 @@ export class CreateUserDto {
 
   @IsOptional()
   @IsString()
-  cover_picture?: string;
+  coverPicture?: string;
 
   @IsOptional()
   @IsString()
@@ -42,7 +42,7 @@ export class CreateUserDto {
 
   @IsOptional()
   @IsString()
-  bio_en?: string;
+  bioEn?: string;
 
   @IsOptional()
   @IsString()
@@ -52,6 +52,5 @@ export class CreateUserDto {
   facebook?: string;
 
   @IsOptional()
-  @IsBooleanString()
   isActive?: boolean;
 }

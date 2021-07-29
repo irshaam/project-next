@@ -1,0 +1,6 @@
+config:
+  aws:profile: next
+  aws:region: ap-southeast-1
+  project-next:bucketName: bucket-next
+  project-next:publicSubnetIds: subnet-c5bf1d8d,subnet-8e68dae8
+  project-next:vpcId: vpc-d273bdb4

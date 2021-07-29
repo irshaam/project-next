@@ -1,32 +1,26 @@
 import { PencilIcon } from "@heroicons/react/solid";
+import { format } from "date-fns";
 import Link from "next/link";
 
 import client from "../../api/client";
 import { MainLayout } from "../../components";
 
+import { getPosts } from "@/api";
 export async function getServerSideProps(context: any) {
-  const res = await fetch("http://localhost:5000/tag-types");
-  const types = await res.json();
+  const tabs = ["draft", "review", "rejected", "approved", "scheduled", "published", "unpublished", "archived"];
 
-  // console.log(types);
-
-  //  get tag types
-  const tagsReponse = await fetch("http://localhost:5000/tags");
-  const tags = await tagsReponse.json();
+  const posts = await getPosts();
 
   return {
     props: {
-      types,
-      tags,
+      tabs,
+      posts,
     }, // will be passed to the page component as props
   };
 }
 
 // import CreateMediaForm from "./form";
-const UserCreate = ({ types, tags }: { types: any; tags: any }) => {
-  const submit = () => {
-    const response = client.post("/users/create");
-  };
+const UserCreate = ({ tabs, posts }: { tabs: any; posts: any }) => {
   return (
     <MainLayout>
       {/* !-- Page heading --> */}
@@ -34,22 +28,6 @@ const UserCreate = ({ types, tags }: { types: any; tags: any }) => {
       <div className="space-y-6 mt-4 px-10">
         <div className="bg-white shadow px-4 py-5 sm:rounded-lg sm:p-6">
           <div>
-            <div className="sm:hidden">
-              <label htmlFor="tabs" className="sr-only">
-                Select a tab
-              </label>
-              <select
-                id="tabs"
-                name="tabs"
-                className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
-              >
-                <option>Applied</option>
-                <option>Phone Screening</option>
-                <option selected>Interview</option>
-                <option>Offer</option>
-                <option>Disqualified</option>
-              </select>
-            </div>
             <div className="hidden sm:block flex  justify-between">
               <div className="border-b border-gray-200">
                 <nav className="-mb-px flex justify-between">
@@ -57,45 +35,26 @@ const UserCreate = ({ types, tags }: { types: any; tags: any }) => {
                   <div className="-mb-px flex space-x-8 " aria-label="Tabs">
                     <a
                       href="#"
-                      className="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-200 whitespace-nowrap flex py-4 px-1 border-b-2 font-medium text-sm"
+                      className=" border-indigo-500  text-indigo-500 hover:text-indigo-600 hover:border-gray-200 whitespace-nowrap flex py-4 px-1 border-b-2 font-medium text-sm"
                     >
                       All
-                      {/* Current: "bg-indigo-100 text-indigo-600", Default: "bg-gray-100 text-gray-900" */}
-                      <span className="bg-gray-100 text-gray-900 hidden ml-3 py-0.5 px-2.5 rounded-full text-xs font-medium md:inline-block">
+                      {/* <span className="bg-indigo-100 text-indigo-600 hidden ml-3 py-0.5 px-2.5 rounded-full text-xs font-medium md:inline-block">
                         52
-                      </span>
+                      </span> */}
                     </a>
-                    <a
-                      href="#"
-                      className="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-200 whitespace-nowrap flex py-4 px-1 border-b-2 font-medium text-sm"
-                    >
-                      Drafts
-                      <span className="bg-gray-100 text-gray-900 hidden ml-3 py-0.5 px-2.5 rounded-full text-xs font-medium md:inline-block">
-                        6
-                      </span>
-                    </a>
-                    <a
-                      href="#"
-                      className="border-indigo-500 text-indigo-600 whitespace-nowrap flex py-4 px-1 border-b-2 font-medium text-sm"
-                      aria-current="page"
-                    >
-                      Review
-                      <span className="bg-indigo-100 text-indigo-600 hidden ml-3 py-0.5 px-2.5 rounded-full text-xs font-medium md:inline-block">
-                        4
-                      </span>
-                    </a>
-                    <a
-                      href="#"
-                      className="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-200 whitespace-nowrap flex py-4 px-1 border-b-2 font-medium text-sm"
-                    >
-                      Scheduled
-                    </a>
-                    <a
-                      href="#"
-                      className="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-200 whitespace-nowrap flex py-4 px-1 border-b-2 font-medium text-sm"
-                    >
-                      Published
-                    </a>
+                    {tabs.map((tab, idx) => (
+                      <a
+                        key={`tab_type_${idx}`}
+                        // className="border-indigo-500 text-indigo-600 whitespace-nowrap flex py-4 px-1 border-b-2 font-medium text-sm"
+                        href="#"
+                        className=" capitalize border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-200 whitespace-nowrap flex py-4 px-1 border-b-2 font-medium text-sm"
+                      >
+                        {tab}
+                        {/* <span className="bg-gray-100 text-gray-900 hidden ml-3 py-0.5 px-2.5 rounded-full text-xs font-medium md:inline-block">
+                          6
+                        </span> */}
+                      </a>
+                    ))}
                   </div>
                   <div>
                     <Link href="/posts/create" passHref>
@@ -111,6 +70,97 @@ const UserCreate = ({ types, tags }: { types: any; tags: any }) => {
                     </Link>
                   </div>
                 </nav>
+              </div>
+            </div>
+          </div>
+
+          {/* here goes the list  */}
+          <div className="flex flex-col mt-2 mb-8">
+            <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+              <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+                <div>
+                  {/* <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg"> */}
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th
+                          scope="col"
+                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        >
+                          #
+                        </th>
+                        <th
+                          scope="col"
+                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        >
+                          Heading
+                        </th>
+                        <th
+                          scope="col"
+                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        >
+                          Slug
+                        </th>
+                        <th
+                          scope="col"
+                          className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        >
+                          Category
+                        </th>
+                        <th
+                          scope="col"
+                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        >
+                          Created Date
+                        </th>
+                        <th
+                          scope="col"
+                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        >
+                          Last Updated
+                        </th>
+                        <th scope="col" className="relative px-6 py-3">
+                          <span className="sr-only">Edit</span>
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {posts.map((post: any, idx: any) => (
+                        <tr className={idx % 2 == 0 ? "bg-white" : "bg-gray-50"} key={`post_${post.id}`}>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{post.id}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{post.heading}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{post.status}</td>
+
+                          <td className="text-center px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {post.category ? (
+                              post.category.name
+                            ) : (
+                              <span className="bg-yellow-400 text-white text-xs px-2 py-1">No Category </span>
+                            )}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {format(new Date(post.createdAt), "dd-MM-yyyy")}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {format(new Date(post.updatedAt), "dd-mm-yyyy")}
+                          </td>
+                          {/* <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {post.parent ? post.parent : "-"}
+                          </td> */}
+                          {/* <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{post.tagType.name}</td> */}
+                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <a href="#" className="text-indigo-600 hover:text-indigo-900 mr-4">
+                              Edit
+                            </a>
+                            <a href="#" className="text-indigo-600 hover:text-indigo-900">
+                              Delete
+                            </a>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           </div>

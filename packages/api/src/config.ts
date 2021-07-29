@@ -16,7 +16,7 @@ const env = cleanEnv(process.env, {
   AWS_SECRET: str(),
   S3_BUCKET: str(),
   CDN_URL: str(),
-  PORT: num({ default: 5000 }),
+  PORT: num(),
 });
 
 // export

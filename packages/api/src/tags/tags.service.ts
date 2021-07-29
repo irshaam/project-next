@@ -6,89 +6,95 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { categoryId } from 'src/config';
-import { TreeRepository, Not, Like, ILike } from 'typeorm';
+import { PrismaService } from 'src/prisma.service';
 
 import { CreateTagDto } from './dto/create-tag.dto';
 import { UpdateTagDto } from './dto/update-tag.dto';
-import { Tag } from './entities/tag.entity';
 
 @Injectable()
 export class TagsService {
-  constructor(
-    @InjectRepository(Tag)
-    private readonly tagsRepository: TreeRepository<Tag>,
-  ) {}
-  async create(createTagDto: CreateTagDto) {
-    const { name } = createTagDto;
+  constructor(private readonly prisma: PrismaService) {}
+  async create(data: any) {
+    // const uniqueName = await this.prisma.tag.find({
+    //   where: { name: name },
+    // });
 
-    const uniqueName = await this.tagsRepository.findOne({
-      where: { name: name },
-    });
+    // if (uniqueName) {
+    //   throw new BadRequestException('Tag type already exist!');
+    // }
 
-    if (uniqueName) {
-      throw new BadRequestException('Tag type already exist!');
-    }
-
-    const tag = this.tagsRepository.create(createTagDto);
-    return await this.tagsRepository.save(tag).catch((error) => {
-      return error;
-    });
+    return await this.prisma.tag.create({ data });
   }
 
   findAll() {
-    return this.tagsRepository.find({ relations: ['children', 'type'] });
-  }
-
-  getCategories() {
-    return this.tagsRepository.find({ where: { typeId: categoryId } });
-  }
-
-  findOne(id: number) {
-    return this.tagsRepository.findOne(id);
-  }
-
-  async search(query: string) {
-    return await this.tagsRepository.find({
-      where: [{ name: ILike(`%${query}%`) }, { name_en: ILike(`%${query}%`) }],
+    return this.prisma.tag.findMany({
+      include: {
+        child: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        tagType: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
     });
   }
 
-  async update(id: number, updateTagDto: UpdateTagDto) {
-    if (id != updateTagDto.id) {
-      throw new BadRequestException();
-    }
+  // getCategories() {
+  //   return this.prisma.tag.find({ where: { typeId: categoryId } });
+  // }
 
-    const { name } = updateTagDto;
+  // findOne(id: number) {
+  //   return this.prisma.tag.findOne(id);
+  // }
 
-    const uniqueName = await this.tagsRepository.findOne({
-      where: { id: Not(id), name: name },
-    });
+  // async search(query: string) {
+  //   return await this.prisma.tag.find({
+  //     where: [{ name: ILike(`%${query}%`) }, { name_en: ILike(`%${query}%`) }],
+  //   });
+  // }
 
-    if (uniqueName) {
-      throw new BadRequestException('Tag already exist!');
-    }
+  // async update(id: number, updateTagDto: UpdateTagDto) {
+  //   if (id != updateTagDto.id) {
+  //     throw new BadRequestException();
+  //   }
 
-    const tagType = await this.tagsRepository.preload({
-      id: id as number,
-      ...updateTagDto,
-    });
+  //   const { name } = updateTagDto;
 
-    if (!tagType) {
-      throw new NotFoundException(`Tag #${id} not found!`);
-    }
+  //   const uniqueName = await this.prisma.tag.findOne({
+  //     where: { id: Not(id), name: name },
+  //   });
 
-    return this.tagsRepository.save(tagType);
-  }
+  //   if (uniqueName) {
+  //     throw new BadRequestException('Tag already exist!');
+  //   }
 
-  async remove(id: number) {
-    const tag = await this.tagsRepository.findOne(id);
-    if (!tag) {
-      throw new NotFoundException();
-    }
-    return await this.tagsRepository.remove(tag);
-  }
+  //   const tagType = await this.prisma.tag.preload({
+  //     id: id as number,
+  //     ...updateTagDto,
+  //   });
 
-  async findByIds(tags: number[]) {
-    return await this.tagsRepository.findByIds(tags);
-  }
+  //   if (!tagType) {
+  //     throw new NotFoundException(`Tag #${id} not found!`);
+  //   }
+
+  //   return this.prisma.tag.save(tagType);
+  // }
+
+  // async remove(id: number) {
+  //   const tag = await this.prisma.tag.findOne(id);
+  //   if (!tag) {
+  //     throw new NotFoundException();
+  //   }
+  //   return await this.prisma.tag.remove(tag);
+  // }
+
+  // async findByIds(tags: number[]) {
+  //   return await this.prisma.tag.findByIds(tags);
+  // }
 }

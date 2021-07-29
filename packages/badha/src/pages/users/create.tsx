@@ -1,4 +1,3 @@
-import { sluggify } from "@utils/slugify";
 import { withFormik, FormikProps, Form, Field, ErrorMessage, Formik } from "formik";
 import * as Yup from "yup";
 
@@ -6,6 +5,8 @@ import client from "../../api/client";
 import TextInput from "../../components/form/input-text";
 import ThaanaInput from "../../components/form/input-thaana";
 import MainLayout from "../../components/layouts/MainLayout";
+
+import { sluggify } from "@utils/slugify";
 
 interface FormValues {
   id?: number;

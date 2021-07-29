@@ -4,13 +4,13 @@ import MainLayout from "../../components/layouts/MainLayout";
 import CreateTagForm from "../../components/pages/tags/form";
 
 export async function getServerSideProps(context: any) {
-  const res = await fetch("http://localhost:5000/tag-types");
+  const res = await fetch("http://localhost:8000/tag-types");
   const types = await res.json();
 
   // console.log(types);
 
   //  get tag types
-  const tagsReponse = await fetch("http://localhost:5000/tags");
+  const tagsReponse = await fetch("http://localhost:8000/tags");
   const tags = await tagsReponse.json();
 
   return {

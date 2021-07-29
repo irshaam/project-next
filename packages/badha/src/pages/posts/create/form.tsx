@@ -1,8 +1,4 @@
-import HeadingInput from "@/components/post/input-heading";
-import DetailHeadingInput from "@/components/post/input-heading-detailed";
-import LatinHeading from "@/components/post/latin-heading";
 import { CogIcon } from "@heroicons/react/outline";
-import { thaanaToLatin } from "@utils";
 import { withFormik, FormikProps, Form, Field, ErrorMessage, Formik } from "formik";
 import React, { useState } from "react";
 import TextareaAutosize from "react-textarea-autosize";
@@ -15,96 +11,92 @@ import SingleSelect from "../../../components/form/single-select";
 import PostSettings from "../../../components/post/settings";
 import { sluggify } from "../../../utils/slugify";
 
+import HeadingInput from "@/components/post/input-heading";
+import DetailHeadingInput from "@/components/post/input-heading-detailed";
+import LatinHeading from "@/components/post/latin-heading";
+import { thaanaToLatin } from "@utils";
+
 interface FormValues {
+  id?: number;
+  slug?: string;
+
   /**
    * Heading Stuff
    */
   heading: string;
-  heading_detailed?: string;
-  latin_heading?: string;
-  slug?: string;
+  headingDetailed?: string;
+  latinHeading?: string;
+  highlights?: string;
+  leadText?: string;
+  featuredMedia?: string;
 
-  id?: number;
-  typeId?: number;
-  parentId?: number;
-  name: string;
-  name_en: string;
+  content?: string;
+  contentHtml?: string;
 
-  description?: string;
-  description_en?: string;
+  editorComments?: string;
+  remarks?: string;
 
-  image?: string;
-  icon?: string;
-  primary_color?: string;
-  secondry_color?: string;
   layout?: string;
-
-  // facebook
-  og_image?: string;
-  og_title?: string;
-  og_description?: string;
-
-  // twitter
-  twitter_title?: string;
-  twitter_description?: string;
-
-  // twitter
-  meta_title?: string;
-  meta_description?: string;
-
-  email: string;
-  password: string;
-  picture?: string;
-  cover_picture?: string;
-  bio?: string;
-  bio_en?: string;
-  twitter?: string;
-  facebook?: string;
-  tags: string[];
-  authors: string[];
+  tags: any[];
+  authors: any[];
   status: string;
   categoryId: number;
   locationId: number;
+  topicId?: number;
+
+  // facebook
+  ogImage?: string;
+  ogTitle?: string;
+  ogDescription?: string;
+
+  // twitter
+  twitterTitle?: string;
+  twitterDescription?: string;
+
+  // gen
+  metaTitle?: string;
+  metaDescription?: string;
 }
 interface MyFormProps {
   types: any;
   tags: any;
+  onSubmit(formData: FormValues): void;
 }
 
 const InnerForm = (props: FormikProps<FormValues> & MyFormProps) => {
   const { types, tags, setFieldValue, values, handleSubmit } = props;
   const [showSettings, setShowSettings] = useState<boolean>(true);
   const [document, updateDocument] = useState<any[]>([
+    {
+      type: "heading",
+      children: [{ text: "" }],
+    },
+    {
+      type: "paragraph",
+      children: [
+        {
+          text: "",
+        },
+      ],
+    },
     // {
-    //   type: "heading",
-    //   children: [{ text: "އެއާ ޓްރެފިކް ކޮންޓްރޯލް ބޭރު މީހުންނަށް ދޭން ނިންމި ނިންމުން ބަދަލުކޮށްފި" }],
+    //   type: "paragraph",
+    //   children: [
+    //     {
+    //       type: "link",
+    //       url: "https://www.google.com",
+    //       children: [
+    //         {
+    //           text: "ބޭރ، އެއާ ޓްރެފިކް ކޮންޓްރޯލް ހިންގަން ހުއްދަ ދޭން އިއްޔެ",
+    //         },
+    //         { text: "ގެ 100 ޕަސެންޓް ހިއްސާވާ ކުންފުނިތަކަށް އެއާޕޯޓާ އެކު", bold: true },
+    //       ],
+    //     },
+    //     {
+    //       text: " ނިންމި ނިންމުން ސަރުކާރުން ބަދަލުކޮށްފި އެވެ",
+    //     },
+    //   ],
     // },
-    {
-      type: "paragraph",
-      children: [
-        {
-          text: "ބޭރުގެ 100 ޕަސެންޓް ހިއްސާވާ ކުންފުނިތަކަށް އެއާޕޯޓާ އެކު، އެއާ ޓްރެފިކް ކޮންޓްރޯލް ހިންގަން ހުއްދަ ދޭން އިއްޔެ ނިންމި ނިންމުން ސަރުކާރުން ބަދަލުކޮށްފި އެވެ",
-        },
-      ],
-    },
-    {
-      type: "paragraph",
-      children: [
-        {
-          type: "link",
-          url: "https://www.google.com",
-          children: [
-            {
-              text: "ބޭރ، އެއާ ޓްރެފިކް ކޮންޓްރޯލް ހިންގަން ހުއްދަ ދޭން އިއްޔެ",
-            },
-            { text: "ގެ 100 ޕަސެންޓް ހިއްސާވާ ކުންފުނިތަކަށް އެއާޕޯޓާ އެކު", bold: true },
-          ],
-        },
-        {
-          text: " ނިންމި ނިންމުން ސަރުކާރުން ބަދަލުކޮށްފި އެވެ",
-        },
-      ],
-    },
   ]);
 
   const documentChangeHandler = (document: any) => {
@@ -116,11 +108,11 @@ const InnerForm = (props: FormikProps<FormValues> & MyFormProps) => {
     <Form autoComplete="off" autoCorrect="off" autoCapitalize="off" noValidate>
       <div style={{ width: "1400px", paddingTop: "70px" }}>
         {/* EDITOR */}
-        <div className=" max-w-lg bg-gray-200 whitespace-normal fixed left-0 top-0 mt-24 ml-5">
+        {/* <div className=" max-w-lg bg-gray-200 whitespace-normal fixed left-0 top-0 mt-24 ml-5">
           <pre>
             <code className="text-xs whitespace-code-wrap">{JSON.stringify(document, null, 2)}</code>
           </pre>
-        </div>
+        </div> */}
 
         <div className="w-full flex items-center flex-col">
           <div className="flex flex-col " style={{ width: "680px", marginBottom: "30px" }}>
@@ -137,45 +129,48 @@ const InnerForm = (props: FormikProps<FormValues> & MyFormProps) => {
                 className="h-16 leading-10 text-3xl font-mv-waheed"
                 maxLength={90}
                 component={TextareaAutosize}
-                onInput={(e: any) => setFieldValue("latin_heading", thaanaToLatin(e.target.value))}
+                onInput={(e: any) => {
+                  setFieldValue("latinHeading", thaanaToLatin(e.target.value));
+                  setFieldValue("slug", sluggify(thaanaToLatin(e.target.value)));
+                }}
               />
             </div>
 
             {/* Detailed Heading */}
-            {/* <div className="mb-2">
+            <div className="mb-2">
               <HeadingInput
                 title="Heading Detailed"
-                name="heading_detailed"
-                id="heading_detailed"
+                name="headingDetailed"
+                id="headingDetailed"
                 type="text"
                 placeholder="ދިގު ސުރުޚީ"
                 component={TextareaAutosize}
                 className="h-16 leading-10 text-xl font-mv-typewriter-bold"
               />
-            </div> */}
-
+            </div>
             {/* Latin Heading */}
-            {/* <div className="mb-8">
+            <div className="mb-8">
               <LatinHeading
                 title="Latin Heading"
-                name="latin_heading"
+                name="latinHeading"
                 className="h-5"
                 type="text"
                 placeholder="Latin Heading"
+                onChange={(e: any) => setFieldValue("slug", sluggify(e.target.value))}
               />
-            </div> */}
-
-            {/* <div>
+            </div>
+            {/*
+            <div>
               <div className="bg-white p-3">
                 <img src="https://images-01.avas.mv/post/big_2fnuISv6EXENLkD05DrU4q6Cn.jpg" alt="" />
               </div>
-            </div>
+            </div> */}
 
             <div className="mb-1">
               <HeadingInput
                 title="Lead Text"
-                name="lead_text"
-                id="lead_text"
+                name="leadText"
+                id="leadText"
                 type="text"
                 placeholder="ލީޑް"
                 className="h-16 leading-10 text-lg font-mv-typewriter-bold"
@@ -190,7 +185,7 @@ const InnerForm = (props: FormikProps<FormValues> & MyFormProps) => {
                 placeholder="ހައިލައިޓްސް"
                 className="h-16 leading-10 text-xl font-mv-waheed"
               />
-            </div> */}
+            </div>
 
             {/* <div className="mb-8">
               <ThaanaInput
@@ -231,7 +226,7 @@ const InnerForm = (props: FormikProps<FormValues> & MyFormProps) => {
             />
           </div> */}
 
-          <PostEditor document={document} onChange={documentChangeHandler}></PostEditor>
+          <PostEditor autoCapitalize document={document} onChange={documentChangeHandler}></PostEditor>
         </div>
         {/* EDITOR OFF */}
       </div>
@@ -245,51 +240,45 @@ const InnerForm = (props: FormikProps<FormValues> & MyFormProps) => {
           <CogIcon className="h-6 w-6" aria-hidden="true" />
         </button>
       </div>
-      {/* <PostSettings
+      <PostSettings
         values={values}
         onSubmit={handleSubmit}
         show={showSettings}
         onClose={(): void => setShowSettings(false)}
         tags={tags}
-      /> */}
+      />
     </Form>
   );
 };
 
+// categoryId: Yup.string().required("required"),
 const validationSchema = Yup.object().shape({
-  // name: Yup.string().required("required"),
+  heading: Yup.string().required("required"),
 });
 
 const CreateTagForm = withFormik<MyFormProps, FormValues>({
   mapPropsToValues: (props) => ({
     heading: "",
-    latin_heading: "",
-
-    typeId: 1,
-    name: "",
-    name_en: "",
-    content: "",
     slug: "",
-    email: "",
-    password: "",
-    picture: "",
-    cover_picture: "",
-    bio: "",
-    bio_en: "",
-    twitter: "",
-    facebook: "",
-    is_active: true,
-    tags: [],
-    status: "draft",
-    authors: [1],
-    layout: "default",
-    topiId: "",
-    categoryId: "",
-    locationId: "",
+    categoryId: null,
+    // headingDetailed: "",
+    // leadText: "",
+    // latinHeading: "",
+    // highlights: "",
+    // content: "",
+    // status: "draft",
+    // authors: [1],
+    // layout: "default",
+    // topicId: null,
+    // categoryId: null,
+    // locationId: null,
+    // tags: [],
+    // slug: "",
   }),
   validationSchema,
-  handleSubmit: async (values) => {
-    console.log(values);
+  handleSubmit: async (values, formikBag) => {
+    formikBag.props.onSubmit({ ...values });
+    formikBag.setSubmitting(false);
   },
 })(InnerForm);
 

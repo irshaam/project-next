@@ -1,15 +1,17 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { MediaModule } from 'src/media/media.module';
+import { PrismaService } from 'src/prisma.service';
 
-import { User } from './entities/user.entity';
+// import { TypeOrmModule } from '@nestjs/typeorm';
+// import { MediaModule } from 'src/media/media.module';
+
+// import { User } from './entities/user.entity';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User]), MediaModule],
+  // imports: [TypeOrmModule.forFeature([User]), MediaModule],
   controllers: [UserController],
-  providers: [UserService],
+  providers: [UserService, PrismaService],
   exports: [UserService],
 })
 export class UserModule {}

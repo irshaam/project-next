@@ -1,14 +1,9 @@
 import { stringify } from 'querystring';
 
-import {
-  Injectable,
-  UnauthorizedException,
-  UnprocessableEntityException,
-} from '@nestjs/common';
-import { JwtService, JwtSignOptions } from '@nestjs/jwt';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
-import { TokenExpiredError } from 'jsonwebtoken';
 import { cdn_url } from 'src/config';
 import { User } from 'src/users/entities/user.entity';
 import { Repository } from 'typeorm';
@@ -67,6 +62,7 @@ export class AuthService {
   }
 
   async login(user: any) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const expiresIn = '60s';
 
     const token = await this.tokenService.generateAccessToken(user);

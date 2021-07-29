@@ -18,11 +18,14 @@ async function bootstrap() {
       whitelist: true,
       forbidNonWhitelisted: true,
       transform: false,
+      // transformOptions: {
+      //   enableImplicitConversion: true,
+      // },
     }),
   );
   app.useGlobalFilters(new HttpExceptionFilter());
   app.useGlobalInterceptors(new ErrorsInterceptor());
 
-  await app.listen(app_port);
+  await app.listen(app_port || 8000);
 }
 bootstrap();

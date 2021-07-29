@@ -4,7 +4,7 @@ import axios from "axios";
 // import { config } from "../config";
 // const { BASE_URL: baseURL } = config;
 
-const baseURL = "http://localhost:5000";
+const baseURL = process.env.API_URL || "http://localhost:3000";
 
 const ApiClient = (): any => {
   const defaultOptions = {

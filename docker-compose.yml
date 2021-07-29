@@ -1,0 +1,43 @@
+version: "3.9"
+
+services:
+  db:
+    container_name: next_db
+    image: postgres
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: project_next
+      POSTGRES_DB: project_next
+      POSTGRES_PASSWORD: project_next
+      PG_DATA: /var/lib/postgresql/data
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - nextnet
+
+  api:
+    container_name: next_api
+    depends_on:
+      - db
+    build:
+      context: packages/api
+      target: development
+      dockerfile: Dockerfile
+    volumes:
+      - ./packages/api:/usr/src/app
+      - /usr/src/app/node_modules
+    command: yarn dev
+    networks:
+      - nextnet
+    ports:
+      - 8000:8000
+      - 9229:9229
+    depends_on:
+      - db
+
+networks:
+  nextnet:
+volumes:
+  pgdata:

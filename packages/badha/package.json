@@ -14,9 +14,9 @@
     "lib"
   ],
   "scripts": {
-    "dev": "next dev -p 4000",
+    "dev": "next dev -p ${PORT:=3000}",
     "build": "next build",
-    "start": "next start -p 4000",
+    "start": "next start -p ${PORT:=3000}",
     "lint": "next lint"
   },
   "dependencies": {
@@ -24,6 +24,7 @@
     "autosize": "^5.0.1",
     "axios": "^0.21.1",
     "byte-size": "^8.0.0",
+    "date-fns": "^2.23.0",
     "dotenv": "^10.0.0",
     "envalid": "^7.1.1",
     "eslint-plugin-import": "^2.23.4",

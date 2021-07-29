@@ -3,9 +3,9 @@ import { XIcon } from "@heroicons/react/outline";
 import { Field } from "formik";
 import { Fragment } from "react";
 
-import TextInput from "../../../components/form/input-text";
-import ThaanaInput from "../../../components/form/input-thaana";
-import Select from "../../../components/form/select";
+import TextInput from "../form/input-text";
+import ThaanaInput from "../form/input-thaana";
+import Select from "../form/select";
 
 const options = [
   { value: "chocolate", label: "Chocolate" },
@@ -13,7 +13,7 @@ const options = [
   { value: "vanilla", label: "Vanilla" },
 ];
 
-const PostSettings = (props) => {
+const PostSettings = (props: any) => {
   const { show, onClose } = props;
   const { tags } = props;
   const handleClose = () => {
@@ -59,7 +59,22 @@ const PostSettings = (props) => {
               <div className="flex-1 flex flex-col justify-between">
                 <div className="px-4 divide-y divide-gray-200 sm:px-6">
                   <div className="space-y-6 pt-6 pb-5">
-                    {/* <div>
+                    <div>
+                      <Select
+                        label="Main Category"
+                        name="categoryId"
+                        id="categoryId"
+                        placeholder="..."
+                        options={tags}
+                        isMulti={false}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/*
+                    <div>
                       <Select
                         label="Status"
                         name="status"
@@ -70,8 +85,8 @@ const PostSettings = (props) => {
                         ]}
                         isMulti={false}
                       />
-                    </div> */}
-                    {/* <div>
+                    </div>
+                    <div>
                       <TextInput
                         label="Publish date"
                         name="publishedAt"
@@ -79,26 +94,18 @@ const PostSettings = (props) => {
                         placeholder="..."
                         className="font-mv-typewriter-bold"
                       />
-                    </div> */}
-
-                    {/* <div>
-                      <Select label="Topic" name="topicId" placeholder="..." options={tags} isMulti={false} />
-                    </div> */}
-
-                    <div>
-                      <Select
-                        label="Main Category"
-                        name="categoryId"
-                        placeholder="..."
-                        options={tags}
-                        isMulti={false}
-                      />
                     </div>
 
-                    {/* <div>
+                    <div>
+                      <Select label="Topic" name="topicId" placeholder="..." options={tags} isMulti={false} />
+                    </div>
+
+
+
+                    <div>
                       <Select label="Location" name="locationId" placeholder="..." options={tags} isMulti={false} />
-                    </div> */}
-                    {/* <div>
+                    </div>
+                    <div>
                       <Select
                         label="Authors"
                         name="authors"
@@ -111,11 +118,11 @@ const PostSettings = (props) => {
                         ]}
                         isMulti={true}
                       />
-                    </div> */}
-                    {/* <div className="flex items-center">
+                    </div>
+                    <div className="flex items-center">
                       <Field
-                        name="hideAuthor"
-                        id="acceptTerms1"
+                        name="showAuthors"
+                        id="showAuthors"
                         class="focus:ring-rk-dark h-5  w-5 text-rk-dark border-gray-300 rounded checkbox mr-4"
                         // class="mr-2 leading-tight h-1"
                         type="checkbox"
@@ -124,9 +131,9 @@ const PostSettings = (props) => {
                     </div>
                     <div>
                       <Select label="Tags" name="tags" placeholder="..." options={tags} isMulti={true} />
-                    </div> */}
+                    </div>
 
-                    {/* <div>
+                    <div>
                       <div>
                         <Select
                           label="Layout"
@@ -149,21 +156,21 @@ const PostSettings = (props) => {
                           isMulti={false}
                         />
                       </div>
-                    </div> */}
-                    {/*
+                    </div>
+
                     <div className="flex items-center">
                       <Field
-                        name="hideAuthor"
-                        id="acceptTerms1"
+                        name="isFeatured"
+                        id="isFeatured"
                         class="focus:ring-rk-dark h-5  w-5 text-rk-dark border-gray-300 rounded checkbox mr-4"
                         // class="mr-2 leading-tight h-1"
                         type="checkbox"
                       />
                       <div>Feature this post</div>
-                    </div> */}
+                    </div>
                   </div>
                 </div>
-              </div>
+              </div>*/}
             </div>
 
             <div className="flex-shrink-0 px-4 py-4 flex justify-end">

@@ -1,28 +1,31 @@
 import client from "../../../api/client";
 import EditorLayout from "../../../components/layouts/EditorLayout";
 
+import CreatePostForm from "./form";
+
+import { getTags, getTagTypes } from "@/api";
+
 export async function getServerSideProps(context: any) {
-  const res = await fetch("http://localhost:5000/tag-types");
-  const types = await res.json();
-
-  // console.log(types);
-
-  //  get tag types
-  const tagsReponse = await fetch("http://localhost:5000/tags");
-  const tags = await tagsReponse.json();
+  const tagTypes = await getTagTypes();
+  const tags = await getTags();
 
   return {
     props: {
-      types,
+      tagTypes,
       tags,
     }, // will be passed to the page component as props
   };
 }
 
-import CreateTagForm from "./form";
-const UserCreate = ({ types, tags }: { types: any; tags: any }) => {
-  const submit = () => {
-    const response = client.post("/users/create");
+const CreatePost = ({ types, tags }: { types: any; tags: any }) => {
+  const handleSubmit = async (values: any) => {
+    const formData = new FormData();
+
+    for (let key in values) {
+      formData.append(key, values[key]);
+    }
+    const response = await client.post(`/posts`, formData);
+    console.log(response);
   };
   return (
     <EditorLayout>
@@ -30,10 +33,10 @@ const UserCreate = ({ types, tags }: { types: any; tags: any }) => {
 
       <div className="space-y-6 mt-4 px-10">
         <div className="bg-primary shadow px-4 py-5 sm:rounded-lg sm:p-6">
-          <CreateTagForm types={types} tags={tags} />
+          <CreatePostForm onSubmit={handleSubmit} types={types} tags={tags} />
         </div>
       </div>
     </EditorLayout>
   );
 };
-export default UserCreate;
+export default CreatePost;

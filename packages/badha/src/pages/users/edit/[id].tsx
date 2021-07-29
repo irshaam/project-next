@@ -6,37 +6,28 @@ import TextInput from "../../../components/form/input-text";
 import ThaanaInput from "../../../components/form/input-thaana";
 import MainLayout from "../../../components/layouts/MainLayout";
 
-// export const getStaticPaths: GetStaticPaths<{ id: string | number }> = async () => {
-//   return {
-//     paths: [], //indicates that no page needs be created at build time
-//     fallback: "blocking", //indicates the type of fallback
-//   };
-// };
+import { getUserByID } from "@/api/user";
 
 export async function getServerSideProps({ params }) {
-  const res = await fetch(`http://localhost:5000/users/${params.id}`);
-  const user = await res.json();
-
-  console.log(user);
-
+  const user = await getUserByID(params.id);
   return {
     props: {
       user,
-    }, // will be passed to the page component as props
+    },
   };
 }
 
 interface FormValues {
   id?: number;
   name: string;
-  name_en?: string;
+  nameEn?: string;
   slug: string;
   email: string;
   password: string;
   picture?: string;
-  cover_picture?: string;
+  coverPicture?: string;
   bio?: string;
-  bio_en?: string;
+  bioEn?: string;
   twitter?: string;
   facebook?: string;
   isActive?: boolean;
@@ -53,9 +44,9 @@ const InnerForm = (props: FormikProps<FormValues>) => {
 
         <div className="pt-8">
           <div className="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
-            {/* name_en */}
+            {/* nameEn */}
             <div className="sm:col-span-3">
-              <TextInput label="Name" name="name_en" type="text" placeholder="..." />
+              <TextInput label="Name" name="nameEn" type="text" placeholder="..." />
             </div>
             {/* name */}
             <div className="sm:col-span-3">
@@ -73,7 +64,7 @@ const InnerForm = (props: FormikProps<FormValues>) => {
             </div>
             {/* password */}
             <div className="sm:col-span-4">
-              <TextInput label="Passowrd" name="passowd" type="password" placeholder="****" />
+              <TextInput label="Passowrd" name="password" type="password" placeholder="****" />
             </div>
             {/* bio */}
             <div className="sm:col-span-6">
@@ -81,7 +72,7 @@ const InnerForm = (props: FormikProps<FormValues>) => {
             </div>
             {/* bio_ne */}
             <div className="sm:col-span-6">
-              <TextInput label="Bio" name="bio_en" as="textarea" placeholder="...." />
+              <TextInput label="Bio" name="bioEn" as="textarea" placeholder="...." />
             </div>
           </div>
         </div>
@@ -120,17 +111,17 @@ const validationSchema = Yup.object().shape({
 const CreateUserForm = withFormik<MyFormProps, FormValues>({
   mapPropsToValues: ({ user }) => ({
     name: user.name || "",
-    name_en: user.name_en || "",
+    nameEn: user.nameEn || "",
     slug: user.slug || "",
     email: user.email || "",
     password: "",
     picture: user.picture || "",
-    cover_picture: user.cover_picture || "",
+    coverPicture: user.coverPicture || "",
     bio: user.bio || user.bio || "",
-    bio_en: user.bio_en || "",
+    bioEn: user.bioEn || "",
     twitter: user.twitter || "",
     facebook: user.facebook || "",
-    isActive: user.isActive || true,
+    isActive: user.isActive || "true",
   }),
   validationSchema,
   handleSubmit: async (values, formikBag) => {
@@ -139,16 +130,16 @@ const CreateUserForm = withFormik<MyFormProps, FormValues>({
   },
 })(InnerForm);
 
-const UserCreate = ({ user }) => {
-  console.log(user);
+const UserUpdate = ({ user }) => {
   const handleSubmit = async (values: any) => {
     const formData = new FormData();
+    console.log(values);
 
     for (let key in values) {
       formData.append(key, values[key]);
     }
     const response = await client.patch(`/users/${user.id}`, formData);
-    console.log(response);
+    alert("User updated successfully!");
   };
   return (
     <MainLayout>
@@ -163,4 +154,4 @@ const UserCreate = ({ user }) => {
     </MainLayout>
   );
 };
-export default UserCreate;
+export default UserUpdate;

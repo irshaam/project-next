@@ -109,7 +109,7 @@ const HeadingInput = ({ label, ...props }: OtherProps & FieldHookConfig<string>)
           {...props}
           onKeyDown={handleKeyDown}
           className={`${classNames(...inputStyles)} ${props.className && props.className} ${
-            meta.touched && meta.error ? "border-red  ring-opacity-40" : "	 placeholder-gray-400"
+            meta.touched && meta.error ? "border-red  ring-opacity-0" : "	 placeholder-gray-400"
           }`}
 
           // onInput={handleInput}
