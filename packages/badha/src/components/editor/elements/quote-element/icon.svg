@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 167 132" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <title>”</title>
+  <defs>
+    <path
+      d="M1057.64706,84 L1063.52941,81.1034483 L1087.05882,52.137931 L1090,43.4482759 L1090,2.89655172 L1087.05882,0 L1045.88235,0 L1042.94118,2.89655172 L1042.94118,40.5517241 L1045.88235,43.4482759 L1054.70588,43.4482759 L1057.64706,46.3448276 L1057.64706,49.2413793 L1040,78.2068966 L1040,84 L1057.64706,84 Z M1127.64706,84 L1133.52941,81.1034483 L1157.05882,52.137931 L1160,43.4482759 L1160,2.89655172 L1157.05882,-6.1817218e-13 L1115.88235,-6.1817218e-13 L1112.94118,2.89655172 L1112.94118,40.5517241 L1115.88235,43.4482759 L1124.70588,43.4482759 L1127.64706,46.3448276 L1127.64706,49.2413793 L1110,78.2068966 L1110,84 L1127.64706,84 Z"
+      id="path-1"></path>
+    <filter x="-38.3%" y="-31.0%" width="176.7%" height="209.5%" filterUnits="objectBoundingBox" id="filter-2">
+      <feOffset dx="0" dy="20" in="SourceAlpha" result="shadowOffsetOuter1"></feOffset>
+      <feGaussianBlur stdDeviation="12" in="shadowOffsetOuter1" result="shadowBlurOuter1"></feGaussianBlur>
+      <feColorMatrix values="0 0 0 0 1   0 0 0 0 0.219665101   0 0 0 0 0  0 0 0 0.3 0" type="matrix"
+        in="shadowBlurOuter1"></feColorMatrix>
+    </filter>
+    <filter x="-21.7%" y="-7.1%" width="143.3%" height="161.9%" filterUnits="objectBoundingBox" id="filter-3">
+      <feGaussianBlur stdDeviation="1.5" in="SourceAlpha" result="shadowBlurInner1"></feGaussianBlur>
+      <feOffset dx="0" dy="1" in="shadowBlurInner1" result="shadowOffsetInner1"></feOffset>
+      <feComposite in="shadowOffsetInner1" in2="SourceAlpha" operator="arithmetic" k2="-1" k3="1"
+        result="shadowInnerInner1"></feComposite>
+      <feColorMatrix values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.5 0" type="matrix" in="shadowInnerInner1">
+      </feColorMatrix>
+    </filter>
+  </defs>
+  <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <g id="01--News-Articles-(Base)" transform="translate(-1207.000000, -4374.000000)">
+      <g id="”" transform="translate(190.000000, 4378.000000)">
+        <use fill="black" fill-opacity="1" filter="url(#filter-2)" xlink:href="#path-1"></use>
+        <use fill="#FF3800" fill-rule="evenodd" xlink:href="#path-1"></use>
+        <use fill="black" fill-opacity="1" filter="url(#filter-3)" xlink:href="#path-1"></use>
+      </g>
+    </g>
+  </g>
+</svg>

@@ -1,16 +1,40 @@
 import "../styles/globals.css";
-import { NextPage } from "next";
-import { Provider } from "next-auth/client";
+import { NextComponentType, NextPage, NextPageContext } from "next";
+import { Provider, signIn, useSession } from "next-auth/client";
 import type { AppProps } from "next/app";
-import React from "react";
-import { RecoilRoot } from "recoil";
-const MyApp: NextPage<AppProps> = ({ Component, pageProps }): React.ReactElement => {
+import { useRouter } from "next/router";
+import NextNprogress from "nextjs-progressbar";
+
+import Auth from "../components/auth";
+
+type NextComponentWithAuth = NextComponentType<NextPageContext, any, {}> & Partial<AuthEnabledComponentConfig>;
+
+export type ProtectedAppProps = AppProps & { Component: NextComponentWithAuth };
+
+import { AuthEnabledComponentConfig } from "@/types/auth";
+const MyApp: NextPage<ProtectedAppProps> = ({ Component, pageProps }): React.ReactElement => {
   return (
-    // <RecoilRoot>
     <Provider session={pageProps.session}>
-      <Component {...pageProps} />
+      {Component.auth ? (
+        <Auth>
+          <NextNprogress color="#FF3800" startPosition={0.3} stopDelayMs={200} height={3} showOnShallow={true} />
+          <Component {...pageProps} />
+        </Auth>
+      ) : (
+        <>
+          <NextNprogress
+            color="#FF3800"
+            startPosition={0.3}
+            stopDelayMs={200}
+            height={3}
+            showOnShallow={true}
+            options={{ showSpinner: true }}
+          />
+          <Component {...pageProps} />
+        </>
+      )}
     </Provider>
-    // </RecoilRoot>
+    // <RecoilRoot>
   );
 };
 

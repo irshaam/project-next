@@ -1,4 +1,5 @@
 import { withFormik, FormikProps, Form } from "formik";
+import { signIn } from "next-auth/client";
 import * as Yup from "yup";
 
 // import DarkButton from "../../components/Form/DarkButton";
@@ -17,12 +18,18 @@ const InnerForm: React.FC<OtherProps & FormikProps<FormValues>> = (props: OtherP
   return (
     <Form autoComplete="off" autoCorrect="off" autoCapitalize="off" noValidate>
       <div>
-        <TextInput name="username" type="email" autoCorrect="off" autoCapitalize="none" placeholder="E-Mail-Adresse" />
+        <TextInput
+          name="username"
+          type="email"
+          autoCorrect="off"
+          autoCapitalize="none"
+          placeholder="user@nextmediagroup.mv"
+        />
       </div>
 
       {/* Password */}
       <div className="relative">
-        <TextInput name="password" type="password" placeholder="Passwort" autoComplete="off" />
+        <TextInput name="password" type="password" placeholder="Password" autoComplete="off" />
       </div>
 
       <div>
@@ -58,8 +65,8 @@ interface MyFormProps {
 }
 
 const LoginSchema = Yup.object().shape({
-  password: Yup.string().min(2, "Zu kurz!").max(70, "Zu lang!").required("Pflichtfeld"),
-  username: Yup.string().email("Invalid email").required("Pflichtfeld"),
+  password: Yup.string().min(2, "Minimum!").max(70, "Max!").required("Required"),
+  username: Yup.string().email("Invalid email").required("Required"),
 });
 
 // Wrap our form with the withFormik HoC
@@ -73,6 +80,7 @@ const LoginForm = withFormik<MyFormProps, FormValues>({
   },
   validationSchema: LoginSchema,
   handleSubmit: async (values, formikBag) => {
+    signIn("credentials", { username: values.username, password: values.password, callbackUrl: "/" });
     formikBag.props.handleSubmit(values);
     formikBag.setSubmitting(false);
   },

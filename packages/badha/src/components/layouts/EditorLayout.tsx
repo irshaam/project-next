@@ -1,8 +1,10 @@
 import Link from "next/link";
 import React from "react";
 
+import BadhaLogo from "../../images/badha-logo.svg";
 import Logo from "../../images/Logo.svg";
 import { Popover, SideMenu } from "../ui";
+
 interface LayoutProps {
   children: React.ReactNode;
 }
@@ -12,8 +14,8 @@ const EditorLayout = ({ children }: LayoutProps): JSX.Element => {
       {/* logo */}
       <div className="fixed left-0 flex items-center px-4" style={{ height: "70px" }}>
         <Link href="/">
-          <a>
-            <Logo className="fill-current text-red hover:text-black cursor-pointer transition-colors duration-500 ease-in-out" />
+          <a href="#">
+            <BadhaLogo className="w-14 fill-current text-red-next hover:text-black cursor-pointer transition-colors duration-500 ease-in-out" />
           </a>
         </Link>
       </div>

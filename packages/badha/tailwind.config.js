@@ -16,6 +16,11 @@ module.exports = {
         button: "0 10px 30px 0 rgba(255,56,0,0.40)",
       },
 
+      spacing: {
+        sidebar: "16.75rem",
+        editor: "42.5rem",
+      },
+
       fontFamily: {
         sans: ["Inter var", ...defaultTheme.fontFamily.sans],
         "mv-waheed": ["mv_waheed"],
@@ -28,12 +33,17 @@ module.exports = {
         primary: "#F9F4EC",
         secondry: "#DBD2CD",
         "light-gray": "#95928D",
-        red: "#FF3800",
+        red: {
+          next: "#FF3800",
+        },
       },
     },
   },
   variants: {
-    extend: {},
+    extend: {
+      backgroundColor: ["checked"],
+      borderColor: ["checked"],
+    },
   },
   plugins: [require("@tailwindcss/forms")],
 };

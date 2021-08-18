@@ -11,13 +11,21 @@ export enum PostStatus {
   DRAFT = 'draft',
   REVIEW = 'review',
   REJECTED = 'rejected',
+  APPROVED = 'approved',
   PUBLISHED = 'published',
   UN_PUBLISHED = 'unpublished',
   ARCHIEVED = 'archived',
 }
 
 export class CreatePostDto {
+  @IsOptional()
+  slug?: string;
+
   @IsNotEmpty()
+  categoryId: number;
+
+  // HEADER
+  @IsOptional()
   @IsString()
   heading: string;
 
@@ -29,28 +37,22 @@ export class CreatePostDto {
   @IsString()
   latinHeading?: string;
 
-  @IsNotEmpty()
-  @IsNumber()
-  categoryId: number;
-
-  @IsOptional()
-  @IsNumber()
-  topicId?: number;
-
-  @IsNotEmpty()
-  slug?: string;
-
-  @IsOptional()
-  @IsString()
-  featuredMedia?: string;
-
   @IsOptional()
   @IsString()
   leadText?: string;
 
+  // HEADER
+
   @IsOptional()
   @IsString()
-  hightlights?: string;
+  highlights?: string;
+
+  @IsOptional()
+  topicId?: number;
+
+  @IsOptional()
+  @IsString()
+  featuredMedia?: string;
 
   @IsOptional()
   content?: string;
@@ -78,7 +80,7 @@ export class CreatePostDto {
   isLocked?: boolean;
 
   @IsOptional()
-  @IsBoolean()
+  // @IsBoolean()
   showAuthors?: boolean;
 
   @IsOptional()
@@ -94,4 +96,34 @@ export class CreatePostDto {
 
   @IsOptional()
   locationId: number;
+
+  @IsOptional()
+  createdBy?: number;
+
+  @IsOptional()
+  createdAt?: number;
+
+  @IsOptional()
+  tags?: [];
+
+  @IsOptional()
+  authors?: [];
+
+  @IsOptional()
+  editedBy?: number;
+
+  @IsOptional()
+  editedAt?: number;
+
+  @IsOptional()
+  editorComment?: string;
+
+  @IsOptional()
+  publishedBy?: number;
+
+  @IsOptional()
+  publishedAt?: number;
+
+  @IsOptional()
+  scheduledAt?: number;
 }

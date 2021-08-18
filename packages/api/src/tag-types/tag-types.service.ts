@@ -1,14 +1,25 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/prisma.service';
+import { ForbiddenError } from '@casl/ability';
+import { Injectable, Inject, Scope } from '@nestjs/common';
+import { REQUEST } from '@nestjs/core';
+import { Request } from 'express';
+
+import { PrismaService } from '../prisma/prisma.service';
 
 import { CreateTagTypeDto } from './dto/create-tag-type.dto';
 import { UpdateTagTypeDto } from './dto/update-tag-type.dto';
 
-@Injectable()
+@Injectable({ scope: Scope.REQUEST })
 export class TagTypesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    @Inject(REQUEST) private request: Request,
+    private prisma: PrismaService,
+  ) {}
 
   async create(data: CreateTagTypeDto) {
+    ForbiddenError.from(this.request.user.ability).throwUnlessCan(
+      'create',
+      'all',
+    );
     return await this.prisma.tagType.create({ data });
 
     // const { name, slug } = createTagTypeDto;
@@ -39,11 +50,25 @@ export class TagTypesService {
     // return tagType;
   }
 
+  /**
+   * Find All Tag Types
+   */
   async findAll() {
+    ForbiddenError.from(this.request.user.ability).throwUnlessCan(
+      'read',
+      'Tag',
+    );
     return await this.prisma.tagType.findMany();
   }
 
+  /**
+   * Find All Tag Types
+   */
   async findOne(id: number) {
+    ForbiddenError.from(this.request.user.ability).throwUnlessCan(
+      'read',
+      'Tag',
+    );
     return this.prisma.tagType.findFirst({
       where: {
         id: Number(id),
@@ -52,14 +77,14 @@ export class TagTypesService {
   }
 
   async update(id: number, data: UpdateTagTypeDto) {
+    ForbiddenError.from(this.request.user.ability).throwUnlessCan(
+      'update',
+      'Tag',
+    );
+
     // if (id != updateTagTypeDto.id) {
     //   throw new BadRequestException();
     // }
-
-    // const tagType = await this.tagTypesRepository.preload({
-    //   id: id as number,
-    //   ...updateTagTypeDto,
-    // });
 
     // if (!tagType) {
     //   throw new NotFoundException(`Tag type #${id} not found!`);
@@ -74,15 +99,14 @@ export class TagTypesService {
   }
 
   async remove(id: number) {
+    ForbiddenError.from(this.request.user.ability).throwUnlessCan(
+      'delete',
+      'Tag',
+    );
     return await this.prisma.tagType.delete({
       where: {
         id: Number(id),
       },
     });
-    // const tagType = await this.tagTypesRepository.findOne(id);
-    // if (!tagType) {
-    //   throw new NotFoundException();
-    // }
-    // return await this.tagTypesRepository.remove(tagType);
   }
 }

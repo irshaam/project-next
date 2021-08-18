@@ -1,117 +1,216 @@
-import { Injectable } from '@nestjs/common';
-// import { User, Prisma } from '@prisma/client';
-import { PrismaService } from 'src/prisma.service';
+import { ForbiddenError } from '@casl/ability';
+import {
+  Injectable,
+  Inject,
+  Scope,
+  BadRequestException,
+  NotFoundException,
+  MethodNotAllowedException,
+} from '@nestjs/common';
+import { REQUEST } from '@nestjs/core';
+import { User as UserModel } from '@prisma/client';
+import * as bcrypt from 'bcrypt';
+import { Request } from 'express';
 
-@Injectable()
+import { PrismaService } from '../prisma/prisma.service';
+
+// @Injectable()
+@Injectable({ scope: Scope.REQUEST })
 export class UserService {
-  constructor(private prisma: PrismaService) {}
-
-  async create(data: any) {
-    return await this.prisma.user.create({ data });
-    // async create(files: any, data: Prisma.UserCreateInput): Promise<User> {
-    // return await this.prisma.user.create({ data });
-    // const { email } = createUserDto;
-    // // Check if User Exists with same email
-    // const userWithSameEmail = await this.userRepository.findOne({
-    //   where: { email: email.toLowerCase() },
-    // });
-    // if (userWithSameEmail) {
-    //   throw new BadRequestException('Email already in use');
-    // }
-    // // Create New Record
-    // const user = this.userRepository.create(createUserDto);
-    // if (files && 'picture' in files) {
-    //   const picture = await this.uploadService.upload(files.picture[0], {
-    //     type: 'profile',
-    //   });
-    //   user.picture = picture.path;
-    // }
-    // if (files && 'cover_picture' in files) {
-    //   const cover_picture = await this.uploadService.upload(files.picture[0], {
-    //     type: 'profile_cover',
-    //   });
-    //   user.cover_picture = cover_picture.path;
-    // }
-    // await this.userRepository.save(user);
-    // return user;
-  }
-
-  findAll() {
-    return this.prisma.user.findMany();
-  }
+  constructor(
+    @Inject(REQUEST) private request: Request,
+    private prisma: PrismaService,
+  ) {}
 
   async findOne(id: number) {
-    return await this.prisma.user.findFirst({ where: { id: Number(id) } });
+    const user = await this.prisma.user.findUnique({
+      where: { id: Number(id) },
+      include: {
+        roles: {
+          select: {
+            id: true,
+          },
+        },
+      },
+    });
+
+    return user;
   }
 
-  async update(id: number, files: any, data: any) {
-    return await this.prisma.user.update({
+  async findAll({ page = 1, take = 15 }) {
+    ForbiddenError.from(this.request.user.ability).throwUnlessCan(
+      'read',
+      'User',
+    );
+
+    const or: any = '';
+    // Invalid Page
+    if (page < 0) {
+      throw new BadRequestException('Page value should not be negative!!');
+    }
+
+    if (!page) {
+      page = 1;
+    }
+    if (!take) {
+      take = 10;
+    }
+
+    let data = [];
+    let totalCount = 0;
+    let totalPages = 0;
+    const skip = (page - 1) * take;
+
+    totalCount = await this.prisma.user.count();
+    totalPages = Math.ceil(totalCount / take);
+
+    data = await this.prisma.user.findMany({
+      take: Number(take) || undefined,
+      skip: Number(skip) || undefined,
+      include: {
+        roles: {
+          select: {
+            name: true,
+          },
+        },
+      },
+      orderBy: {
+        id: 'desc',
+      },
+    });
+
+    return {
+      data,
+      totalCount,
+      currentPage: page || 0,
+      totalPages,
+    };
+  }
+
+  async create(data: any) {
+    const passwordHash = await bcrypt.hash(data.password, 10);
+
+    const formData = {
+      name: data.name,
+      nameEn: data.nameEn,
+      slug: data.slug,
+      email: data.email,
+      picture: data.picture,
+      coverPicture: data.coverPicture,
+      bio: data.bio,
+      bioEn: data.bioEn,
+      twitter: data.twitter,
+      facebook: data.facebook,
+      isActive: data.isActive,
+      password: passwordHash,
+    };
+
+    if (data.roles && data.roles.length > 0) {
+      formData['roles'] = {
+        connect: data.roles,
+      };
+    }
+
+    const user = await this.prisma.user.create({
+      data: {
+        ...formData,
+      },
+    });
+
+    return user;
+  }
+
+  async update(id: number, data: any) {
+    ForbiddenError.from(this.request.user.ability).throwUnlessCan(
+      'update',
+      'User',
+    );
+
+    const formData = {
+      name: data.name,
+      nameEn: data.nameEn,
+      slug: data.slug,
+      email: data.email,
+      picture: data.picture,
+      coverPicture: data.coverPicture,
+      bio: data.bio,
+      bioEn: data.bioEn,
+      twitter: data.twitter,
+      facebook: data.facebook,
+      isActive: data.isActive,
+    };
+
+    console.log(data.password);
+
+    if (data.password) {
+      formData['password'] = await bcrypt.hash(data.password, 10);
+    }
+
+    if (data.roles && data.roles.length > 0) {
+      formData['roles'] = {
+        set: data.roles,
+      };
+    }
+
+    const user = await this.prisma.user.update({
       where: {
         id: id,
       },
-      data,
+      data: {
+        ...formData,
+      },
+    });
+
+    return user;
+  }
+
+  async remove(id: string) {
+    ForbiddenError.from(this.request.user.ability).throwUnlessCan(
+      'delete',
+      'User',
+    );
+
+    const userExist = await this.prisma.user.findUnique({
+      where: { id: Number(id) },
+    });
+
+    if (!userExist) {
+      throw new NotFoundException();
+    }
+
+    const { _count } = await this.prisma.user.findFirst({
+      where: {
+        id: Number(id),
+      },
+      select: {
+        _count: {
+          select: { posts: true },
+        },
+      },
+    });
+
+    if (_count.posts > 0) {
+      throw new MethodNotAllowedException(
+        'One or more posts connected to the user!!',
+      );
+    }
+
+    // Delete
+    return await this.prisma.user.delete({ where: { id: Number(id) } });
+  }
+
+  findAllAuthors() {
+    return this.prisma.user.findMany({
+      select: {
+        id: true,
+        name: true,
+        nameEn: true,
+        picture: true,
+      },
     });
   }
-  // async update(id: number, files: any, updateUserDto: UpdateUserDto) {
-  //   // if (id != updateUserDto.id) {
-  //   //   throw new BadRequestException();
-  //   // }
-  //   const { email } = updateUserDto;
 
-  //   const uniqueEmail = await this.userRepository.findOne({
-  //     where: { id: Not(id), email: email },
-  //   });
-
-  //   if (uniqueEmail) {
-  //     throw new BadRequestException('Email already exist!');
-  //   }
-
-  //   if ('picture' in files) {
-  //     const picture = await this.uploadService.upload(files.picture[0], {
-  //       type: 'profile',
-  //     });
-
-  //     updateUserDto.picture = picture.path;
-  //   }
-
-  //   if ('cover_picture' in files) {
-  //     const cover_picture = await this.uploadService.upload(files.picture[0], {
-  //       type: 'profile_cover',
-  //     });
-
-  //     updateUserDto.cover_picture = cover_picture.path;
-  //   }
-
-  //   const user = await this.userRepository.preload({
-  //     id: Number(id),
-  //     // isActive: Boolean(updateUserDto.isActive),
-  //     ...updateUserDto,
-  //   });
-
-  //   if (!user) {
-  //     throw new NotFoundException(`User #${id} not found!`);
-  //   }
-
-  //   return await this.userRepository.save(user);
-  // }
-
-  // remove(id: number) {
-  //   return `This action removes a #${id} user`;
-  // }
-
-  // findAllAuthors() {
-  //   return this.userRepository.find();
-  // }
-
-  // async findByEmail(email: string): Promise<User | undefined> {
-  //   return await this.userRepository.findOne({ where: { email: email } });
-  // }
-
-  // async findById(id: number): Promise<User | undefined> {
-  //   return await this.userRepository.findOne({ where: { id: id } });
-  // }
-
-  // async findByUuid(id: string): Promise<User | undefined> {
-  //   return await this.userRepository.findOne({ where: { uuid: id } });
-  // }
+  async findByEmail(email: string): Promise<UserModel | undefined> {
+    return await this.prisma.user.findFirst({ where: { email: email } });
+  }
 }

@@ -1,195 +1,184 @@
-import { getMedia, getMediaById } from "@/api";
-import { PencilIcon, ViewListIcon, ViewGridIcon } from "@heroicons/react/solid";
-import { MainLayout } from "@layouts";
+import { useAbility } from "@casl/react";
+import { PencilIcon, ViewListIcon, ViewGridIcon, UploadIcon } from "@heroicons/react/solid";
+import axios from "axios";
+import { GetServerSideProps } from "next";
+import { getSession, useSession } from "next-auth/client";
 import Link from "next/link";
-import { useState } from "react";
+import { useRouter } from "next/router";
+import React, { useContext, useState } from "react";
+import toast, { Toaster } from "react-hot-toast";
+import useSWR from "swr";
 
-import client from "../../api/client";
-import MediaItem from "../../components/media/media-item";
-import MediaSidebar from "../../components/media/media-sidebar";
+import { AbilityContext } from "../../components/auth/can";
+
+import AddMediaCollectionModal from "./add-collection-modal";
+
+import client from "@/api/client";
+import CollectionItem from "@/components/media/collection-item";
+import { MainLayout } from "@layouts";
 
 export async function getServerSideProps(context: any) {
-  // const res = await fetch("http://localhost:5000/tag-types");
-  // const types = await res.json();
+  const session = await getSession(context);
 
-  // // console.log(types);
+  // const users = await getUsers();
+  let tags = [];
+  let headers = {};
 
-  // //  get tag types
-  // const tagsReponse = await fetch("http://localhost:5000/tags");
-  // const tags = await tagsReponse.json();
-  const media = await getMedia();
+  if (session) {
+    headers = { Authorization: `Bearer ${session.access_token}` };
+  }
 
-  console.log(media);
+  try {
+    const { data } = await client.get("/tags", { headers: headers });
+    tags = data;
+  } catch (e) {
+    return {
+      // redirect: {
+      //   destination: "/unauthorized",
+      //   permanent: false,
+      // },
+    };
+  }
+
   return {
     props: {
-      media,
+      tags,
     }, // will be passed to the page component as props
   };
 }
 
-// import CreateMediaForm from "./form";
-const MediaIndex = ({ media }: { media: any }) => {
-  const [currentItem, setCurrentItem] = useState<any>();
+const fetcher = (url: string, token: string) =>
+  client.get(url, { headers: { Authorization: "Bearer " + token } }).then((res: any) => res.data);
+// axios.get(url, { headers: { Authorization: "Bearer " + token } }).then((res) => res.data);
 
-  const handleClick = async (id: number) => {
-    const media = await getMediaById(id);
-    console.log(media);
-    setCurrentItem(media);
+const MediaIndex = (props: any) => {
+  const [session] = useSession();
+  const router = useRouter();
+  const { tags } = props;
+  const types = ["Collections", "Images", "Videos", "Documents"];
+
+  const selectedType = "collections";
+  const [showCollectionModal, setShowCollectionModal] = useState<boolean>(false);
+
+  const { data, error } = useSWR(["/media?type=collections", session?.access_token], fetcher);
+
+  console.log(data);
+  /**
+   * Create Collection
+   * @param values Collection Values
+   */
+  const handleSubmit = async (values: any) => {
+    const createCollection = client.post(
+      `/media/collection`,
+      { ...values },
+      { headers: { Authorization: `Bearer ${session?.access_token}` } }
+    );
+
+    toast.promise(createCollection, {
+      loading: "Creating new collection...",
+      success: <b>Collection created!</b>,
+      error: <b>Could not save.</b>,
+    });
+
+    const response = await createCollection;
+
+    // Move to new page
+    if (response.status === 201) {
+      router.push({
+        pathname: `/media/collection/edit/${response.data.id}`,
+      });
+    }
   };
-  const submit = () => {
-    const response = client.post("/users/create");
-  };
+
   return (
     <MainLayout>
-      {/* !-- Page heading --> */}
-
       <div className="space-y-6 mt-4 px-10">
-        <div className="bg-white shadow px-4 py-5 sm:rounded-lg sm:p-6">
-          {/* Main content */}
-          <div className="flex-1 flex items-stretch overflow-hidden">
-            <main className="flex-1 overflow-y-auto">
-              <div className="pt-8 w-full mx-auto px-4 sm:px-6 lg:px-8">
-                {/* <div className="pt-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"> */}
-                <div className="flex">
-                  {/* <h1 className="flex-1 text-2xl font-bold text-gray-900">Media Manager</h1> */}
-                  <div>
-                    <h1 className="text-lg leading-6 font-medium text-gray-900">Media Manager</h1>
-                    <p className="mt-1 text-sm text-gray-500">
-                      Collection of images, videos audios and cool stuff goes here...
-                    </p>
-                  </div>
-
-                  <div className="ml-6 bg-gray-100 p-0.5 rounded-lg flex items-center sm:hidden">
-                    <button
-                      type="button"
-                      className="p-1.5 rounded-md text-gray-400 hover:bg-white hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
-                    >
-                      {/* Heroicon name: solid/view-list */}
-                      <svg
-                        className="h-5 w-5"
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                        aria-hidden="true"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                      <span className="sr-only">Use list view</span>
-                    </button>
-                    <button
-                      type="button"
-                      className="ml-0.5 bg-white p-1.5 rounded-md shadow-sm text-gray-400 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
-                    >
-                      {/* Heroicon name: solid/view-grid */}
-                      <svg
-                        className="h-5 w-5"
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                        aria-hidden="true"
-                      >
-                        <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-                      </svg>
-                      <span className="sr-only">Use grid view</span>
-                    </button>
-                  </div>
-                </div>
-                {/* Tabs */}
-                <div className="mt-3 sm:mt-2">
-                  {/* <div className="sm:hidden">
-                    <label htmlFor="tabs" className="sr-only">
-                      Select a tab
-                    </label>
-                    <select
-                      id="tabs"
-                      name="tabs"
-                      className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
-                    >
-                      <option selected>Recently Viewed</option>
-                      <option>Recently Added</option>
-                      <option>Favorited</option>
-                    </select>
-                  </div> */}
-                  <div className="hidden sm:block">
-                    <div className="flex items-center border-b border-gray-200">
-                      <nav className="flex-1 -mb-px flex space-x-6 xl:space-x-8" aria-label="Tabs">
-                        {/* Current: "border-indigo-500 text-indigo-600", Default: "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300" */}
-                        <a
-                          href="#"
-                          aria-current="page"
-                          className="border-indigo-500 text-indigo-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
-                        >
-                          Images
-                        </a>
-                        <a
-                          href="#"
-                          className="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
-                        >
-                          Collections
-                        </a>
-                      </nav>
-                      <div className="hidden ml-6 bg-gray-100 p-0.5 rounded-lg items-center sm:flex">
-                        <button
-                          type="button"
-                          className="p-1.5 rounded-md text-gray-400 hover:bg-white hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
-                        >
-                          <ViewListIcon className="h-5 w-5 currentColor" />
-                          <span className="sr-only">Use list view</span>
-                        </button>
-                        <button
-                          type="button"
-                          className="ml-0.5 bg-white p-1.5 rounded-md shadow-sm text-gray-400 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
-                        >
-                          <ViewGridIcon className="h-5 w-5 currentColor" />
-
-                          <span className="sr-only">Use grid view</span>
-                        </button>
-
-                        <Link href="/media/create" passHref>
-                          <button
-                            type="button"
-                            className=" ml-2 inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-50 focus:ring-purple-500"
-                          >
-                            <PencilIcon className="-ml-1 mr-2 h-5 w-5 text-gray-400" />
-                            Create
-                          </button>
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                {/* Gallery */}
-                <section className="mt-8 pb-16" aria-labelledby="gallery-heading">
-                  <h2 id="gallery-heading" className="sr-only">
-                    Recently viewed
-                  </h2>
-                  <ul
-                    role="list"
-                    className="grid grid-cols- 2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-6 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-8 xl:gap-x-8"
-                    // className="grid grid-cols- 2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-6 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8"
-                  >
-                    {media.map((item: any) => (
-                      <MediaItem
-                        currentItem={currentItem ? currentItem.id : ""}
-                        setCurrent={handleClick}
-                        media={item}
-                        key={`media_item_${item.id}`}
-                      />
-                    ))}
-                  </ul>
-                </section>
-              </div>
-            </main>
-            {/* Details sidebar */}
-            {currentItem && <MediaSidebar media={currentItem} />}
+        <main className="pt-8 bg-white shadow py-5 sm:rounded-lg">
+          <div className="px-6">
+            <h1 className="text-lg leading-6 font-medium text-gray-900">Media Manager</h1>
           </div>
-        </div>
+
+          {/* SOF NAV */}
+          <div className="border-b border-gray-200 px-6">
+            <nav className="-mb-px flex justify-between">
+              <div className="-mb-px flex space-x-8 " aria-label="Tabs">
+                {/* Current: "border-purple-500 text-purple-600", Default: "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-200" */}
+
+                {types.map((type: string) => (
+                  <Link key={`media_${type}}`} href={`/media?type=${type.toLowerCase()}`} passHref>
+                    <a
+                      href="#"
+                      className={`border-transparent  whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
+                        selectedType === type.toLowerCase()
+                          ? "border-purple-500 text-purple-600"
+                          : "text-gray-500 hover:text-gray-700 hover:border-gray-200"
+                      }`}
+                    >
+                      {type}
+                    </a>
+                  </Link>
+                ))}
+              </div>
+
+              <div className="flex just-center items-center">
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setShowCollectionModal(true);
+                  }}
+                  type="button"
+                  className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-50 focus:ring-purple-500"
+                >
+                  <PencilIcon className=" mr-2 h-5 w-5 text-gray-400" />
+                  Create Collection
+                </button>
+
+                <Link href="/media/create" passHref>
+                  <button
+                    type="button"
+                    className=" ml-2 inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-50 focus:ring-purple-500"
+                  >
+                    <UploadIcon className="-ml-1 mr-2 h-5 w-5 text-gray-400" />
+                    Quick Upload
+                  </button>
+                </Link>
+              </div>
+            </nav>
+          </div>
+          {/* EOF TABS */}
+
+          <section className="mt-8 pb-16 px-6" aria-labelledby="gallery-heading">
+            <ul
+              role="list"
+              className="grid grid-cols- 2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-6 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-8 xl:gap-x-8"
+              // className="grid grid-cols- 2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-6 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8"
+            >
+              {data &&
+                data.data.map((item: any) => (
+                  <CollectionItem
+                    // currentItem={currentItem ? currentItem.id : ""}
+                    // setCurrent={handleClick}
+                    media={item}
+                    key={`media_item_${item.id}`}
+                  />
+                ))}
+            </ul>
+          </section>
+        </main>
       </div>
+
+      {/* Media Collection Create Modal */}
+      <AddMediaCollectionModal
+        tags={tags}
+        open={showCollectionModal}
+        onSubmit={handleSubmit}
+        onClose={(): void => setShowCollectionModal(!showCollectionModal)}
+      />
+
+      <Toaster position="bottom-right" />
     </MainLayout>
   );
 };
+
+MediaIndex.auth = true;
 export default MediaIndex;

@@ -1,3 +1,4 @@
+import { useAbility } from "@casl/react";
 import {
   BellIcon,
   FireIcon,
@@ -19,6 +20,8 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/router";
 
+import { AbilityContext } from "../../auth/can";
+
 import { classNames } from "@utils";
 
 const navigation = [
@@ -29,24 +32,24 @@ const navigation = [
     menuItems: [
       {
         name: "Posts",
-        href: "/posts",
+        href: "/posts?type=draft",
         icon: NewspaperIcon,
       },
-      // {
-      //   name: "Pages",
-      //   href: "#",
-      //   icon: DocumentTextIcon,
-      // },
+      {
+        name: "Pages",
+        href: "#",
+        icon: DocumentTextIcon,
+      },
       {
         name: "Media",
         href: "/media",
         icon: PhotographIcon,
       },
-      // {
-      //   name: "Comments",
-      //   href: "#",
-      //   icon: ChatAlt2Icon,
-      // },
+      {
+        name: "Comments",
+        href: "#",
+        icon: ChatAlt2Icon,
+      },
       // {
       //   name: "Writers",
       //   href: "#",
@@ -59,7 +62,7 @@ const navigation = [
     name: "Settings",
     type: "title",
     menuItems: [
-      // { name: "Templates", href: "#", icon: TemplateIcon },
+      { name: "Templates", href: "#", icon: TemplateIcon },
       { name: "Users", href: "/users", icon: UserGroupIcon },
     ],
   },
@@ -67,6 +70,7 @@ const navigation = [
 // const navigation = [];
 export const SideMenu = () => {
   const router = useRouter();
+  const ability = useAbility(AbilityContext);
 
   const isActive = (path: string): boolean => {
     // console.log(path.toLowerCase());
@@ -77,10 +81,7 @@ export const SideMenu = () => {
 
   return (
     // <div className="hidden lg:block lg:col-span-3 xl:col-span-2  bg-white border-r border-gray-200 ">
-    <div
-      style={{ width: "268px" }}
-      className="hidden h-full lg:block lg:col-span-3 xl:col-span-2  bg-white border-r border-gray-200 "
-    >
+    <div className="w-32 md:w-sidebar h-full bg-white border-r border-gray-200 ">
       <nav aria-label="Sidebar" className="sticky top-4 divide-y divide-gray-300">
         <div className="pb-8 space-y-1">
           {/* <!-- Current: "bg-gray-200 text-gray-900", Default: "text-gray-600 hover:bg-gray-50" --> */}
@@ -94,28 +95,53 @@ export const SideMenu = () => {
                 >
                   {item.name}
                 </h3>
-                {item.menuItems?.map((subItem, idx) => (
-                  <Link href={subItem.href} key={subItem.name}>
-                    <a
-                      className={classNames(
-                        isActive(subItem.name)
-                          ? " bg-gray-100 text-gray-900 border-red"
-                          : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 border-transparent",
-                        "group flex items-center px-5 py-3 text-sm font-medium border-l-4"
-                      )}
-                      aria-current="page"
-                    >
-                      <subItem.icon
+                {item.menuItems?.map((subItem, idx) =>
+                  subItem.name === "Users" ? (
+                    ability.can("create", "User") && (
+                      <Link href={subItem.href} key={subItem.name}>
+                        <a
+                          className={classNames(
+                            isActive(subItem.name)
+                              ? " bg-gray-100 text-gray-900 border-red"
+                              : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 border-transparent",
+                            "group flex items-center px-5 py-3 text-sm font-medium border-l-4"
+                          )}
+                          aria-current="page"
+                        >
+                          <subItem.icon
+                            className={classNames(
+                              isActive(subItem.name) ? "text-gray-900" : "text-gray-400 group-hover:text-gray-500",
+                              "flex-shrink-0 -ml-1 mr-3 h-6 w-6"
+                            )}
+                            aria-hidden="true"
+                          />
+                          <span className="truncate">{subItem.name}</span>
+                        </a>
+                      </Link>
+                    )
+                  ) : (
+                    <Link href={subItem.href} key={subItem.name}>
+                      <a
                         className={classNames(
-                          isActive(subItem.name) ? "text-gray-900" : "text-gray-400 group-hover:text-gray-500",
-                          "flex-shrink-0 -ml-1 mr-3 h-6 w-6"
+                          isActive(subItem.name)
+                            ? " bg-gray-100 text-gray-900 border-red"
+                            : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 border-transparent",
+                          "group flex items-center px-5 py-3 text-sm font-medium border-l-4"
                         )}
-                        aria-hidden="true"
-                      />
-                      <span className="truncate">{subItem.name}</span>
-                    </a>
-                  </Link>
-                ))}
+                        aria-current="page"
+                      >
+                        <subItem.icon
+                          className={classNames(
+                            isActive(subItem.name) ? "text-gray-900" : "text-gray-400 group-hover:text-gray-500",
+                            "flex-shrink-0 -ml-1 mr-3 h-6 w-6"
+                          )}
+                          aria-hidden="true"
+                        />
+                        <span className="truncate">{subItem.name}</span>
+                      </a>
+                    </Link>
+                  )
+                )}
               </div>
             ) : (
               <a

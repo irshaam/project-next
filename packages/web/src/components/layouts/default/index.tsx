@@ -1,10 +1,4 @@
-import { MainMenu, MenuIcon } from "@ui";
-import ProfileDropdown from "@ui/profile-dropdown";
-import Search from "@ui/search";
-import UserrNotification from "@ui/user-notification";
-import React, { useState } from "react";
-
-import MainLogo from "../../../assets/svg/main-logo.svg";
+import { TopNavBar } from "@ui";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -23,29 +17,14 @@ const subnav = [
   "އެޑިޓަރުގެ ހޮވުން",
 ];
 const MainLayout = ({ children }: LayoutProps): JSX.Element => {
-  const [showMenu, toggleMenu] = useState<boolean>(false);
-
   return (
     <div className="mx-auto min-h-screen flex flex-col space-y-6 max-w-full xl:max-w-screen-2xl">
       {/* px-0 px-20 */}
-      <div className="h-20 grid grid-cols-12 gap-10 border-b-2 border-black border-opacity-5 px-10">
-        <div className="h-20 col-span-2 flex items-center">
-          <div className="h-full flex items-center ">
-            <div className="ml-8 ">
-              <MenuIcon />
-            </div>
-            <MainLogo />
-          </div>
-        </div>
-        <div className="h-20 col-span-8">
-          <MainMenu />
-        </div>
-        <div className="h-20 col-span-2 flex items-center justify-end">
-          <Search />
-          <UserrNotification />
-          <ProfileDropdown />
-        </div>
-      </div>
+
+      {/* main topnav */}
+      <TopNavBar />
+      {/* eoof main topnav */}
+
       {/* <div
         className="bg-white bg-opacity-80 transform -scale-y-100 overflow-hidden"
         style={{

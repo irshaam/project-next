@@ -73,7 +73,7 @@ const InnerForm = (props: FormikProps<FormValues> & MyFormProps) => {
       //   reader.readAsArrayBuffer(file);
 
       //   console.log("read", reader);
-      // });
+      // });s
 
       setFieldValue("files", acceptedFiles);
       // setFieldValue("files", acceptedFiles[0]);

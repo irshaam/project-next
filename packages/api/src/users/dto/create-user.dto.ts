@@ -1,12 +1,8 @@
-import {
-  IsNotEmpty,
-  IsEmail,
-  IsOptional,
-  IsBoolean,
-  IsString,
-  IsBooleanString,
-} from 'class-validator';
-
+import { IsNotEmpty, IsEmail, IsOptional, IsString } from 'class-validator';
+interface Role {
+  id: number;
+  name?: string;
+}
 export class CreateUserDto {
   @IsNotEmpty()
   @IsString()
@@ -53,4 +49,7 @@ export class CreateUserDto {
 
   @IsOptional()
   isActive?: boolean;
+
+  @IsOptional()
+  roles?: Role[];
 }

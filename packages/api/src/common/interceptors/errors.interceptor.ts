@@ -5,6 +5,7 @@ import {
   NestInterceptor,
   BadRequestException,
   HttpStatus,
+  ForbiddenException,
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { catchError } from 'rxjs/operators';
@@ -21,6 +22,14 @@ export class ErrorsInterceptor implements NestInterceptor {
             timestamp: new Date().toISOString(),
           });
         }
+        if (error.name === 'ForbiddenError') {
+          throw new ForbiddenException();
+        }
+        if (error.name === ' No auth token') {
+          throw new ForbiddenException();
+          console.log('13313', error.name);
+        }
+
         throw error;
       }),
     );

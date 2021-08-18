@@ -18,7 +18,7 @@ var CreateUserDto = /** @class */ (function () {
     __decorate([
         class_validator_1.IsNotEmpty(),
         class_validator_1.IsString()
-    ], CreateUserDto.prototype, "name_en");
+    ], CreateUserDto.prototype, "nameEn");
     __decorate([
         class_validator_1.IsNotEmpty(),
         class_validator_1.IsString()
@@ -38,7 +38,7 @@ var CreateUserDto = /** @class */ (function () {
     __decorate([
         class_validator_1.IsOptional(),
         class_validator_1.IsString()
-    ], CreateUserDto.prototype, "cover_picture");
+    ], CreateUserDto.prototype, "coverPicture");
     __decorate([
         class_validator_1.IsOptional(),
         class_validator_1.IsString()
@@ -46,7 +46,7 @@ var CreateUserDto = /** @class */ (function () {
     __decorate([
         class_validator_1.IsOptional(),
         class_validator_1.IsString()
-    ], CreateUserDto.prototype, "bio_en");
+    ], CreateUserDto.prototype, "bioEn");
     __decorate([
         class_validator_1.IsOptional(),
         class_validator_1.IsString()
@@ -55,8 +55,7 @@ var CreateUserDto = /** @class */ (function () {
         class_validator_1.IsOptional()
     ], CreateUserDto.prototype, "facebook");
     __decorate([
-        class_validator_1.IsOptional(),
-        class_validator_1.IsBoolean()
+        class_validator_1.IsOptional()
     ], CreateUserDto.prototype, "isActive");
     return CreateUserDto;
 }());

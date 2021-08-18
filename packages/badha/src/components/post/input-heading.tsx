@@ -1,8 +1,9 @@
 import { useField, Field, ErrorMessage, FieldHookConfig } from "formik";
+import isHotkey from "is-hotkey";
 import React, { SyntheticEvent } from "react";
 
 import { classNames, getThaanaChar } from "../../utils";
-import { isTranslatable } from "../../utils/thaanaKeyboard";
+import { _transFrom, _transToKbd } from "../../utils/thaanaKeyboard";
 interface OtherProps {
   label?: string;
   maxLength?: number;
@@ -10,40 +11,81 @@ interface OtherProps {
   title?: string;
 }
 
-const _transFrom = "qwertyuiop[]\\asdfghjkl;'zxcvbnm,./QWERTYUIOP{}|ASDFGHJKL:\"ZXCVBNM<>?()";
-const _transToKbd = "ްއެރތޔުިޮޕ][\\ަސދފގހޖކލ؛'ޒ×ޗވބނމ،./ޤޢޭޜޓޠޫީޯ÷}{|ާށޑﷲޣޙޛޚޅ:\"ޡޘޝޥޞޏޟ><؟)(";
-
 const HeadingInput = ({ label, ...props }: OtherProps & FieldHookConfig<string>) => {
   const [field, meta, helpers] = useField(props);
 
-  const handleKeyDown = (event: KeyboardEvent) => {
-    const e = event;
-    const target = e.target as HTMLInputElement;
+  // const handleKeyDown = (event: KeyboardEvent) => {
+  //   const e = event;
+  //   const target = e.target as HTMLInputElement;
 
-    // Disable
-    if (e.key === "Enter") {
-      e.preventDefault();
-    }
+  //   console.log(e);
 
-    // If MaxLength Allow Only Backspace
-    if (props.maxLength && target.value.length >= props.maxLength && e.key != "Backspace") return;
+  //   // Disable
+  //   // if (e.key === "Enter") {
+  //   //   e.preventDefault();
+  //   // }
 
-    const selectionStart: number = target.selectionStart as number;
-    const selectionEnd: number = target.selectionEnd as number;
-    var transIndex = _transFrom.indexOf(e.key);
+  //   // If MaxLength Allow Only Backspace
+  //   if (props.maxLength && target.value.length >= props.maxLength && e.key != "Backspace") return;
 
-    if (transIndex == -1 || e.ctrlKey || e.metaKey) return true;
+  //   const transIndex = _transFrom.indexOf(e.key);
 
-    var transChar = _transToKbd.substr(transIndex, 1);
+  //   // if (transIndex == -1 || e.ctrlKey || e.metaKey || isHotkey("mod+z", event) || isHotkey("shift+mod+z", event)) {
+  //   //   return true;
+  //   // }
 
-    e.preventDefault();
+  //   if (transIndex == -1 || e.ctrlKey || e.metaKey) return true;
 
-    const value =
-      target.value.substring(0, selectionStart) + transChar + target.value.substring(selectionEnd, target.value.length);
-    helpers.setValue(value);
-    target.dispatchEvent(new Event("input", { bubbles: true }));
-    target.focus();
-  };
+  //   const transChar = _transToKbd.substr(transIndex, 1);
+  //   e.preventDefault();
+
+  //   // // Cancel default action for the key
+  //   // if (typeof e.preventDefault == "function") {
+  //   // } else {
+  //   //   e.returnValue = false;
+  //   // }
+
+  //   // Lookup Translated Character
+  //   const { selectionStart, selectionEnd, scrollTop } = target;
+
+  //   console.log("start", selectionStart);
+  //   console.log("end", selectionEnd);
+  //   console.log("value", target.value);
+  //   var sPos = scrollTop;
+
+  //   if (selectionStart) {
+  //     var selOld = selectionStart + 1;
+  //     target.value =
+  //       target.value.substring(0, selectionStart) +
+  //       transChar +
+  //       target.value.substring(Number(selectionEnd), target.value.length);
+  //     // target.selectionStart = selectionStart;
+  //     // target.selectionEnd = selectionEnd;
+  //     // helpers.setValue(
+  //     //   target.value.substring(0, selectionStart) +
+  //     //     transChar +
+  //     //     target.value.substring(Number(selectionEnd), target.value.length)
+  //     // );
+  //     // target.dispatchEvent(new Event("input", { bubbles: true }));
+  //     target.setSelectionRange(selOld, selOld);
+  //     target.focus();
+  //   } else {
+  //     target.value += transChar;
+  //     // target.focus();
+  //   }
+
+  //   // if (target.selectionStart) {
+  //   //   consto;
+  //   // }
+
+  //   // e.preventDefault();
+
+  //   // const value =
+  //   //   target.value.substring(0, selectionStart) + transChar + target.value.substring(selectionEnd, target.value.length);
+  //   // helpers.setValue(value);
+  //   // target.focus();
+  //   return true;
+  // };
 
   const handleInput = (event: KeyboardEvent) => {
     // const e = event;
@@ -80,7 +122,7 @@ const HeadingInput = ({ label, ...props }: OtherProps & FieldHookConfig<string>)
   const inputStyles = [
     "relative bg-transparent w-full",
     "thaana",
-    "border-b border-t-0 border-r-0 border-l-0 border-opacity-10 border-gray-400",
+    "border-b border-t-0 border-r-0 border-l-0 border-opacity-20 border-gray-400 border-dashed",
     "focus:outline-none focus:ring-transparent focus:shadow-input",
     "focus:border-red focus:border-t-0 focus:border-r-0 focus:border-l-0 focus:border-opacity-20",
   ];
@@ -103,11 +145,10 @@ const HeadingInput = ({ label, ...props }: OtherProps & FieldHookConfig<string>)
         </div>
       )}
 
-      <div className="mt-1 relative rounded-md shadow-sm">
+      <div className="mt-1 relative">
         <Field
           {...field}
           {...props}
-          onKeyDown={handleKeyDown}
           className={`${classNames(...inputStyles)} ${props.className && props.className} ${
             meta.touched && meta.error ? "border-red  ring-opacity-0" : "	 placeholder-gray-400"
           }`}
@@ -129,12 +170,12 @@ const HeadingInput = ({ label, ...props }: OtherProps & FieldHookConfig<string>)
           //     : "border-black border-opacity-10	 placeholder-gray-400"
           // }`}
         />
-        {/*
+
         {field.value && field.value.length > 0 && (
-          <span className="inline-block px-2 py-1 text-xxs bg-gray-200 text-gray-700 absolute -top-1 left-0">
+          <span className="inline-block px-2 py-1 text-xxs bg-gray-200 text-gray-700 absolute -top-3 left-0">
             {props.title}
           </span>
-        )} */}
+        )}
         <ErrorMessage name={props.name} className="mt-2 text-sm text-red" component="p" />
       </div>
     </div>

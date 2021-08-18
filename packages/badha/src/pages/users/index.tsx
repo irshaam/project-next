@@ -1,125 +1,255 @@
-import { PencilIcon, CheckCircleIcon, ChevronRightIcon } from "@heroicons/react/solid";
+import { TrashIcon, PencilAltIcon, CheckCircleIcon, XCircleIcon } from "@heroicons/react/outline";
+import { PencilIcon } from "@heroicons/react/solid";
+import { format } from "date-fns";
+import { useSession } from "next-auth/client";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/router";
+import { useEffect, useMemo, useState } from "react";
+import DataTable from "react-data-table-component";
 
-import client from "../../api/client";
 import { MainLayout } from "../../components";
-import { imageLoader } from "../../utils";
+import { imageLoader, tableStyle } from "../../utils";
 
-import { getUsers } from "@/api/user";
+import client from "@/api/client";
 
-export async function getServerSideProps(context: any) {
-  const users = await getUsers();
-  return {
-    props: {
-      users,
-    }, // will be passed to the page component as props
+const UsersIndex = (props: any) => {
+  const router = useRouter();
+  const [session] = useSession();
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [totalRows, setTotalRows] = useState(0);
+  const [perPage, setPerPage] = useState(15);
+
+  const handlePageChange = (page: number) => {
+    router.push({
+      pathname: "/users",
+      query: { page },
+    });
+    fetchUsers(page);
   };
-}
 
-// import CreateMediaForm from "./form";
-const UsersIndex = ({ users }: { users: any }) => {
-  return (
-    <MainLayout>
-      {/* !-- Page heading --> */}
+  const handlePerRowsChange = async (take: number, page: number) => {
+    setLoading(true);
 
-      <div className="space-y-6 mt-4 px-10">
-        <main className="pt-8 pb-16 bg-white shadow px-4 py-5 sm:rounded-lg sm:p-6">
-          <div className="w-full mx-auto sm:px-6 lg:px-8">
-            {/* <div className="max-w-7xl mx-auto sm:px-6 lg:px-8"> */}
-            <div className="px-4 sm:px-0">
-              <h2 className="text-lg font-medium text-gray-900">Users</h2>
-              {/* Tabs */}
+    const response = await client.get(`/users?page=${page}&take=${perPage}`, {
+      headers: { Authorization: "Bearer " + session?.access_token },
+    });
 
-              <div className="hidden sm:block">
-                <div className="border-b border-gray-200">
-                  <nav className="-mb-px flex justify-between">
-                    <div className="-mb-px flex space-x-8 " aria-label="Tabs">
-                      {/* Current: "border-purple-500 text-purple-600", Default: "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-200" */}
-                    </div>
-                    <div>
-                      <Link href="/users/create" passHref>
-                        <span className="hidden sm:block">
-                          <button
-                            type="button"
-                            className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-50 focus:ring-purple-500"
-                          >
-                            <PencilIcon className="-ml-1 mr-2 h-5 w-5 text-gray-400" />
-                            Create
-                          </button>
-                        </span>
-                      </Link>
-                    </div>
-                  </nav>
-                </div>
-              </div>
-            </div>
-            {/* Stacked list */}
-            <ul className="mt-5 border-t border-gray-200 divide-y divide-gray-200 sm:mt-0 sm:border-t-0" role="list">
-              {users.map((user: any) => (
-                <li key={user.uuiud}>
-                  <Link href={`users/edit/${String(user.id)}`} key={`user_${user.uuiud}`}>
-                    <a href="#" className="group block">
-                      <div className="flex items-center py-5 px-4 sm:py-6 sm:px-0">
-                        <div className="min-w-0 flex-1 flex items-center">
-                          <div className="flex-shrink-0">
-                            <Image
-                              blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
-                              placeholder="blur"
-                              loader={imageLoader}
-                              width={70}
-                              height={70}
-                              src={`${user.picture ? user.picture : "default"}`}
-                              quality={100}
-                              alt="Picture of the author"
-                            />
-                          </div>
-                          <div className="min-w-0 flex-1 px-4 md:grid md:grid-cols-2 md:gap-4">
-                            <div>
-                              <p className="text-sm font-medium text-purple-600 truncate">{user.name_en}</p>
-                              <p className="mt-2 flex items-center text-sm text-gray-500">
-                                {/* Heroicon name: solid/mail */}
-                                <svg
-                                  className="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400"
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  viewBox="0 0 20 20"
-                                  fill="currentColor"
-                                  aria-hidden="true"
-                                >
-                                  <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
-                                  <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
-                                </svg>
-                                <span className="truncate">{user.email}</span>
-                              </p>
-                            </div>
-                            <div className="hidden md:block">
-                              <div>
-                                <p className="text-sm text-gray-900">
-                                  Created on
-                                  <time dateTime="2020-07-01T15:34:56">{user.createdAt}</time>
-                                </p>
-                                <p className="mt-2 flex items-center text-sm text-gray-500">
-                                  <CheckCircleIcon className="flex-shrink-0 mr-1.5 h-5 w-5 text-green-400" />
-                                  Active
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        <div>
-                          <ChevronRightIcon className="h-5 w-5 text-gray-400 group-hover:text-gray-700" />
-                        </div>
-                      </div>
-                    </a>
-                  </Link>
+    setData(response.data.data);
+    setPerPage(take);
+    setLoading(false);
+  };
+
+  const fetchUsers = async (page: number) => {
+    setLoading(true);
+    const response = await client.get(`/users?page=${page}`, {
+      headers: { Authorization: "Bearer " + session?.access_token },
+    });
+    setData(response.data.data);
+    setTotalRows(response.data.totalCount);
+    setLoading(false);
+  };
+
+  const columns = useMemo(
+    () => [
+      {
+        name: "Id",
+        sortable: true,
+        maxWidth: "100px",
+        center: true,
+        selector: (row: any) => row.id,
+      },
+      {
+        name: "",
+        button: true,
+        width: "100px",
+        // eslint-disable-next-line react/display-name
+        cell: (row: any) => (
+          <div className="flex-shrink-0">
+            {row.picture ? (
+              <Image
+                placeholder="blur"
+                loader={imageLoader}
+                width={40}
+                height={40}
+                src={row.picture}
+                quality={100}
+                alt="Picture of the author"
+              />
+            ) : (
+              <Image
+                width={40}
+                height={40}
+                src="/images/user-avatar.png"
+                quality={100}
+                alt={`profile picture of user #${row.id}`}
+              />
+            )}
+          </div>
+        ),
+      },
+      {
+        name: "Name",
+        sortable: true,
+        // eslint-disable-next-line react/display-name
+        cell: (row: any) => (
+          <div className="">
+            <Link href={`/users/edit/${row.id}`} passHref>
+              <a href="#" className="hover:text-gray-800">
+                {row.nameEn}
+              </a>
+            </Link>
+          </div>
+        ),
+      },
+      {
+        name: "Email",
+        sortable: true,
+        selector: (row: any) => row.email,
+      },
+
+      {
+        name: "Roles",
+        // eslint-disable-next-line react/display-name
+        cell: (row: any) => (
+          <div className="">
+            <ul className="flex flex-wrap">
+              {row.roles.map((role: any) => (
+                <li
+                  className="bg-red-next mb-2 text-white px-2 py-1 mr-2 rounded-md shadow-sm font-semibold"
+                  key={row.id + role.name}
+                >
+                  {role.name}
                 </li>
               ))}
             </ul>
-            {/* Pagination */}
           </div>
+        ),
+      },
+      {
+        name: "Status",
+        maxWidth: "100px",
+        // eslint-disable-next-line react/display-name
+        cell: (row: any) => (
+          <div className="">
+            {row.isActive ? (
+              <p className="mt-2 flex items-center text-sm text-gray-500">
+                <CheckCircleIcon className="flex-shrink-0 mr-1.5 h-5 w-5 text-green-400" />
+                Active
+              </p>
+            ) : (
+              <p className="mt-2 flex items-center text-sm text-gray-500">
+                <XCircleIcon className="flex-shrink-0 mr-1.5 h-5 w-5 text-red-400" />
+                Disabled
+              </p>
+            )}
+          </div>
+        ),
+      },
+
+      {
+        name: "Updated At",
+        sortable: true,
+        maxWidth: "200px",
+        selector: (row: any) => format(new Date(row.updatedAt), "dd-MM-yyyy (hh:mm)"),
+      },
+      {
+        name: "Created At",
+        sortable: true,
+        maxWidth: "200px",
+        selector: (row: any) => format(new Date(row.createdAt), "dd-MM-yyyy (hh:mm)"),
+      },
+
+      {
+        name: "",
+        button: true,
+        width: "180px",
+        // eslint-disable-next-line react/display-name
+        cell: (row: any) => (
+          <div className="">
+            <Link href={`/users/edit/${row.id}`} passHref>
+              <button
+                type="button"
+                className="mr-3 inline-flex items-center px-3 py-2  border-gray-300 rounded-md hover:shadow-sm text-xs font-medium text-gray-700  hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-50 focus:ring-indigo-500"
+              >
+                <PencilAltIcon className="h-5 w-5 text-gray-400 hover:text-indigo-600" />
+              </button>
+            </Link>
+            <button
+              type="button"
+              className="inline-flex items-center px-3 py-2  border-gray-300 rounded-md hover:shadow-sm text-xs font-medium text-gray-700  hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-50 focus:ring-red-next"
+            >
+              <TrashIcon className="h-5 w-5 text-gray-400 hover:text-red-next" />
+            </button>
+          </div>
+        ),
+      },
+    ],
+    []
+  );
+  const page = router.query?.page || 1;
+
+  useEffect(() => {
+    fetchUsers(Number(page));
+  }, []);
+
+  return (
+    <MainLayout>
+      <div className="space-y-6 mt-4 px-10">
+        <main className="pt-8 bg-white shadow py-5 sm:rounded-lg">
+          <div className="px-6">
+            <h1 className="text-lg leading-6 font-medium text-gray-900">User Manager</h1>
+          </div>
+
+          {/* tabs */}
+          <div className="border-b border-gray-200 px-6">
+            <nav className="-mb-px flex justify-between">
+              <div className="-mb-px flex space-x-8 " aria-label="Tabs"></div>
+              <div className="flex just-center items-center pb-4">
+                <Link href="/users/create" passHref>
+                  <span className="hidden sm:block">
+                    <button
+                      type="button"
+                      className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-50 focus:ring-purple-500"
+                    >
+                      <PencilIcon className="-ml-1 mr-2 h-5 w-5 text-gray-400" />
+                      Create
+                    </button>
+                  </span>
+                </Link>
+              </div>
+            </nav>
+          </div>
+          {/* eof tabs */}
+
+          {/* data-table */}
+          <div className="w-full mx-auto">
+            <div className="flex flex-col px-4">
+              <DataTable
+                columns={columns}
+                data={data}
+                customStyles={tableStyle}
+                striped={true}
+                highlightOnHover={true}
+                dense={true}
+                progressPending={loading}
+                pagination
+                paginationServer
+                paginationPerPage={10}
+                paginationTotalRows={totalRows}
+                onChangeRowsPerPage={handlePerRowsChange}
+                onChangePage={handlePageChange}
+                paginationDefaultPage={Number(page)}
+                paginationComponentOptions={{ noRowsPerPage: true }}
+              />
+            </div>
+          </div>
+          {/* eof-data-table */}
         </main>
       </div>
     </MainLayout>
   );
 };
+UsersIndex.auth = true;
 export default UsersIndex;

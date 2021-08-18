@@ -1,3 +1,4 @@
-import MainMenu from './main-menu';
+import MainMenu from "./main-menu";
+import MainMenuIcon from "./main-menu-icon";
 
-export { MainMenu };
+export { MainMenu, MainMenuIcon };

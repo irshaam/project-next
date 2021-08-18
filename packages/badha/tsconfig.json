@@ -6,7 +6,7 @@
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
-    "strict": false,
+    "strict": true,
     "forceConsistentCasingInFileNames": true,
     "noEmit": true,
     "esModuleInterop": true,
@@ -25,6 +25,6 @@
     },
     "typeRoots": ["./node_modules/@types", "./types", "../../node_modules/@types"]
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "@casl/react/contextAPIPatch.d.ts", "additional.d.ts"],
   "exclude": ["node_modules", "next.config.js"]
 }

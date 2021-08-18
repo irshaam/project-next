@@ -1,6 +1,8 @@
 {
   "compilerOptions": {
+    "skipLibCheck": true,
     "module": "commonjs",
+    "esModuleInterop": true,
     "declaration": true,
     "removeComments": true,
     "emitDecoratorMetadata": true,
@@ -11,5 +13,8 @@
     "outDir": "./dist",
     "baseUrl": "./",
     "incremental": true
-  }
+    // "typeRoots": ["./node_modules/@types"]
+    // "types": ["Multer"]
+  },
+  "include": ["custom.d.ts", "**/*.ts", "**/*.tsx"]
 }

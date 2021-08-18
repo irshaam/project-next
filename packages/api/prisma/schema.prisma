@@ -1,5 +1,7 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["referentialActions", "selectRelationCount"]
+
 }
 
 datasource db {
@@ -26,71 +28,69 @@ model Media {
   createdBy        Int?
   updater          User?            @relation("MediaUpdater", fields: [updatedBy], references: [id])
   updatedBy        Int?
-  tags             TagsOnMedia[]
   createdAt        DateTime         @default(now()) @db.Timestamp(6)
   updatedAt        DateTime         @default(now()) @db.Timestamp(6)
-
+  tags             Tag[]            @relation("_media_tags")
+  Tag              Tag[]
 
   @@map("media")
 }
 
 model MediaCollection {
-  id         Int                     @id @default(autoincrement())
-  name       String                  @db.VarChar
-  name_en    String                  @db.VarChar
-  creator    User?                   @relation("CollectionCreator", fields: [createdBy], references: [id])
-  createdAt  DateTime                @default(now()) @db.Timestamp(6)
+  id         Int      @id @default(autoincrement())
+  name       String   @db.VarChar
+  nameEn     String   @db.VarChar
+  caption    String?  @db.VarChar
+  captionEn  String?  @db.VarChar
+  createdAt  DateTime @default(now()) @db.Timestamp(6)
+  creator    User?    @relation("CollectionCreator", fields: [createdBy], references: [id])
   createdBy  Int?
-  updater    User?                   @relation("CollectionUpdater", fields: [updatedBy], references: [id])
+  updater    User?    @relation("CollectionUpdater", fields: [updatedBy], references: [id])
   updatedBy  Int?
-  updatedAt  DateTime                @default(now()) @db.Timestamp(6)
-  isActive   Boolean                 @default(true)
-  isFeatured Boolean                 @default(false)
+  updatedAt  DateTime @default(now()) @db.Timestamp(6)
+  isActive   Boolean  @default(true)
+  isFeatured Boolean  @default(false)
   media      Media[]
-  tags       TagsOnMediaCollection[]
-
+  tags       Tag[]    @relation("_collection_tags")
+  Tag        Tag[]
 
   @@map("media_collection")
 }
 
-model TagsOnMediaCollection {
-  collection   MediaCollection @relation(fields: [collectionId], references: [id])
-  collectionId Int
-  tag          Tag             @relation(fields: [tagId], references: [id])
-  tagId        Int
+// model TagsOnMediaCollection {
+//   collection   MediaCollection @relation(fields: [collectionId], references: [id])
+//   collectionId Int
+//   tag          Tag             @relation(fields: [tagId], references: [id])
+//   tagId        Int
 
+//   @@id([collectionId, tagId])
+//   @@map("media_collection_tags")
+// }
 
+// model TagsOnMedia {
+//   media   Media @relation(fields: [mediaId], references: [id])
+//   mediaId Int
+//   tag     Tag   @relation(fields: [tagId], references: [id])
+//   tagId   Int
 
-
-  @@id([collectionId, tagId])
-  @@map("media_collection_tags")
-}
-
-model TagsOnMedia {
-  media   Media @relation(fields: [mediaId], references: [id])
-  mediaId Int
-  tag     Tag   @relation(fields: [tagId], references: [id])
-  tagId   Int
-
-
-
-  @@id([mediaId, tagId])
-  @@map("media_tags")
-}
+//   @@id([mediaId, tagId])
+//   @@map("media_tags")
+// }
 
 model Post {
   id     Int     @id @default(autoincrement())
   nanoid String  @unique @db.VarChar(20)
   slug   String? @unique @db.VarChar
 
-  heading         String  @unique @db.VarChar
-  headingDetailed String? @db.VarChar
-  latinHeading    String? @unique @db.VarChar
+  heading         String? @unique @default("null") @db.VarChar
+  headingDetailed String  @db.VarChar
+  latinHeading    String? @db.VarChar
   featuredMedia   Json?   @db.Json
   leadText        String? @db.VarChar
   highlights      String? @db.VarChar
   content         Json?   @db.Json
   contentHtml     String? @db.VarChar
+  contentComments Json?   @db.Json
 
   locale         String     @default("dv") @db.VarChar
   layout         String     @default("base") @db.VarChar
@@ -101,131 +101,161 @@ model Post {
   isFeatured     Boolean?   @default(false)
   isPublished    Boolean?   @default(false)
   scheduledAt    DateTime?  @db.Timestamp(6)
-
-  editor         User?     @relation("PostEditor", fields: [editedBy], references: [id])
-  editedBy       Int?      @unique
-  editedAt       DateTime? @db.Timestamp(6)
-  editorComments Json?     @db.Json
-  remarks        String?
+  // Editor
+  editor         User?      @relation("PostEditor", fields: [editedBy], references: [id])
+  editedBy       Int?
+  editedAt       DateTime?  @db.Timestamp(6)
+  editorComment  String?
 
   category   Tag? @relation("PostCategories", fields: [categoryId], references: [id])
   categoryId Int?
+  location   Tag? @relation("PostLocations", fields: [locationId], references: [id])
+  locationId Int?
   topic      Tag? @relation("PostTopics", fields: [topicId], references: [id])
   topicId    Int?
 
   creator   User?    @relation("PostCreator", fields: [createdBy], references: [id])
-  createdBy Int?     @unique
+  createdBy Int?
   createdAt DateTime @default(now()) @db.Timestamp(6)
 
   publisher   User?     @relation("PostPublisher", fields: [publishedBy], references: [id])
-  publishedBy Int?      @unique
+  publishedBy Int?
   publishedAt DateTime? @db.Timestamp(6)
 
   updater   User?    @relation("PostUpdater", fields: [updatedBy], references: [id])
-  updatedBy Int?     @unique
-  updatedAt DateTime @default(now()) @db.Timestamp(6)
-
-  authors   AuthorsOnPosts[]
-  meta      PostMeta?
-  revisions RevisionsOnPosts[]
-  tags      TagsOnPosts[]
-
-  @@map("post")
-}
-
-model AuthorsOnPosts {
-  post   Post @relation(fields: [postId], references: [id])
-  postId Int
-  user   User @relation(fields: [userId], references: [id])
-  userId Int
-
-
-
-  @@id([postId, userId])
-  @@map("post_authors")
-}
-
-model PostMeta {
-  id                 Int     @id @default(autoincrement())
-  post               Post?   @relation(fields: [postId], references: [id])
-  postId             Int?    @unique
-  metaTitle          String? @db.VarChar(300)
-  metaDescription    String? @db.VarChar(500)
-  ogImage            String? @db.VarChar
-  ogTitle            String? @db.VarChar(300)
-  ogDescription      String? @db.VarChar(500)
-  twitterImage       String? @db.VarChar
-  twitterTitle       String? @db.VarChar(300)
-  twitterDescription String? @db.VarChar(500)
-
-  @@map("post_meta")
-}
-
-model RevisionsOnPosts {
-  id             Int  @id @default(autoincrement())
-  post           Post @relation(fields: [postId], references: [id])
-  postId         Int
-  currentVersion Int  @default(0)
-
-  heading          String  @unique @db.VarChar
-  heading_detailed String? @db.VarChar
-  latin_heading    String? @unique @db.VarChar
-  lead_text        String? @db.VarChar
-  hightlights      String? @db.VarChar
-  content          Json?   @db.Json
-  content_html     String? @db.VarChar
-
-  remarks        String?
-  editor         User?    @relation("RevisionEditor", fields: [editedBy], references: [id])
-  editedBy       Int?
-  editedAt       DateTime @default(now()) @db.Timestamp(6)
-  editorComments Json?    @db.Json
-
-  createdAt DateTime @default(now()) @db.Timestamp(6)
-  createdBy Int?
-  creator   User?    @relation("RevisionCreator", fields: [createdBy], references: [id])
-
-  updater   User?    @relation("RevisionUpdater", fields: [updatedBy], references: [id])
   updatedBy Int?
   updatedAt DateTime @default(now()) @db.Timestamp(6)
 
 
-  @@map("post_revisions")
+  tags    Tag[]  @relation("_post_tags")
+  authors User[] @relation("_post_authors")
+
+  // meta      PostMeta?
+  // revisions RevisionsOnPosts[]
+  // tags      TagsOnPosts[]
+
+
+
+  Tag   Tag? @relation("PostLocation", fields: [tagId], references: [id])
+  tagId Int?
+
+
+  @@map("post")
 }
 
-model TagsOnPosts {
-  post   Post @relation(fields: [postId], references: [id])
-  postId Int
-  tag    Tag  @relation(fields: [tagId], references: [id])
-  tagId  Int
+// model PostMeta {
+//   id                 Int     @id @default(autoincrement())
+//   post               Post?   @relation(fields: [postId], references: [id])
+//   postId             Int?    @unique
+//   metaTitle          String? @db.VarChar(300)
+//   metaDescription    String? @db.VarChar(500)
+//   ogImage            String? @db.VarChar
+//   ogTitle            String? @db.VarChar(300)
+//   ogDescription      String? @db.VarChar(500)
+//   twitterImage       String? @db.VarChar
+//   twitterTitle       String? @db.VarChar(300)
+//   twitterDescription String? @db.VarChar(500)
 
+//   @@map("post_meta")
+// }
 
+// model RevisionsOnPosts {
+//   id             Int  @id @default(autoincrement())
+//   post           Post @relation(fields: [postId], references: [id])
+//   postId         Int
+//   currentVersion Int  @default(0)
 
-  @@id([postId, tagId])
-  @@map("post_tags")
-}
+//   heading          String  @unique @db.VarChar
+//   heading_detailed String? @db.VarChar
+//   latin_heading    String? @unique @db.VarChar
+//   lead_text        String? @db.VarChar
+//   hightlights      String? @db.VarChar
+//   content          Json?   @db.Json
+//   content_html     String? @db.VarChar
+
+//   remarks        String?
+//   editor         User?    @relation("RevisionEditor", fields: [editedBy], references: [id])
+//   editedBy       Int?
+//   editedAt       DateTime @default(now()) @db.Timestamp(6)
+//   editorComments Json?    @db.Json
+
+//   createdAt DateTime @default(now()) @db.Timestamp(6)
+//   createdBy Int?
+//   creator   User?    @relation("RevisionCreator", fields: [createdBy], references: [id])
+
+//   updater   User?    @relation("RevisionUpdater", fields: [updatedBy], references: [id])
+//   updatedBy Int?
+//   updatedAt DateTime @default(now()) @db.Timestamp(6)
+
+//   @@map("post_revisions")
+// }
+
+// model TagsOnPosts {
+//   post   Post @relation(fields: [postId], references: [id])
+//   postId Int
+//   tag    Tag  @relation(fields: [tagId], references: [id])
+//   tagId  Int
+
+//   @@id([postId, tagId])
+//   @@map("post_tags")
+// }
 
 model RefreshToken {
   id        Int      @id @default(autoincrement())
   userId    Int
   isRevoked Boolean
   expires   DateTime @db.Timestamp(6)
+
+
+  @@map("refresh_token")
 }
 
 model Tag {
-  id            Int     @id @default(autoincrement())
-  name          String  @unique @db.VarChar
-  nameEn        String  @unique @db.VarChar
-  slug          String  @unique @db.VarChar
-  description   String?
-  descriptionEn String?
+  id             Int               @id @default(autoincrement())
+  name           String            @unique @db.VarChar
+  nameEn         String            @unique @db.VarChar
+  slug           String            @unique @db.VarChar
+  description    String?
+  descriptionEn  String?
+  image          String?           @db.VarChar
+  icon           String?           @db.VarChar
+  primaryColor   String?           @db.VarChar
+  secondryColor  String?           @db.VarChar
+  layout         String?           @db.VarChar
+  createdAt      DateTime          @default(now()) @db.Timestamp(6)
+  createdBy      Int
+  updatedAt      DateTime          @default(now()) @db.Timestamp(6)
+  updatedBy      Int?
+  parent         Tag?              @relation("ParentTag", fields: [parentId], references: [id])
+  child          Tag[]             @relation("ParentTag")
+  parentId       Int?
+  tagType        TagType           @relation(fields: [typeId], references: [id])
+  typeId         Int
+  collections    MediaCollection[] @relation("_collection_tags")
+  media          Media[]           @relation("_media_tags")
+  postCategories Post[]            @relation("PostCategories")
+  postTopics     Post[]            @relation("PostTopics")
+  postLocations  Post[]            @relation("PostLocations")
+  // posts          TagsOnPosts[]
+  // posts          Post[]
+  // TagsOnPosts TagsOnPosts[]
+  // Post        Post[]
+  // Post        Post[]
+  // TagsOnPosts TagsOnPosts[]
+  posts          Post[]            @relation("_post_tags")
 
 
-  image              String? @db.VarChar
-  icon               String? @db.VarChar
-  primaryColor       String? @db.VarChar
-  secondryColor      String? @db.VarChar
-  layout             String? @db.VarChar
+  Media             Media?           @relation(fields: [mediaId], references: [id])
+  mediaId           Int?
+  MediaCollection   MediaCollection? @relation(fields: [mediaCollectionId], references: [id])
+  mediaCollectionId Int?
+  TagMeta           TagMeta[]
+  Post              Post[]           @relation("PostLocation")
+  @@map("tag")
+}
+
+model TagMeta {
+  id                 Int     @id @default(autoincrement())
   ogImage            String? @db.VarChar
   ogTitle            String? @db.VarChar(300)
   ogDescription      String? @db.VarChar(500)
@@ -234,28 +264,11 @@ model Tag {
   twitterDescription String? @db.VarChar(500)
   metaTitle          String? @db.VarChar(300)
   metaDescription    String? @db.VarChar(500)
-
-  createdAt DateTime @default(now()) @db.Timestamp(6)
-  createdBy Int
-  updatedAt DateTime @default(now()) @db.Timestamp(6)
-  updatedBy Int?
-  parent    Tag?     @relation("ParentTag", fields: [parentId], references: [id])
-  child     Tag[]    @relation("ParentTag")
-  parentId  Int?
-
-  tagType TagType @relation(fields: [typeId], references: [id])
-  typeId  Int
-
-  collections TagsOnMediaCollection[]
-  media       TagsOnMedia[]
-
-  postCategories Post[]        @relation("PostCategories")
-  postTopics     Post[]        @relation("PostTopics")
-  posts          TagsOnPosts[]
+  tag                Tag     @relation(fields: [tagId], references: [id])
+  tagId              Int
 
 
-
-  @@map("refresh_token")
+  @@map("tag_meta")
 }
 
 model TagType {
@@ -267,7 +280,6 @@ model TagType {
   createdAt DateTime @default(now()) @db.Timestamp(6)
   updatedAt DateTime @default(now()) @db.Timestamp(6)
   tags      Tag[]
-
 
   @@map("tag_type")
 }
@@ -290,20 +302,42 @@ model User {
   createdAt    DateTime @default(now()) @db.Timestamp(6)
   updatedAt    DateTime @default(now()) @db.Timestamp(6)
 
-  mediaCreator      Media?            @relation("MediaCreator")
-  mediaUpdater      Media?            @relation("MediaUpdater")
-  collectionCreator MediaCollection?  @relation("CollectionCreator")
-  collectionUpdater MediaCollection?  @relation("CollectionUpdater")
-  postCreator       Post?             @relation("PostCreator")
-  postEditor        Post?             @relation("PostEditor")
-  postPublisher     Post?             @relation("PostPublisher")
-  postUpdater       Post?             @relation("PostUpdater")
-  authors           AuthorsOnPosts[]
-  revisionCreator   RevisionsOnPosts? @relation("RevisionCreator")
-  revisionUpdater   RevisionsOnPosts? @relation("RevisionUpdater")
-  revisionEditor    RevisionsOnPosts? @relation("RevisionEditor")
+  mediaCreator      Media[]           @relation("MediaCreator")
+  mediaUpdater      Media[]           @relation("MediaUpdater")
+  collectionCreator MediaCollection[] @relation("CollectionCreator")
+  collectionUpdater MediaCollection[] @relation("CollectionUpdater")
+  postCreator       Post[]            @relation("PostCreator")
+  postEditor        Post[]            @relation("PostEditor")
+  postPublisher     Post[]            @relation("PostPublisher")
+  postUpdater       Post[]            @relation("PostUpdater")
+  // authors         AuthorsOnPosts[]
+  // revisionCreator RevisionsOnPosts[] @relation("RevisionCreator")
+  // revisionUpdater RevisionsOnPosts[] @relation("RevisionUpdater")
+  // revisionEditor  RevisionsOnPosts[] @relation("RevisionEditor")
+
+
+  posts Post[] @relation("_post_authors")
+  roles Role[] @relation("_user_roles")
 
   @@map("user")
+}
+
+model Role {
+  id          Int          @id @default(autoincrement())
+  name        String       @db.VarChar
+  users       User[]       @relation("_user_roles")
+  permissions Permission[] @relation("_role_permissions")
+
+
+  @@map("role")
+}
+
+model Permission {
+  id      Int    @id @default(autoincrement())
+  ability Json?  @db.Json
+  roles   Role[] @relation("_role_permissions")
+
+  @@map("permission")
 }
 
 enum PostStatus {

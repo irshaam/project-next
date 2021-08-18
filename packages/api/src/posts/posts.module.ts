@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
+
 // import { TypeOrmModule } from '@nestjs/typeorm';
-import { PrismaService } from 'src/prisma.service';
 
 // import { PostMeta } from './entities/post-meta.entity';
 // import { PostReview } from './entities/post-review.entity';
@@ -11,6 +11,6 @@ import { PostsService } from './posts.service';
 
 @Module({
   controllers: [PostsController],
-  providers: [PostsService, PrismaService],
+  providers: [PostsService],
 })
 export class PostsModule {}

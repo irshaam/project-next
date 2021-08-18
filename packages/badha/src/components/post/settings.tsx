@@ -1,20 +1,21 @@
+import { useAbility } from "@casl/react";
 import { Transition } from "@headlessui/react";
 import { XIcon } from "@heroicons/react/outline";
 import { Field } from "formik";
 import { Fragment } from "react";
+import SingleSelect from "react-select";
 
+import { AbilityContext } from "../../components/auth/can";
+import { ThaanaInput } from "../form";
 import TextInput from "../form/input-text";
-import ThaanaInput from "../form/input-thaana";
 import Select from "../form/select";
 
-const options = [
-  { value: "chocolate", label: "Chocolate" },
-  { value: "strawberry", label: "Strawberry" },
-  { value: "vanilla", label: "Vanilla" },
-];
+import PostStatusFilter from "@/pages/posts/post-status-selector";
 
 const PostSettings = (props: any) => {
-  const { show, onClose } = props;
+  const ability = useAbility(AbilityContext);
+
+  const { show, onClose, mode, authors, values, setStatus } = props;
   const { tags } = props;
   const handleClose = () => {
     onClose();
@@ -59,15 +60,138 @@ const PostSettings = (props: any) => {
               <div className="flex-1 flex flex-col justify-between">
                 <div className="px-4 divide-y divide-gray-200 sm:px-6">
                   <div className="space-y-6 pt-6 pb-5">
+                    {/* eof authors */}
+                    <div>
+                      {mode !== "draft" && (
+                        <Field
+                          as="select"
+                          name="status"
+                          className="w-full bg-white relative bg-transparent w-full rounded-md focus:ring-4 border-2 focus:border-red-next focus:border-opacity-20 focus:ring-red-next focus:ring-opacity-10"
+                        >
+                          <option value="review" disabled={mode !== "review"}>
+                            Review
+                          </option>
+                          <option value="rejected">Reject</option>
+                          <option value="approved">Approve</option>
+                          <option value="scheduled">Schedule</option>
+                          <option value="published">Publish</option>
+                          {/* <option value="unpublish">Unpublish</option> */}
+                        </Field>
+                      )}
+                    </div>
+
+                    {values.status === "rejected" && ability.can("moderate", "Post") && (
+                      <div className="mb-10 w-full">
+                        <ThaanaInput label="އެޑިޓަރުގެ ކޮމެންޓް" name="editorComment" as="textarea" placeholder="..." />
+                      </div>
+                    )}
+                    {values.status === "scheduled" && (
+                      <div>
+                        <TextInput
+                          label="Schedule Date"
+                          name="scheduledAt"
+                          id="scheduledAt"
+                          type="datetime-local"
+                          placeholder="..."
+                        />
+                      </div>
+                    )}
+
+                    {values.status === "published" && (
+                      <div>
+                        <TextInput
+                          label="Publish Date"
+                          name="publishedAt"
+                          id="publishedAt"
+                          type="datetime-local"
+                          placeholder="..."
+                        />
+                      </div>
+                    )}
+
+                    <div>
+                      <TextInput
+                        label="Created Date"
+                        name="createdAt"
+                        id="createdAt"
+                        type="datetime-local"
+                        placeholder="..."
+                      />
+                    </div>
+                    <div>
+                      {tags && (
+                        <Select
+                          label="Main Category"
+                          name="categoryId"
+                          id="categoryId"
+                          placeholder="..."
+                          options={tags.filter((tag: any) => tag.tagType?.slug === "category")}
+                          isMulti={false}
+                        />
+                      )}
+                    </div>
+
+                    {/* tags */}
+                    <div>
+                      {tags && (
+                        <Select
+                          label="Tags"
+                          name="tags"
+                          id="tags"
+                          placeholder="..."
+                          options={tags.filter(
+                            (tag: any) => tag.id !== values.topicId || values.categoryId || values.locationID
+                          )}
+                          isMulti={true}
+                        />
+                      )}
+                    </div>
+
+                    <div>
+                      {tags && (
+                        <Select
+                          label="Topic"
+                          name="topicId"
+                          id="topicId"
+                          options={tags.filter((tag: any) => tag.tagType?.slug === "topic")}
+                          placeholder="..."
+                          isMulti={false}
+                        />
+                      )}
+                    </div>
+
+                    {/* location */}
+                    <div>
+                      {tags && (
+                        <Select
+                          label="Location"
+                          name="locationId"
+                          placeholder="..."
+                          options={tags.filter((tag: any) => tag.tagType?.slug === "location")}
+                          isMulti={false}
+                        />
+                      )}
+                    </div>
+
+                    {/* author */}
                     <div>
                       <Select
-                        label="Main Category"
-                        name="categoryId"
-                        id="categoryId"
+                        label="Authors"
+                        name="authors"
+                        id="authors"
                         placeholder="..."
-                        options={tags}
-                        isMulti={false}
+                        options={authors}
+                        isMulti={true}
                       />
+                      <div className="flex items-center mt-3">
+                        <Field
+                          name="showAuthors"
+                          id="showAuthors"
+                          class="focus:ring-rk-dark h-5  w-5 text-rk-dark border-gray-300 rounded checkbox mr-4"
+                          type="checkbox"
+                        />
+                        <div className="text-sm font-medium text-light-gray">Show authors</div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -86,39 +210,13 @@ const PostSettings = (props: any) => {
                         isMulti={false}
                       />
                     </div>
-                    <div>
-                      <TextInput
-                        label="Publish date"
-                        name="publishedAt"
-                        type="datetime-local"
-                        placeholder="..."
-                        className="font-mv-typewriter-bold"
-                      />
-                    </div>
-
-                    <div>
-                      <Select label="Topic" name="topicId" placeholder="..." options={tags} isMulti={false} />
-                    </div>
 
 
 
-                    <div>
-                      <Select label="Location" name="locationId" placeholder="..." options={tags} isMulti={false} />
-                    </div>
-                    <div>
-                      <Select
-                        label="Authors"
-                        name="authors"
-                        placeholder="..."
-                        options={[
-                          {
-                            id: 1,
-                            name: "Irshaam",
-                          },
-                        ]}
-                        isMulti={true}
-                      />
-                    </div>
+
+
+
+
                     <div className="flex items-center">
                       <Field
                         name="showAuthors"
@@ -133,30 +231,7 @@ const PostSettings = (props: any) => {
                       <Select label="Tags" name="tags" placeholder="..." options={tags} isMulti={true} />
                     </div>
 
-                    <div>
-                      <div>
-                        <Select
-                          label="Layout"
-                          name="layout"
-                          placeholder="..."
-                          options={[
-                            {
-                              id: "default",
-                              name: "Default",
-                            },
-                            {
-                              id: "story",
-                              name: "Story",
-                            },
-                            {
-                              id: "report",
-                              name: "Report",
-                            },
-                          ]}
-                          isMulti={false}
-                        />
-                      </div>
-                    </div>
+
 
                     <div className="flex items-center">
                       <Field
@@ -174,12 +249,19 @@ const PostSettings = (props: any) => {
             </div>
 
             <div className="flex-shrink-0 px-4 py-4 flex justify-end">
-              <button
-                type="button"
-                className="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              >
-                Submit for Review
-              </button>
+              {mode === "draft" && (
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    props.submitForReview();
+                  }}
+                  type="button"
+                  className="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                >
+                  Submit for Review
+                </button>
+              )}
+
               <button
                 type="button"
                 onClick={(e) => {
@@ -188,7 +270,7 @@ const PostSettings = (props: any) => {
                 }}
                 className="ml-4 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
               >
-                Save
+                {mode === "create" ? "Create New" : "Save"}
               </button>
             </div>
           </div>

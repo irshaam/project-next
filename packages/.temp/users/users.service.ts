@@ -1,16 +1,17 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { UserEntity } from './entities/users.entity';
-import { Repository } from 'typeorm';
-import { UserCreateDto } from './dto/user-create.dto';
-import { UserDto } from './dto/user.dto';
-import { toUserDto } from '../shared/mapper';
+import { Injectable, BadRequestException } from "@nestjs/common";
+import { UserEntity } from "./entities/users.entity";
+import { Repository } from "typeorm";
+import { UserCreateDto } from "./dto/user-create.dto";
+import { UserDto } from "./dto/user.dto";
+import { toUserDto } from "../shared/mapper";
+
+import { PrismaService } from "../prisma.service";
 
 @Injectable()
 export class UsersService {
   constructor(
-    @InjectRepository(UserEntity)
-    private readonly userRepository: Repository<UserEntity>,
+     constructor(private prisma: PrismaService) {}
+
   ) {}
 
   async create(userCreateDto: UserCreateDto): Promise<UserDto> {
@@ -21,7 +22,7 @@ export class UsersService {
     });
 
     if (userWithSameEmail) {
-      throw new BadRequestException('Email already in use');
+      throw new BadRequestException("Email already in use");
     }
     // Create New Record
     const user = this.userRepository.create(userCreateDto);

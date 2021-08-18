@@ -1,26 +1,33 @@
 import { Formik, Form, Field, ErrorMessage } from "formik";
+import { csrfToken, getSession, providers } from "next-auth/client";
+import { useRouter } from "next/router";
+
+import BadhaLogo from "../../../images/badha-logo.svg";
 
 import LoginForm from "./form";
 
 // /* eslint-disable @next/next/no-img-element * //
 
-const LoginPage = () => {
+const LoginPage = ({ providers, csrfToken }) => {
+  const { error } = useRouter().query;
+
   return (
-    <div className="min-h-screen bg-primary flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        {/* <img
-          className="mx-auto h-12 w-auto"
-          src="https://tailwindui.com/img/logos/workflow-mark-indigo-600.svg"
-          alt="Workflow"
-        /> */}
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">Sign in to your account</h2>
-      </div>
+    <div className="absolute inset-0">
+      <div className="min-h-screen bg-primary flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+        <div className="sm:mx-auto sm:w-full sm:max-w-md">
+          <div className="flex items-center justify-center">
+            <BadhaLogo className="fill-current text-red w-40" />
+          </div>
+          <h2 className="mt-6 text-center text-xl font-regular text-gray-900">Sign in to your account</h2>
+        </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-          <LoginForm handleSubmit={() => console.log("teswt")} />
+        <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+          <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+            {error && <SignInError error={error} />}
 
-          {/* <div className="mt-6">
+            <LoginForm handleSubmit={() => console.log("teswt")} />
+
+            {/* <div className="mt-6">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-300"></div>
@@ -76,10 +83,52 @@ const LoginPage = () => {
               </div>
             </div>
           </div> */}
+          </div>
         </div>
       </div>
     </div>
   );
 };
 
+const errors = {
+  Signin: "Try signing with a different account.",
+  OAuthSignin: "Try signing with a different account.",
+  OAuthCallback: "Try signing with a different account.",
+  OAuthCreateAccount: "Try signing with a different account.",
+  EmailCreateAccount: "Try signing with a different account.",
+  Callback: "Try signing with a different account.",
+  OAuthAccountNotLinked: "To confirm your identity, sign in with the same account you used originally.",
+  EmailSignin: "Check your email address.",
+  CredentialsSignin: "Sign in failed. Check the details you provided are correct.",
+  default: "Unable to sign in.",
+};
+
+const SignInError = ({ error }: { error: any }) => {
+  let errorMessage = "Unable to process the request!";
+
+  if (error === 401) {
+    errorMessage = "Unauthorized";
+  }
+
+  return <div className="w-full mb-5 font-medium text-red">{errorMessage}</div>;
+};
+
+LoginPage.getInitialProps = async (context: any) => {
+  const { req, res } = context;
+  const session = await getSession({ req });
+
+  if (session && res && session.accessToken) {
+    res.writeHead(302, {
+      Location: "/",
+    });
+    res.end();
+    return;
+  }
+
+  return {
+    session: undefined,
+    providers: await providers(context),
+    csrfToken: await csrfToken(context),
+  };
+};
 export default LoginPage;

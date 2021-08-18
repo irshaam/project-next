@@ -1,39 +1,227 @@
+import { ForbiddenError } from '@casl/ability';
 import {
-  // NotFoundException,
+  BadRequestException,
+  Inject,
   Injectable,
-  // BadRequestException,
+  NotFoundException,
+  Scope,
 } from '@nestjs/common';
-import { PrismaService } from 'src/prisma.service';
-import { nanoid } from 'src/shared/utils';
+import { REQUEST } from '@nestjs/core';
+import { Request } from 'express';
+import { nanoid } from 'nanoid';
+import { PrismaService } from 'src/prisma';
 
-// import { CreatePostDto } from './dto/create-post.dto';
-// import { UpdatePostDto } from './dto/update-post.dto';
-@Injectable()
+@Injectable({ scope: Scope.REQUEST })
 export class PostsService {
-  constructor(private prisma: PrismaService) {}
-  // private readonly revisionsRepository: Repository<PostRevision>, // @InjectRepository(PostRevision) // private readonly postsRepository: Repository<Post>, // @InjectRepository(Post)
+  constructor(
+    @Inject(REQUEST) private request: Request,
+    private prisma: PrismaService,
+  ) {}
 
-  async create(data: any) {
-    const nanoId = await nanoid();
+  /**
+   * Find All by ID
+   */
+  async findAll({
+    type = 'all',
+    page = 1,
+    take = 15,
+  }: {
+    type?: string;
+    page?: number;
+    take?: number;
+  }) {
+    //  check for permission
+    ForbiddenError.from(this.request.user.ability).throwUnlessCan(
+      'read',
+      'Post',
+    );
 
-    const { heading, latinHeading, categoryId, slug, content } = data;
-    const post = await this.prisma.post.create({
-      data: {
-        heading,
-        latinHeading,
-        slug,
-        content,
-        nanoid: nanoId,
-        categoryId: categoryId && Number(categoryId),
+    let or: any = '';
+
+    const types = {
+      draft: 'draft',
+      copydesk: 'review',
+      rejected: 'rejected',
+      bank: 'approved',
+      scheduled: 'scheduled',
+      published: 'published',
+      // 'unpublished',
+      // 'archived',
+    };
+
+    if (type !== 'all') {
+      or = {
+        status: types[type],
+      };
+    }
+
+    switch (types[type]) {
+      case 'draft':
+        or = {
+          ...or,
+          OR: [
+            {
+              authors: {
+                every: {
+                  id: { in: [this.request.user.id] },
+                },
+              },
+            },
+          ],
+        };
+        break;
+      case 'review':
+        if (this.request.user.ability.cannot('moderate', 'Post')) {
+          or = {
+            ...or,
+            OR: [
+              {
+                authors: {
+                  every: {
+                    id: { in: [this.request.user.id] },
+                  },
+                },
+              },
+            ],
+          };
+        }
+        break;
+      case 'rejected':
+        if (this.request.user.ability.cannot('moderate', 'Post')) {
+          or = {
+            ...or,
+            OR: [
+              {
+                authors: {
+                  every: {
+                    id: { in: [this.request.user.id] },
+                  },
+                },
+              },
+            ],
+          };
+        } else {
+          or = {
+            ...or,
+            OR: [
+              {
+                authors: {
+                  every: {
+                    id: { in: [this.request.user.id] },
+                  },
+                },
+              },
+              {
+                editedBy: this.request.user.id,
+              },
+            ],
+          };
+        }
+
+        break;
+    }
+
+    //
+    // }
+
+    if (!page) {
+      page = 1;
+    }
+    if (!take) {
+      take = 15;
+    }
+
+    if (page < 0) {
+      throw new BadRequestException('Page value should not be negative!!');
+    }
+
+    let data = [];
+    let totalCount = 0;
+    let totalPages = 0;
+    const skip = (page - 1) * take;
+
+    totalCount = await this.prisma.post.count({
+      where: {
+        ...or,
+      },
+    });
+    totalPages = Math.ceil(totalCount / take);
+
+    data = await this.prisma.post.findMany({
+      select: {
+        id: true,
+        headingDetailed: true,
+        nanoid: true,
+        createdAt: true,
+
+        updatedAt: true,
+        isLocked: true,
+        isFeatured: true,
+        isPublished: true,
+        status: true,
+        authors: {
+          select: {
+            id: true,
+            name: true,
+            nameEn: true,
+          },
+        },
+        editor: {
+          select: {
+            id: true,
+            name: true,
+            nameEn: true,
+          },
+        },
+        category: {
+          select: {
+            name: true,
+            nameEn: true,
+            id: true,
+            typeId: true,
+          },
+        },
+      },
+
+      where: {
+        ...or,
+      },
+      take: Number(take) || undefined,
+      skip: Number(skip) || undefined,
+
+      orderBy: {
+        updatedAt: 'desc',
       },
     });
 
-    return post;
+    return {
+      data,
+      totalCount,
+      currentPage: page || 0,
+      totalPages,
+    };
   }
 
-  async findAll() {
-    return await this.prisma.post.findMany({
+  /**
+   * Find One by ID
+   */
+  findOne = async (id: string) => {
+    ForbiddenError.from(this.request.user.ability).throwUnlessCan(
+      'read',
+      'Post',
+    );
+    const post = await this.prisma.post.findUnique({
+      where: {
+        nanoid: id,
+      },
       include: {
+        authors: {
+          select: {
+            id: true,
+            name: true,
+            nameEn: true,
+          },
+        },
         category: {
           select: {
             name: true,
@@ -41,57 +229,238 @@ export class PostsService {
             typeId: true,
           },
         },
+        tags: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+          },
+        },
       },
     });
+    if (!post) {
+      throw new NotFoundException(`Post #${id} not found!`);
+    }
+
+    if (post.status === 'review' && post.editedBy === null) {
+      // ForbiddenError.from(this.request.user.ability).throwUnlessCan(
+      //   'moderate',
+      //   'Post',
+      // );
+      console.log(this.request.user.ability.can('moderate', 'Post'));
+      await this.prisma.post.update({
+        where: {
+          nanoid: post.nanoid,
+        },
+        data: {
+          editor: {
+            connect: {
+              id: this.request.user.id,
+            },
+          },
+        },
+      });
+    }
+
+    return post;
+  };
+
+  /** Create Post */
+  async create(data: any) {
+    ForbiddenError.from(this.request.user.ability).throwUnlessCan(
+      'create',
+      'Post',
+    );
+    const nanoId = nanoid(9);
+
+    // const { heading, latinHeading, categoryId, slug, content } = data
+    const formData = {
+      heading: data.heading,
+      headingDetailed: data.headingDetailed,
+      latinHeading: data.latinHeading,
+      leadText: data.leadText,
+      highlights: data.highlights,
+      featuredMedia: data.featuredMedia,
+      content: data.content,
+      nanoid: nanoId,
+      showAuthors: data.showAuthors,
+      // creator: {
+      //   connect: { id: this.request.user.id },
+      // },
+      // updater: {
+      //   connect: { id: this.request.user.id },
+      // },
+    };
+
+    if (data.slug) {
+      formData['slug'] = data.slug;
+    }
+
+    if (data.createdAt) {
+      formData['createdAt'] = new Date(data.createdAt).toISOString();
+    }
+
+    if (data.locationId) {
+      formData['location'] = {
+        connect: { id: data.locationId },
+      };
+    }
+
+    if (data.topicId) {
+      formData['topic'] = {
+        connect: { id: data.topicId },
+      };
+    }
+
+    // Attach Category Tag
+    if (data.categoryId) {
+      formData['category'] = {
+        connect: { id: data.categoryId },
+      };
+    }
+
+    // Attach Category Tag
+    if (data.locationId) {
+      formData['location'] = {
+        connect: { id: data.locationId },
+      };
+    }
+
+    // Sync Tags
+    if (data.tags && data.tags.length > 0) {
+      formData['tags'] = {
+        connect: data.tags,
+      };
+    }
+    // Sync Tags
+    if (data.authors && data.authors.length > 0) {
+      formData['authors'] = {
+        connect: data.authors,
+      };
+    }
+    console.log(formData);
+    const post = await this.prisma.post.create({
+      data: {
+        ...formData,
+      },
+    });
+
+    return post;
   }
 
-  // async findOne(id: number) {
-  //   const post = await this.postsRepository.findOne(id);
-  //   if (!post) {
-  //     throw new NotFoundException(`Post #${id} not found!`);
-  //   }
-  //   return post;
-  // }
+  /**
+   * Update Post
+   */
 
-  // async update(id: number, updatePostDto: UpdatePostDto) {
-  //   if (id != updatePostDto.id) {
-  //     throw new BadRequestException();
-  //   }
+  async update(id: string, data: any) {
+    let formData = {};
+    // Check user persmissions to change status
+    if (data.status != 'draft' || data.status != 'review') {
+      ForbiddenError.from(this.request.user.ability).throwUnlessCan(
+        'moderate',
+        'Post',
+      );
+      console.log('adasd');
+    }
 
-  // const { heading } = updatePostDto;
+    if (data.status === 'rejected' && data.editedBy != this.request.user.id) {
+      console.log(this.request.user.id);
+      throw new Error('you cant edit this');
+    }
 
-  // const uniqueName = await this.postsRepository.findOne({
-  //   where: { id: Not(id), heading: heading },
-  // });
+    if (data.status === 'scheduled' && data.editedBy != this.request.user.id) {
+      console.log(this.request.user.id);
+      throw new Error('you cant edit this');
+    }
 
-  // if (uniqueName) {
-  //   throw new BadRequestException('Post already exist!');
-  // }
+    const types = {
+      draft: 'draft',
+      copydesk: 'review',
+      rejected: 'rejected',
+      bank: 'approved',
+      scheduled: 'scheduled',
+      published: 'published',
+      // 'unpublished',
+      // 'archived',
+    };
 
-  // const post = await this.postsRepository.findOne(id);
+    formData = {
+      ...formData,
+      slug: data.slug,
+      heading: data.heading,
+      headingDetailed: data.headingDetailed,
+      latinHeading: data.latinHeading,
+      leadText: data.leadText,
+      highlights: data.highlights,
+      featuredMedia: data.featuredMedia,
+      content: data.content,
+      showAuthors: data.showAuthors,
+      status: data.status,
+      editorComment: data.editorComment,
+    };
 
-  // if (!post) {
-  //   throw new NotFoundException(`Post #${id} not found!`);
-  // }
+    if (data.locationId) {
+      formData['location'] = {
+        connect: { id: data.locationId },
+      };
+    }
 
-  // console.log('current:', post);
+    if (data.topicId) {
+      formData['topic'] = {
+        connect: { id: data.topicId },
+      };
+    }
 
-  // // const postUpdate = this.postsRepository.create(updatePostDto);
+    // Attach Category Tag
+    if (data.categoryId) {
+      formData['category'] = {
+        connect: { id: data.categoryId },
+      };
+    }
+    // Attach Category Tag
+    if (data.locationId) {
+      formData['location'] = {
+        connect: { id: data.locationId },
+      };
+    }
 
-  // console.log('updates:', updatePostDto);
+    // Sync Tags
+    if (data.tags && data.tags.length > 0) {
+      formData['tags'] = {
+        set: data.tags,
+      };
+    }
+    // Sync Tags
+    if (data.authors && data.authors.length > 0) {
+      formData['authors'] = {
+        set: data.authors,
+      };
+    }
 
-  // if (post.status === 'rejected' && updatePostDto.status === 'draft') {
-  //   console.log('create new version');
-  // }
+    if (data.createdAt) {
+      formData['createdAt'] = new Date(data.createdAt).toISOString();
+    }
 
-  // const merged = this.postsRepository.merge(post, updatePostDto);
+    const post = await this.prisma.post.update({
+      where: {
+        nanoid: id,
+      },
+      data: {
+        ...formData,
+        updater: {
+          connect: { id: this.request.user.id },
+        },
+      },
 
-  // console.log('merged:', merged);
+      include: {
+        tags: true,
+      },
+    });
 
-  // return this.postsRepository.save(post);
-  // }
+    return post;
+  }
 
-  // remove(id: number) {
-  //   return `This action removes a #${id} post`;
-  // }
+  remove(id: number) {
+    return `This action removes a #${id} post`;
+  }
 }

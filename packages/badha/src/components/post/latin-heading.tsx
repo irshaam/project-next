@@ -13,7 +13,7 @@ const LatinHeading = ({ label, ...props }: OtherProps & FieldHookConfig<string>)
   const inputStyles = [
     "relative w-full px-0",
     "text-sm",
-    "border-b-2 border-t-0 border-r-0 border-l-0",
+    "border-b-2 border-t-0 border-r-0 border-l-0 border-dashed",
     "bg-transparent",
     "h-10 leading-10",
     "focus:outline-none focus:ring-transparent focus:shadow-input",
@@ -34,7 +34,8 @@ const LatinHeading = ({ label, ...props }: OtherProps & FieldHookConfig<string>)
         </div>
       )}
 
-      <div className="mt-1 relative rounded-md shadow-sm">
+      <div className="mt-1 relative rounded-md ">
+        {/* <div className="mt-1 relative rounded-md shadow-sm"> */}
         <Field
           {...field}
           {...props}

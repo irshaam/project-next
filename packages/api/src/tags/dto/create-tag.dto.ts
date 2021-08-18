@@ -16,12 +16,14 @@ export class CreateTagDto {
   @IsOptional()
   description?: string;
 
+  @IsOptional()
+  descriptionEn?: string;
+
   @IsNotEmpty()
   @IsNumber()
   typeId: number;
 
   @IsOptional()
-  @IsNumber()
   parentId?: number;
 
   @IsOptional()

@@ -1,6 +1,22 @@
 config:
   aws:profile: next
   aws:region: ap-southeast-1
+  project-next:awsKey:
+    secure: AAABAO9Cs30q7Q7gTb79ao177Z6ULkaQW/UJEQZ38zsdmpufbCFMkDptSn7X2EsktTknwQ==
+  project-next:awsSecret:
+    secure: AAABAOK4I7plhsrMpMMzc45seqGO/p5zxehvDI435xoMtadRwdOH69jdyDWnJQEUZfDgSA9bjuNqt/fikn3dTi/HC3+Y3R+v
   project-next:bucketName: bucket-next
+  project-next:dnsRecord: media
+  project-next:dnsRootDomain: badha.io
+  project-next:dbAllocatedStorage: "40"
+  project-next:dbInstanceType: db.t3.large
+  project-next:dbName:
+    secure: AAABAD/QmdMxcALh7u48oqtgO1i2QH5jtUC3ndWlk35xTqGeucNbiEqvT6M=
+  project-next:dbPassword:
+    secure: AAABAB8B4apCvPtl07udswuUjh9RQ9D/AAP1nV6VGrY02BO0mU3JcUrbP+D7ZCr82x+nidHXBA==
+  project-next:dbUsername:
+    secure: AAABAKCAtMxPXY7RZQFgNEd0HatFBHOEQumsUGdlKxf4MVtDaAgd5p4=
+  project-next:ePassword:
+    secure: AAABABKAuPaBa7WH+Zf7165Cf1cxQtpDUCmv7NUyW3Nna1A+zGWYL4H/qId6tdEIN90ZDxRPIEb3e8w=
   project-next:publicSubnetIds: subnet-c5bf1d8d,subnet-8e68dae8
   project-next:vpcId: vpc-d273bdb4

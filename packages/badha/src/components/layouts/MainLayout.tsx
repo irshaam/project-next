@@ -11,7 +11,7 @@ const MainLayout = ({ children }: LayoutProps): JSX.Element => {
     <div className="flex flex-col min-h-screen bg-primary">
       <Popover />
       <div className="flex content-container">
-        <div style={{ width: "268px" }}>
+        <div className="w-32 md:w-sidebar">
           <SideMenu />
         </div>
 

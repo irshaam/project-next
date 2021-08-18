@@ -16,7 +16,7 @@ export async function getServerSideProps(context: any) {
     }, // will be passed to the page component as props
   };
 }
-const TagTypes = ({ types, tags }) => {
+const TagTypesIndex = ({ types, tags }) => {
   return (
     <MainLayout>
       {/* !-- Page heading --> */}
@@ -76,4 +76,5 @@ const TagTypes = ({ types, tags }) => {
   );
 };
 
-export default TagTypes;
+TagTypesIndex.auth = true;
+export default TagTypesIndex;

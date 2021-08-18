@@ -20,9 +20,9 @@ const DetailHeadingInput = ({ label, ...props }: OtherProps & FieldHookConfig<st
     const target = e.target as HTMLInputElement;
 
     // Disable
-    if (e.key === "Enter") {
-      e.preventDefault();
-    }
+    // if (e.key === "Enter") {
+    //   e.preventDefault();
+    // }
 
     // If MaxLength Allow Only Backspace
     if (props.maxLength && target.value.length >= props.maxLength && e.key != "Backspace") return;

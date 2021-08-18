@@ -4,9 +4,14 @@ WORKDIR /usr/src/app
 
 COPY package*.json ./
 
-RUN yarn add glob rimraf
+RUN yarn add glob rimraf prisma multer
 
 RUN yarn install --production=false
+
+COPY prisma ./prisma/
+COPY @types ./@types/
+
+RUN npx prisma generate
 
 COPY . .
 
@@ -26,8 +31,9 @@ RUN yarn install
 
 COPY . .
 
+COPY --from=development /usr/src/app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=development /usr/src/app/dist ./dist
 
 EXPOSE 8000
 
-CMD ["node", "dist/main"]
+CMD ["node", "dist/src/main"]

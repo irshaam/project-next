@@ -9,33 +9,33 @@
   }
 
   @font-face {
-    font-family: 'mv_waheed';
+    font-family: "mv_waheed";
     font-weight: normal;
-    src: url('/fonts/MVAWAheed.ttf') format('truetype');
-    font-weight: normal;
-    font-style: normal;
-    font-display: auto;
-  }
-  @font-face {
-    font-family: 'aammu';
-    font-weight: normal;
-    src: url('/fonts/aammufkF.ttf') format('truetype');
+    src: url("/fonts/MVAWaheed.ttf") format("truetype");
     font-weight: normal;
     font-style: normal;
     font-display: auto;
   }
   @font-face {
-    font-family: 'mv_typewriter';
+    font-family: "aammu";
     font-weight: normal;
-    src: url('/fonts/mvtyper.ttf') format('truetype');
+    src: url("/fonts/aammufkF.ttf") format("truetype");
     font-weight: normal;
     font-style: normal;
     font-display: auto;
   }
   @font-face {
-    font-family: 'mv_typewriter_bold';
+    font-family: "mv_typewriter";
     font-weight: normal;
-    src: url('/fonts/mvtypebold.ttf') format('truetype');
+    src: url("/fonts/mvtyper.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+    font-display: auto;
+  }
+  @font-face {
+    font-family: "mv_typewriter_bold";
+    font-weight: normal;
+    src: url("/fonts/mvtypebold.ttf") format("truetype");
     font-weight: normal;
     font-style: normal;
     font-display: auto;
