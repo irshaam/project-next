@@ -1,4 +1,5 @@
 {
+  "extends": "../../tsconfig.build.json",
   "compilerOptions": {
     "noEmitOnError": true,
     "downlevelIteration": true,
@@ -17,11 +18,11 @@
     "jsx": "preserve",
     "baseUrl": ".",
     "paths": {
-      "@layouts": ["src/components/layouts"],
-      "@layouts/*": ["src/components/layouts/*"],
-      "@utils": ["src/utils"],
-      "@utils/*": ["src/utils/*"],
-      "@/*": ["src/*"]
+      "@layouts": ["./src/components/layouts"],
+      "@layouts/*": ["./src/components/layouts/*"],
+      "@utils": ["./src/utils"],
+      "@utils/*": ["./src/utils/*"],
+      "@/*": ["./src/*"]
     },
     "typeRoots": ["./node_modules/@types", "./types", "../../node_modules/@types"]
   },

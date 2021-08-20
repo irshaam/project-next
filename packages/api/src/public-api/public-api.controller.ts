@@ -224,6 +224,10 @@ export class PublicApiController {
     blocks[1] = {
       id: await nanoid(),
       type: 'readers-list-block',
+      header: {
+        title: 'އުމަރު، ކިޔާލަން ހާއްސަ',
+        align: 'center',
+      },
       featuredMain: [
         umaruFiltered[0],
         umaruFiltered[1],
@@ -234,12 +238,16 @@ export class PublicApiController {
     };
     blocks[2] = {
       id: await nanoid(),
+      header: {
+        title: 'އެޑިޓަރުގެ ހޮވުން',
+        align: 'center',
+      },
       type: 'editors-list-block',
       featuredMain: editorFiltered,
     };
     blocks[3] = {
       id: await nanoid(),
-      type: 'tabbed-list-block',
+      type: 'tabbed-list-home-block',
       tabs: [
         {
           current: true,
@@ -247,9 +255,9 @@ export class PublicApiController {
             title: 'އެންމެ ފަސް',
             readmoreUrl: '',
           },
-          featuredMain: { ...umaruFiltered[0] },
+          featuredMain: { ...editorFiltered[0] },
           featuredSub: [
-            ...umaruFiltered.filter(
+            ...editorFiltered.filter(
               (hero: any, idx: any) => idx > 0 && idx < 8,
             ),
           ],
@@ -269,38 +277,7 @@ export class PublicApiController {
         },
       ],
     };
-    blocks[3] = {
-      id: await nanoid(),
-      type: 'tabbed-list-block',
-      tabs: [
-        {
-          current: true,
-          header: {
-            title: 'އެންމެ ފަސް',
-            readmoreUrl: '',
-          },
-          featuredMain: { ...umaruFiltered[0] },
-          featuredSub: [
-            ...umaruFiltered.filter(
-              (hero: any, idx: any) => idx > 0 && idx < 8,
-            ),
-          ],
-        },
-        {
-          current: false,
-          header: {
-            title: 'މަޤުބޫލު',
-            readmoreUrl: '',
-          },
-          featuredMain: { ...umaruFiltered[0] },
-          featuredSub: [
-            ...umaruFiltered.filter(
-              (hero: any, idx: any) => idx > 0 && idx < 8,
-            ),
-          ],
-        },
-      ],
-    };
+
     blocks[4] = {
       id: await nanoid(),
       type: 'post-block-grid',
@@ -404,5 +381,276 @@ export class PublicApiController {
       blocks,
     };
     // return this.postsService.findOne(id);
+  }
+
+  @Public()
+  @Get('category/:slug')
+  async findByTag(@Param('slug') slug: string) {
+    const category = await this.prisma.tag.findUnique({
+      where: { slug: slug },
+    });
+    const pageHeader = {
+      title: category.nameEn,
+    };
+
+    const posts = await this.prisma.post.findMany({
+      select: {
+        id: true,
+        slug: true,
+        nanoid: true,
+        featuredMedia: true,
+        heading: true,
+        publishedAt: true,
+        createdAt: true,
+        leadText: true,
+        category: {
+          select: {
+            id: true,
+            name: true,
+            icon: true,
+            slug: true,
+          },
+        },
+      },
+      where: {
+        categoryId: category.id,
+      },
+      take: 9,
+    });
+
+    const postsFeatured = posts.map((sub: any, idx: any) => {
+      return {
+        ...sub,
+        featuredMedia: {
+          url: `https://dhauru.imgix.net/samples/${idx}.jpg`,
+          type: 'image',
+          meta: {
+            thumbnail: `https://dhauru.imgix.net/samples/${idx}.jpg`,
+          },
+        },
+        publishedAt: sub.createdAt,
+      };
+    });
+    const blocks = [];
+
+    blocks[0] = {
+      id: await nanoid(),
+      type: 'hero-grid-block',
+      header: {
+        title: null,
+        readmoreUrl: null,
+      },
+      featuredMain: { ...postsFeatured[0] },
+      featuredSub: [
+        ...postsFeatured.filter((hero: any, idx: any) => idx > 0 && idx < 7),
+      ],
+    };
+
+    blocks[1] = {
+      id: await nanoid(),
+      type: 'category-grid-block',
+
+      header: {
+        title: 'މަޤުބޫލު',
+        readmoreUrl: '',
+      },
+      featuredMain: { ...postsFeatured[0] },
+      featuredSub: [
+        ...postsFeatured.filter((hero: any, idx: any) => idx > 0 && idx < 10),
+      ],
+    };
+
+    // 2
+
+    //3
+    blocks[2] = {
+      id: await nanoid(),
+      type: 'special-post-block',
+      header: {
+        title: 'ހާއްސަ ރިޕޯޓް',
+
+        align: 'center',
+        sponsorUrl: '',
+        sponsorMedia: '',
+        readmoreUrl: '',
+      },
+      featuredMain: postsFeatured[0],
+    };
+
+    blocks[3] = {
+      id: await nanoid(),
+      type: 'rounded-list-block',
+      header: {
+        title: 'ކުޅިވަރު ޝަހުސިއްޔަތު',
+
+        align: 'right',
+        sponsorUrl: '',
+        sponsorMedia: '',
+        readmoreUrl: '',
+      },
+      featuredMain: [...postsFeatured.filter((hero: any, idx: any) => idx < 4)],
+    };
+
+    blocks[4] = {
+      id: await nanoid(),
+      type: 'post-list-block',
+      header: {
+        title: 'ބާސްކެޓްބޯޅަ',
+        align: 'right',
+        readmoreUrl: '',
+        sponsorUrl: '',
+        sponsorMedia: '',
+        theme: 'dark',
+      },
+      featuredMain: [...postsFeatured.filter((hero: any, idx: any) => idx < 4)],
+    };
+    blocks[5] = {
+      id: await nanoid(),
+      type: 'post-list-block',
+      header: {
+        title: 'ޓެނިސް',
+        align: 'right',
+        readmoreUrl: '',
+        sponsorUrl: '',
+        sponsorMedia: '',
+        theme: 'dark',
+      },
+      featuredMain: [...postsFeatured.filter((hero: any, idx: any) => idx < 4)],
+    };
+
+    return {
+      pageHeader,
+      blocks,
+    };
+  }
+  @Public()
+  @Get('sub-category/:slug')
+  async findBySubTag(@Param('slug') slug: string) {
+    const category = await this.prisma.tag.findUnique({
+      where: { slug: slug },
+    });
+    const pageHeader = {
+      title: category.nameEn,
+    };
+
+    const posts = await this.prisma.post.findMany({
+      select: {
+        id: true,
+        slug: true,
+        nanoid: true,
+        featuredMedia: true,
+        heading: true,
+        publishedAt: true,
+        createdAt: true,
+        leadText: true,
+        category: {
+          select: {
+            id: true,
+            name: true,
+            icon: true,
+            slug: true,
+          },
+        },
+      },
+      where: {
+        categoryId: category.id,
+      },
+      take: 13,
+    });
+
+    const postsFeatured = posts.map((sub: any, idx: any) => {
+      return {
+        ...sub,
+        featuredMedia: {
+          url: `https://dhauru.imgix.net/samples/${idx}.jpg`,
+          type: 'image',
+          meta: {
+            thumbnail: `https://dhauru.imgix.net/samples/${idx}.jpg`,
+          },
+        },
+        publishedAt: sub.createdAt,
+      };
+    });
+    const blocks = [];
+
+    blocks[0] = {
+      id: await nanoid(),
+      type: 'hero-mini-grid-block',
+      header: {
+        title: null,
+        readmoreUrl: null,
+      },
+      featuredMain: postsFeatured[0],
+      featuredSub: [
+        ...postsFeatured.filter((hero: any, idx: any) => idx > 0 && idx < 4),
+      ],
+    };
+
+    blocks[1] = {
+      id: await nanoid(),
+      type: 'post-paginate-grid-block',
+      header: {
+        title: 'މަޤުބޫލު',
+        readmoreUrl: '',
+      },
+      featuredMain: {
+        ...postsFeatured.filter((hero: any, idx: any) => idx > 0 && idx < 14),
+      },
+      nextUrl: 'https://api.badha.io/public/paginate',
+    };
+
+    // 2
+
+    return {
+      pageHeader,
+      blocks,
+    };
+  }
+
+  @Public()
+  @Get('paginate')
+  async paginate(@Param('slug') slug: string) {
+    const posts = await this.prisma.post.findMany({
+      select: {
+        id: true,
+        slug: true,
+        nanoid: true,
+        featuredMedia: true,
+        heading: true,
+        publishedAt: true,
+        createdAt: true,
+        leadText: true,
+        category: {
+          select: {
+            id: true,
+            name: true,
+            icon: true,
+            slug: true,
+          },
+        },
+      },
+      where: {
+        categoryId: 1,
+      },
+      take: 8,
+    });
+
+    const postsFeatured = posts.map((sub: any, idx: any) => {
+      return {
+        ...sub,
+        featuredMedia: {
+          url: `https://dhauru.imgix.net/samples/${idx}.jpg`,
+          type: 'image',
+          meta: {
+            thumbnail: `https://dhauru.imgix.net/samples/${idx}.jpg`,
+          },
+        },
+        publishedAt: sub.createdAt,
+      };
+    });
+    return {
+      posts: postsFeatured,
+      nextUrl: 'https://api.badha.io/public/paginate',
+    };
   }
 }

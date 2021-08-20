@@ -45,24 +45,29 @@ export class UploadService {
     try {
       const resp = await client.send(command);
 
-      const formData: any = {};
+      const formData = {
+        contentSize: file.size,
+        file: filename,
+        originalFilename: file.originalname,
+        type: file.mimetype ? file.mimetype.split('/')[0] : null,
+        contentType: meta.type,
+        path: key,
+        mimeType: file.mimetype,
+        caption: meta.caption ? meta.caption : null,
+        captionEn: meta.captionEn ? meta.captionEn : null,
+      };
 
-      formData.contentSize = String(file.size);
-      formData.file = filename;
-      formData.original_filename = file.originalname;
-      formData.path = key;
-      formData.mimeType = file.mimetype;
-      formData.type = meta.type;
-      formData.caption = meta.caption;
-      formData.captionEn = meta.captionEn;
-      formData.collection = meta.collection;
-
+      if (meta.collection) {
+        formData['collection'] = {
+          connect: { id: meta.collection },
+        };
+      }
       /**
        * Attach Tags
        */
       if (meta.tags && meta.tags.length > 0) {
-        formData.tags = {
-          connect: meta.tags.map((tag: any) => ({ id: tag })),
+        formData['tags'] = {
+          connect: meta.tags,
         };
       }
 

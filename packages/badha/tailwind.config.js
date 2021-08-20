@@ -43,6 +43,7 @@ module.exports = {
     extend: {
       backgroundColor: ["checked"],
       borderColor: ["checked"],
+      opacity: ["disabled"],
     },
   },
   plugins: [require("@tailwindcss/forms")],

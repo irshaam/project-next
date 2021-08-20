@@ -1,5 +1,6 @@
 import { useAbility } from "@casl/react";
 import { PencilIcon, ViewListIcon, ViewGridIcon, UploadIcon } from "@heroicons/react/solid";
+import { MainLayout } from "@layouts";
 import axios from "axios";
 import { GetServerSideProps } from "next";
 import { getSession, useSession } from "next-auth/client";
@@ -15,7 +16,6 @@ import AddMediaCollectionModal from "./add-collection-modal";
 
 import client from "@/api/client";
 import CollectionItem from "@/components/media/collection-item";
-import { MainLayout } from "@layouts";
 
 export async function getServerSideProps(context: any) {
   const session = await getSession(context);

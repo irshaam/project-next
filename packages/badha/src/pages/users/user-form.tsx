@@ -1,10 +1,11 @@
+import { sluggify } from "@utils/slugify";
 import { withFormik, FormikProps, Form, Field, ErrorMessage, Formik } from "formik";
 import * as Yup from "yup";
 
 import TextInput from "../../components/form/input-text";
 import ThaanaInput from "../../components/form/input-thaana";
 
-import { sluggify } from "@utils/slugify";
+import { AvatarInput } from "@/components/form";
 
 interface MyFormProps {
   user?: any;
@@ -33,7 +34,9 @@ interface FormValues {
 }
 
 const InnerForm = (props: FormikProps<FormValues> & MyFormProps) => {
-  const { setFieldValue, roles, values } = props;
+  const { setFieldValue, roles, values, user } = props;
+
+  // console.log(props.user);
 
   return (
     <Form autoComplete="off" autoCorrect="off" autoCapitalize="off" noValidate>
@@ -75,22 +78,7 @@ const InnerForm = (props: FormikProps<FormValues> & MyFormProps) => {
             </div>
 
             <div className="sm:col-span-6">
-              <label htmlFor="photo" className="block text-sm font-medium text-gray-700">
-                Photo
-              </label>
-              <div className="mt-1 flex items-center">
-                <span className="h-12 w-12 rounded-full overflow-hidden bg-gray-100">
-                  <svg className="h-full w-full text-gray-300" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" />
-                  </svg>
-                </span>
-                <button
-                  type="button"
-                  className="ml-5 bg-white py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm leading-4 font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                >
-                  Change
-                </button>
-              </div>
+              <AvatarInput label="Picture" name="pictureId" type="file" default={user?.picture} />
             </div>
 
             {/* bio */}
@@ -111,7 +99,7 @@ const InnerForm = (props: FormikProps<FormValues> & MyFormProps) => {
                       <div key={`role_${role.id}`}>
                         <label>
                           <Field
-                            class="focus:ring-rk-dark h-5 checked:bg-blue-600 checked:border-transparent  w-5 text-rk-dark border-gray-300 rounded checkbox mr-4"
+                            className="focus:ring-rk-dark h-5 checked:bg-blue-600 checked:border-transparent  w-5 text-rk-dark border-gray-300 rounded checkbox mr-4"
                             type="checkbox"
                             name="roles"
                             value={`${role.id}`}
@@ -160,10 +148,10 @@ const UserForm = withFormik<MyFormProps, FormValues>({
     slug: user ? user.slug : "",
     email: user ? user.email : "",
     password: "",
-    picture: user ? user.picture : "",
-    coverPicture: user ? user.coverPicture : "",
-    bio: user ? user.bio : user ? user.bio : "",
-    bioEn: user ? user.bioEn : "",
+    pictureId: (user && user.pictureId) || null,
+    coverPictureId: (user && user.coverPictureId) || null,
+    bio: (user && user.bio) || "",
+    bioEn: (user && user.bioEn) || "",
     twitter: user ? user.twitter : "",
     facebook: user ? user.facebook : "",
     isActive: user ? user.isActive : true,

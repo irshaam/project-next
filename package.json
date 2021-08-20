@@ -8,12 +8,6 @@
     "type": "git",
     "url": "https://github.com/CIAOadvertising/project-next.git"
   },
-  "contributors": [
-    {
-      "name": "Ismail Zahee",
-      "email": "m3talloid@gmail.com"
-    }
-  ],
   "scripts": {
     "bootstrap": "lerna bootstrap --use-workspaces",
     "build": "lerna run build --parallel",
@@ -35,7 +29,11 @@
   "devDependencies": {
     "@commitlint/cli": "^12.1.4",
     "@commitlint/config-lerna-scopes": "^12.1.4",
+    "eslint": "^7.32.0",
     "husky": "^6.0.0",
     "lerna": "^4.0.0"
+  },
+  "dependencies": {
+    "typescript": "^4.3.5"
   }
 }

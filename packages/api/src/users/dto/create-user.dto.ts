@@ -33,6 +33,12 @@ export class CreateUserDto {
   coverPicture?: string;
 
   @IsOptional()
+  pictureId?: number;
+
+  @IsOptional()
+  coverPictureId?: number;
+
+  @IsOptional()
   @IsString()
   bio?: string;
 

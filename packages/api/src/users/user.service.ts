@@ -17,15 +17,18 @@ import { PrismaService } from '../prisma/prisma.service';
 // @Injectable()
 @Injectable({ scope: Scope.REQUEST })
 export class UserService {
-  constructor(
-    @Inject(REQUEST) private request: Request,
-    private prisma: PrismaService,
-  ) {}
+  constructor(@Inject(REQUEST) private request: Request, private prisma: PrismaService) {}
 
   async findOne(id: number) {
     const user = await this.prisma.user.findUnique({
       where: { id: Number(id) },
       include: {
+        picture: {
+          select: {
+            id: true,
+            path: true,
+          },
+        },
         roles: {
           select: {
             id: true,
@@ -38,10 +41,7 @@ export class UserService {
   }
 
   async findAll({ page = 1, take = 15 }) {
-    ForbiddenError.from(this.request.user.ability).throwUnlessCan(
-      'read',
-      'User',
-    );
+    ForbiddenError.from(this.request.user.ability).throwUnlessCan('read', 'User');
 
     const or: any = '';
     // Invalid Page
@@ -68,6 +68,12 @@ export class UserService {
       take: Number(take) || undefined,
       skip: Number(skip) || undefined,
       include: {
+        picture: {
+          select: {
+            id: true,
+            path: true,
+          },
+        },
         roles: {
           select: {
             name: true,
@@ -111,6 +117,12 @@ export class UserService {
       };
     }
 
+    if (data.pictureId) {
+      formData['picture'] = {
+        connect: { id: data.pictureId },
+      };
+    }
+
     const user = await this.prisma.user.create({
       data: {
         ...formData,
@@ -121,10 +133,7 @@ export class UserService {
   }
 
   async update(id: number, data: any) {
-    ForbiddenError.from(this.request.user.ability).throwUnlessCan(
-      'update',
-      'User',
-    );
+    ForbiddenError.from(this.request.user.ability).throwUnlessCan('update', 'User');
 
     const formData = {
       name: data.name,
@@ -152,6 +161,12 @@ export class UserService {
       };
     }
 
+    if (data.pictureId) {
+      formData['picture'] = {
+        connect: { id: data.pictureId },
+      };
+    }
+
     const user = await this.prisma.user.update({
       where: {
         id: id,
@@ -165,10 +180,7 @@ export class UserService {
   }
 
   async remove(id: string) {
-    ForbiddenError.from(this.request.user.ability).throwUnlessCan(
-      'delete',
-      'User',
-    );
+    ForbiddenError.from(this.request.user.ability).throwUnlessCan('delete', 'User');
 
     const userExist = await this.prisma.user.findUnique({
       where: { id: Number(id) },
@@ -178,11 +190,18 @@ export class UserService {
       throw new NotFoundException();
     }
 
-    const { _count } = await this.prisma.user.findFirst({
+    const { _count } = await this.prisma.user.findUnique({
       where: {
         id: Number(id),
       },
+
       select: {
+        picture: {
+          select: {
+            path: true,
+            url: true,
+          },
+        },
         _count: {
           select: { posts: true },
         },
@@ -190,9 +209,7 @@ export class UserService {
     });
 
     if (_count.posts > 0) {
-      throw new MethodNotAllowedException(
-        'One or more posts connected to the user!!',
-      );
+      throw new MethodNotAllowedException('One or more posts connected to the user!!');
     }
 
     // Delete

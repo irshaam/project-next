@@ -1,4 +1,5 @@
-import { useField, Field, ErrorMessage, FieldHookConfig } from "formik";
+import { useField, Field, ErrorMessage } from "formik";
+import { FieldHookConfig } from "formik/dist/Field";
 import React from "react";
 
 interface OtherProps {

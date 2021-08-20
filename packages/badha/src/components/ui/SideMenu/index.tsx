@@ -17,12 +17,11 @@ import {
   ChatAlt2Icon,
   UsersIcon,
 } from "@heroicons/react/outline";
+import { classNames } from "@utils";
 import Link from "next/link";
 import { useRouter } from "next/router";
 
 import { AbilityContext } from "../../auth/can";
-
-import { classNames } from "@utils";
 
 const navigation = [
   { name: "Home", href: "#", icon: HomeIcon, current: true, type: "link" },
@@ -30,39 +29,39 @@ const navigation = [
     type: "title",
     name: "Manage",
     menuItems: [
-      {
-        name: "Posts",
-        href: "/posts?type=draft",
-        icon: NewspaperIcon,
-      },
-      {
-        name: "Pages",
-        href: "#",
-        icon: DocumentTextIcon,
-      },
-      {
-        name: "Media",
-        href: "/media",
-        icon: PhotographIcon,
-      },
-      {
-        name: "Comments",
-        href: "#",
-        icon: ChatAlt2Icon,
-      },
+      // {
+      //   name: "Posts",
+      //   href: "/posts?type=draft",
+      //   icon: NewspaperIcon,
+      // },
+      // {
+      //   name: "Pages",
+      //   href: "#",
+      //   icon: DocumentTextIcon,
+      // },
+      // {
+      //   name: "Media",
+      //   href: "/media",
+      //   icon: PhotographIcon,
+      // },
+      // {
+      //   name: "Comments",
+      //   href: "#",
+      //   icon: ChatAlt2Icon,
+      // },
       // {
       //   name: "Writers",
       //   href: "#",
       //   icon: IdentificationIcon,
       // },
-      { name: "Tags", href: "/tags", icon: TagIcon },
+      // { name: "Tags", href: "/tags", icon: TagIcon },
     ],
   },
   {
     name: "Settings",
     type: "title",
     menuItems: [
-      { name: "Templates", href: "#", icon: TemplateIcon },
+      // { name: "Templates", href: "#", icon: TemplateIcon },
       { name: "Users", href: "/users", icon: UserGroupIcon },
     ],
   },

@@ -1,11 +1,5 @@
-import {
-  Controller,
-  Request,
-  Post,
-  Get,
-  UseGuards,
-  Body,
-} from '@nestjs/common';
+import { Controller, Request, Post, Get, UseGuards, Body } from '@nestjs/common';
+import { PrismaService } from 'src/prisma';
 
 import { AuthService } from './auth.service';
 import { Public } from './decorators/public.decorator';
@@ -14,7 +8,7 @@ import { JwtAuthGuard, LocalAuthGuard } from './guards';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService, private prismaService: PrismaService) {}
 
   /**
    * Login
@@ -35,19 +29,13 @@ export class AuthController {
    */
   @Get('whoami')
   public async testAuth(@Request() request: any): Promise<any> {
-    const {
-      id,
-      uuid,
-      name,
-      nameEn,
-      slug,
-      email,
-      password,
-      picture,
-      coverPicture,
-      roles,
-      permissions,
-    } = request.user;
+    const { id, uuid, name, nameEn, slug, email, password, picture, coverPicture, roles, permissions } = request.user;
+    return await this.prismaService.user.findUnique({
+      where: { id: id },
+      include: {
+        picture,
+      },
+    });
     return {
       id,
       uuid,

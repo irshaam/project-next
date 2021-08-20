@@ -13,10 +13,11 @@ import {
   // UploadedFiles,
   // Req,
   Query,
+  UploadedFile,
   UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common';
-import { FilesInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { Public } from 'src/auth/decorators/public.decorator';
 
 // import { FilesInterceptor } from '@nestjs/platform-express';
@@ -26,10 +27,14 @@ import { Public } from 'src/auth/decorators/public.decorator';
 // import { UpdateMediaDto } from './dto/update-media.dto';
 import { CreateMediaCollectionDto } from './dto/create-media-collection.dto';
 import { MediaService } from './media.service';
+import { UploadService } from './upload.service';
 
 @Controller('media')
 export class MediaController {
-  constructor(private readonly mediaService: MediaService) {}
+  constructor(
+    private readonly mediaService: MediaService,
+    private readonly uploadService: UploadService,
+  ) {}
 
   @Get()
   findAll(
@@ -52,17 +57,35 @@ export class MediaController {
   findAllCollections(@Param('id') id: string) {
     return this.mediaService.findOneCollection(id);
   }
-  @Public()
   @Post('upload')
-  @UseInterceptors(FilesInterceptor('files'))
+  @UseInterceptors(FileInterceptor('file'))
   async uploadFile(
-    @UploadedFiles() files: Array<Express.Multer.File>,
+    @UploadedFile() file: Express.Multer.File,
     @Body() createMediaDto: any,
   ) {
-    console.log(files);
-    // return await this.mediaService.create(files, createMediaDto);
-    // console.log(createMediaDto);
+    const { type, caption, captionEn, tags, collection } = createMediaDto;
+
+    return await this.uploadService.upload(file, {
+      type,
+      caption,
+      captionEn,
+      tags,
+      collection,
+    });
+
+    console.log(createMediaDto);
   }
+  // @Public()
+  // @Post('upload')
+  // @UseInterceptors(FilesInterceptor('files'))
+  // async uploadFile(
+  //   @UploadedFiles() files: Array<Express.Multer.File>,
+  //   @Body() createMediaDto: any,
+  // ) {
+  //   console.log(files);
+  //   // return await this.mediaService.create(files, createMediaDto);
+  //   // console.log(createMediaDto);
+  // }
 
   // @Post()
   // create(@Body() createMediaDto: CreateMediaDto, @Req() req: any) {

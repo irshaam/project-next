@@ -14,14 +14,17 @@ model Media {
   file             String           @db.VarChar
   originalFilename String           @db.VarChar
   path             String           @db.VarChar
-  contentSize      String?          @db.VarChar
+  url              String?          @db.VarChar
+  type             String?          @db.VarChar
+  contentType      String?          @db.VarChar
+  contentSize      Int?             @default(0) @db.Integer
   mimeType         String?          @db.VarChar
-  type             String           @db.VarChar
   caption          String?          @db.VarChar
   captionEn        String?          @db.VarChar
   hasWatermark     Boolean          @default(false)
   isActive         Boolean          @default(true)
   isFeatured       Boolean          @default(false)
+  isExternal       Boolean          @default(false)
   collection       MediaCollection? @relation(fields: [collectionId], references: [id])
   collectionId     Int?
   creator          User?            @relation("MediaCreator", fields: [createdBy], references: [id])
@@ -33,6 +36,8 @@ model Media {
   tags             Tag[]            @relation("_media_tags")
   Tag              Tag[]
 
+  userPicture      User? @relation("UserPicture")
+  userCoverPicture User? @relation("UserCoverPicture")
   @@map("media")
 }
 
@@ -251,6 +256,8 @@ model Tag {
   mediaCollectionId Int?
   TagMeta           TagMeta[]
   Post              Post[]           @relation("PostLocation")
+
+
   @@map("tag")
 }
 
@@ -285,22 +292,29 @@ model TagType {
 }
 
 model User {
-  id           Int      @id @default(autoincrement())
-  uuid         String   @default(uuid()) @db.Uuid
-  name         String   @db.VarChar
-  nameEn       String?  @db.VarChar
-  slug         String?  @db.VarChar
-  email        String   @unique @db.VarChar
-  password     String   @db.VarChar
-  picture      String?  @db.VarChar
-  coverPicture String?  @db.VarChar
-  bio          String?  @db.VarChar
-  bioEn        String?  @db.VarChar
-  twitter      String?  @db.VarChar
-  facebook     String?  @db.VarChar
-  isActive     Boolean  @default(true)
-  createdAt    DateTime @default(now()) @db.Timestamp(6)
-  updatedAt    DateTime @default(now()) @db.Timestamp(6)
+  id       Int     @id @default(autoincrement())
+  uuid     String  @default(uuid()) @db.Uuid
+  name     String  @db.VarChar
+  nameEn   String? @db.VarChar
+  slug     String? @db.VarChar
+  email    String  @unique @db.VarChar
+  password String  @db.VarChar
+
+
+  picture   Media? @relation("UserPicture", fields: [pictureId], references: [id])
+  pictureId Int?
+
+  coverPicture   Media? @relation("UserCoverPicture", fields: [coverPictureId], references: [id])
+  coverPictureId Int?
+
+
+  bio       String?  @db.VarChar
+  bioEn     String?  @db.VarChar
+  twitter   String?  @db.VarChar
+  facebook  String?  @db.VarChar
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+  updatedAt DateTime @default(now()) @db.Timestamp(6)
 
   mediaCreator      Media[]           @relation("MediaCreator")
   mediaUpdater      Media[]           @relation("MediaUpdater")
@@ -318,6 +332,7 @@ model User {
 
   posts Post[] @relation("_post_authors")
   roles Role[] @relation("_user_roles")
+
 
   @@map("user")
 }

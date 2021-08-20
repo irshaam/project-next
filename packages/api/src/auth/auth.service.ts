@@ -41,9 +41,14 @@ export class AuthService {
   ) {}
 
   async validateUser(username: string, password: string): Promise<any> {
-    const user = await this.prisma.user.findFirst({
+    const user = await this.prisma.user.findUnique({
       where: { email: username },
       include: {
+        picture: {
+          select: {
+            path: true,
+          },
+        },
         roles: {
           select: {
             name: true,
@@ -89,10 +94,7 @@ export class AuthService {
     const expiresIn = '60s';
 
     const token = await this.tokenService.generateAccessToken(user);
-    const refresh = await this.tokenService.generateRefreshToken(
-      user,
-      60 * 60 * 24 * 30,
-    );
+    const refresh = await this.tokenService.generateRefreshToken(user, 60 * 60 * 24 * 30);
 
     const payload = this.buildResponsePayload(user, token, refresh);
 
@@ -111,8 +113,7 @@ export class AuthService {
   async refreshToken(refreshTokenDto: RefreshTokenDto) {
     const { refresh_token } = refreshTokenDto;
 
-    const { user, token } =
-      await this.tokenService.createAccessTokenFromRefreshToken(refresh_token);
+    const { user, token } = await this.tokenService.createAccessTokenFromRefreshToken(refresh_token);
 
     const payload = this.buildResponsePayload(user, token);
 
@@ -144,18 +145,13 @@ export class AuthService {
   //     },
   //   };
   // }
-  private buildResponsePayload(
-    user: User,
-    accessToken: string,
-    refreshToken?: string,
-  ): AuthenticationPayload {
+  private buildResponsePayload(user: any, accessToken: string, refreshToken?: string): AuthenticationPayload {
+    console.log(user);
     return {
       id: String(user.id),
       name: user.nameEn,
       email: user.email,
-      image: user.picture
-        ? `${cdn_url}/${user.picture}`
-        : `${cdn_url}/default.png`,
+      image: user.picture?.path ? `${cdn_url}/${user.picture?.path}` : `${cdn_url}/default.png`,
       // type: 'bearer',
       token: accessToken,
       ...(refreshToken ? { refresh_token: refreshToken } : {}),

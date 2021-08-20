@@ -19,4 +19,7 @@ module.exports = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  images: {
+    domains: ["bucket-next.s3.ap-southeast-1.amazonaws.com"],
+  },
 };

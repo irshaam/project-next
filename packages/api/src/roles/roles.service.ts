@@ -58,6 +58,9 @@ export class RolesService {
           },
         },
       },
+      orderBy: {
+        id: 'asc',
+      },
     });
   };
 }
