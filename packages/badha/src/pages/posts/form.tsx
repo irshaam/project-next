@@ -10,11 +10,10 @@ import * as Yup from "yup";
 
 import { AbilityContext } from "../../components/auth/can";
 import { PostEditor } from "../../components/editor";
-import TextInput from "../../components/form/input-text";
-import ThaanaInput from "../../components/form/input-thaana";
-import SingleSelect from "../../components/form/single-select";
 import PostSettings from "../../components/post/settings";
 import { sluggify } from "../../utils/slugify";
+
+import FeaturedMedia from "./featured-media";
 
 import HeadingInput from "@/components/post/input-heading";
 import DetailHeadingInput from "@/components/post/input-heading-detailed";
@@ -87,24 +86,6 @@ const InnerForm = (props: FormikProps<FormValues> & MyFormProps) => {
   const [showSettings, setShowSettings] = useState<boolean>(true);
   const [document, updateDocument] = useState<any[]>([]);
   const [count, setCount] = useState<any>(0);
-  useEffect(() => {
-    if (post && post.content) {
-      updateDocument(post.content);
-      setCount(serialize(post.content));
-    } else {
-      updateDocument([
-        {
-          type: "paragraph",
-          children: [
-            {
-              text: "",
-            },
-          ],
-        },
-      ]);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   // const [document, updateDocument] = useState<any[]>([
   //   {
@@ -155,7 +136,6 @@ const InnerForm = (props: FormikProps<FormValues> & MyFormProps) => {
 
   const serialize = (nodes: any) => {
     const str = nodes.map((n: any) => Node.string(n)).join(" ");
-    console.log(str);
     return WordCount(str);
   };
 
@@ -176,6 +156,37 @@ const InnerForm = (props: FormikProps<FormValues> & MyFormProps) => {
     setFieldValue("status", "review");
     handleSubmit();
   };
+
+  useEffect(() => {
+    if (post && post.content) {
+      updateDocument(post.content);
+      setCount(serialize(post.content));
+    } else {
+      const document = [
+        {
+          id: nanoid(5),
+          type: "paragraph",
+          children: [
+            {
+              text: "",
+            },
+          ],
+        },
+
+        // {
+        //   type: "image",
+        //   url: "https://dhauru.imgix.net/samples/1.jpg",
+        //   caption: "",
+        //   // empty text node as child for the Void element.
+        //   children: [{ text: "" }],
+        // },
+      ];
+
+      updateDocument(document);
+      setFieldValue("content", document);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <Form autoComplete="off" autoCorrect="off" autoCapitalize="off" noValidate>
@@ -201,18 +212,19 @@ const InnerForm = (props: FormikProps<FormValues> & MyFormProps) => {
           </pre>
         </div> */}
 
-        {/* <div
+        <div
           className="text-xs absolute top-20 left-4 p-4 bg-gray-800 text-gray-200 rounded-lg shadow-lg overflow-scroll"
-          style={{ width: "300px", maxHeight: "400px" }}
+          style={{ width: "500px", minHeight: "800px" }}
         >
           <pre>{JSON.stringify(values.content, null, 2)}</pre>
-        </div> */}
+        </div>
 
         {/* <pre>{JSON.stringify(values, null, 2)}</pre> */}
 
         <div className="w-full flex items-center flex-col">
           <div className="flex flex-col " style={{ width: "680px", marginBottom: "30px" }}>
             {/* Detailed Heading */}
+
             <div>
               <HeadingInput
                 title="Heading"
@@ -296,7 +308,16 @@ const InnerForm = (props: FormikProps<FormValues> & MyFormProps) => {
             </div>
           </div>
 
-          <PostEditor autoCapitalize document={document ? document : {}} onChange={documentChangeHandler}></PostEditor>
+          <div className="mb-10">
+            <FeaturedMedia
+              onChange={(media: any) => {
+                setFieldValue("featuredMedia", media);
+              }}
+              default={values.featuredMedia}
+            />
+          </div>
+
+          <PostEditor autoCapitalize document={document ? document : {}} onChange={documentChangeHandler} />
         </div>
         {/* EDITOR OFF */}
       </div>
@@ -310,7 +331,7 @@ const InnerForm = (props: FormikProps<FormValues> & MyFormProps) => {
           <CogIcon className="h-6 w-6" aria-hidden="true" />
         </button>
       </div>
-      <PostSettings
+      {/* <PostSettings
         values={values ? values : []}
         onSubmit={handleSubmit}
         show={showSettings}
@@ -321,7 +342,7 @@ const InnerForm = (props: FormikProps<FormValues> & MyFormProps) => {
         showAuthors={values.showAuthors}
         submitForReview={submitForReview}
         setStatus={(value: string) => setFieldValue("status", value)}
-      />
+      /> */}
     </Form>
   );
 };
@@ -340,7 +361,7 @@ const CreateTagForm = withFormik<MyFormProps, FormValues>({
   mapPropsToValues: ({ post, user }) => ({
     id: (post && post?.id) || null,
     slug: (post && post.slug) || "",
-    heading: (post && post.heading) || null,
+    heading: (post && post.heading) || "",
     headingDetailed: (post && post.headingDetailed) || "",
     latinHeading: (post && post.latinHeading) || "",
     leadText: (post && post.leadText) || "",
@@ -355,22 +376,12 @@ const CreateTagForm = withFormik<MyFormProps, FormValues>({
     ],
     showAuthors: (post && post.showAuthors) || true,
     status: (post && post.status) || "draft",
-    content: (post && post.content) || [
-      {
-        type: "paragraph",
-        id: nanoid(10),
-        children: [
-          {
-            text: "",
-          },
-        ],
-      },
-    ],
-    createdAt: (post && post.createdAt && new Date(post.createdAt).toISOString().slice(0, 16)) || null,
-    scheduledAt: (post && post.scheduledAt && new Date(post.scheduledAt).toISOString().slice(0, 16)) || null,
-    publishedAt: (post && post.publishedAt && new Date(post.publishedAt).toISOString().slice(0, 16)) || null,
+    content: (post && post.content) || "",
+    createdAt: (post && post.createdAt && new Date(post.createdAt).toISOString().slice(0, 16)) || "",
+    scheduledAt: (post && post.scheduledAt && new Date(post.scheduledAt).toISOString().slice(0, 16)) || "",
+    publishedAt: (post && post.publishedAt && new Date(post.publishedAt).toISOString().slice(0, 16)) || "",
     editorComment: (post && post.editorComment) || "",
-    editedBy: (post && post.editedBy) || null,
+    editedBy: (post && post.editedBy) || "",
     // tag releated stuff
     // headingDetailed:"",
 
@@ -389,6 +400,7 @@ const CreateTagForm = withFormik<MyFormProps, FormValues>({
     if (formikBag.props.mode === "create") {
       delete values.id;
     }
+
     formikBag.props.onSubmit({ ...values });
     formikBag.setSubmitting(false);
   },

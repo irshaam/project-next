@@ -57,8 +57,15 @@ const SideMenu = forwardRef((props: any, ref: any) => {
           style={{ background: "#DBD2CD", width: "312px", maxHeight: "376px" }}
         >
           <div>
-            <div className="text-xs font-bold text-gray-500 py-2">PRIMARY</div>
+            {/* basic blocks */}
+            <div className="text-xs font-bold text-gray-500 py-2">BASIC BLOCKS</div>
             <MenuItem addBlock={addNode} />
+
+            {/* media blocks */}
+            <div className="text-xs font-bold text-gray-500 py-2">MEDIA</div>
+
+            {/* embed */}
+            <div className="text-xs font-bold text-gray-500 py-2">EMBED</div>
           </div>
         </div>
       )}

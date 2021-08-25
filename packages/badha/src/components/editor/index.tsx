@@ -5,6 +5,9 @@ import { Slate, Editable, withReact, ReactEditor, useSlate, useFocused, useSlate
 
 import { useEditorConfig, useSelection } from "./hooks";
 import { HoverToolbar } from "./hover-toolbar";
+import { withNodeId } from "./normalizers/create-node-id";
+import { withList } from "./normalizers/list-insert-break";
+import { withDeleteEmptyBlock } from "./plugins/delete-empty-block";
 import { SideToolbar } from "./side-toolbar";
 
 type CustomText = { text: string; bold?: boolean; italic?: boolean; underline?: boolean };
@@ -34,7 +37,7 @@ export const PostEditor = (props: any) => {
 
   const hoverMenu = createRef<any>();
 
-  const editor = useMemo(() => withHistory(withReact(createEditor())), []);
+  const editor = useMemo(() => withDeleteEmptyBlock(withNodeId(withList(withHistory(withReact(createEditor()))))), []);
 
   const { renderElement, KeyBindings, renderLeaf } = useEditorConfig(editor);
 
@@ -49,10 +52,14 @@ export const PostEditor = (props: any) => {
     (document) => {
       onChange(document);
       setSelection(editor.selection);
-      // console.log(editor);
     },
     [onChange, setSelection, editor]
   );
+
+  // const handleFocus = useCallback((event, editor) => {
+  //   editor.focus();
+  //   onfocus?.(editor);
+  // }, []);
 
   return (
     <div style={{ width: "1400px" }} className="relative" ref={editorRef}>
@@ -116,6 +123,7 @@ export const PostEditor = (props: any) => {
           className="thaana font-mv-typewriter"
           // className="border border-gray-600 thaana font-mv-typewriter"
           onKeyDown={onKeyDown}
+          // onFocus={handleFocus}
           autoFocus={true}
         ></Editable>
       </Slate>

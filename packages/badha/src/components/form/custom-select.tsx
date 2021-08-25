@@ -24,7 +24,6 @@ export const CustomSelect = ({ className, placeholder, field, form, options, isM
 
   const getValue = () => {
     if (options) {
-      console.log(field.value);
       return isMulti
         ? options.filter((option: Option) => field.value.findIndex((value: any) => value.id === option.id) >= 0)
         : options.find((option: Option) => option.id === field.value);
@@ -37,7 +36,7 @@ export const CustomSelect = ({ className, placeholder, field, form, options, isM
     <Select
       menuPortalTarget={typeof document !== "undefined" ? document.body : null}
       styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }}
-      instanceId="long-value-select"
+      instanceId={`long-value-select_${field.name}`}
       className={className}
       name={field.name}
       value={getValue()}

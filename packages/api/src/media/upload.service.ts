@@ -59,7 +59,7 @@ export class UploadService {
 
       if (meta.collection) {
         formData['collection'] = {
-          connect: { id: meta.collection },
+          connect: { id: Number(meta.collection) },
         };
       }
       /**

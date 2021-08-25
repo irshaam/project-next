@@ -1,11 +1,5 @@
 import { ForbiddenError } from '@casl/ability';
-import {
-  BadRequestException,
-  Inject,
-  Injectable,
-  NotFoundException,
-  Scope,
-} from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException, Scope } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
 import { nanoid } from 'nanoid';
@@ -13,28 +7,14 @@ import { PrismaService } from 'src/prisma';
 
 @Injectable({ scope: Scope.REQUEST })
 export class PostsService {
-  constructor(
-    @Inject(REQUEST) private request: Request,
-    private prisma: PrismaService,
-  ) {}
+  constructor(@Inject(REQUEST) private request: Request, private prisma: PrismaService) {}
 
   /**
    * Find All by ID
    */
-  async findAll({
-    type = 'all',
-    page = 1,
-    take = 15,
-  }: {
-    type?: string;
-    page?: number;
-    take?: number;
-  }) {
+  async findAll({ type = 'all', page = 1, take = 15 }: { type?: string; page?: number; take?: number }) {
     //  check for permission
-    ForbiddenError.from(this.request.user.ability).throwUnlessCan(
-      'read',
-      'Post',
-    );
+    ForbiddenError.from(this.request.user.ability).throwUnlessCan('read', 'Post');
 
     let or: any = '';
 
@@ -206,10 +186,7 @@ export class PostsService {
    * Find One by ID
    */
   findOne = async (id: string) => {
-    ForbiddenError.from(this.request.user.ability).throwUnlessCan(
-      'read',
-      'Post',
-    );
+    ForbiddenError.from(this.request.user.ability).throwUnlessCan('read', 'Post');
     const post = await this.prisma.post.findUnique({
       where: {
         nanoid: id,
@@ -267,10 +244,7 @@ export class PostsService {
 
   /** Create Post */
   async create(data: any) {
-    ForbiddenError.from(this.request.user.ability).throwUnlessCan(
-      'create',
-      'Post',
-    );
+    ForbiddenError.from(this.request.user.ability).throwUnlessCan('create', 'Post');
     const nanoId = nanoid(9);
 
     // const { heading, latinHeading, categoryId, slug, content } = data
@@ -356,10 +330,7 @@ export class PostsService {
     let formData = {};
     // Check user persmissions to change status
     if (data.status != 'draft' || data.status != 'review') {
-      ForbiddenError.from(this.request.user.ability).throwUnlessCan(
-        'moderate',
-        'Post',
-      );
+      ForbiddenError.from(this.request.user.ability).throwUnlessCan('moderate', 'Post');
       console.log('adasd');
     }
 

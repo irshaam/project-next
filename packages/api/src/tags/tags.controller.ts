@@ -1,15 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Req,
-  Param,
-  Patch,
-  Query,
-  Delete,
-  HttpCode,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Req, Param, Patch, Query, Delete, HttpCode } from '@nestjs/common';
 
 import { CreateTagDto } from './dto/create-tag.dto';
 import { UpdateTagDto } from './dto/update-tag.dto';
@@ -20,11 +9,7 @@ export class TagsController {
   constructor(private readonly tagsService: TagsService) {}
 
   @Get()
-  findAll(
-    @Query('page') page?: number,
-    @Query('take') take?: number,
-    @Query('type') type?: string,
-  ) {
+  findAll(@Query('page') page?: number, @Query('take') take?: number, @Query('type') type?: string) {
     return this.tagsService.findAll({ type });
   }
 

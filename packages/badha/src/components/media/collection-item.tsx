@@ -1,4 +1,4 @@
-import { PhotographIcon } from "@heroicons/react/outline";
+import { PhotographIcon, TrashIcon } from "@heroicons/react/outline";
 import filesize from "filesize";
 import Image from "next/image";
 import { useRouter } from "next/router";
@@ -6,6 +6,7 @@ import { useRouter } from "next/router";
 import { imageLoader, classNames } from "../../utils";
 
 interface MediaItem {
+  [x: string]: any;
   id: number | string;
   file?: string;
   original_filename?: string;
@@ -20,15 +21,17 @@ interface MediaItem {
   createdAt?: string;
   updatedAt?: string;
   _count?: any;
+  media: any;
   nameEn?: string;
 }
 
 interface Props {
-  media: MediaItem;
-  currentItem: number;
-  setCurrent(id: number): void;
+  collection: MediaItem;
+  currentItem?: number;
+  setCurrent?(id: number): void;
+  onDelete(id: number): void;
 }
-const CollectionItem = ({ media, currentItem, setCurrent }: Props) => {
+const CollectionItem = ({ collection, currentItem, setCurrent, onDelete }: Props) => {
   const router = useRouter();
   // const [showMenu, toggleMenu] = useState<boolean>(false);
   // const [session, loading] = useSession();
@@ -39,44 +42,79 @@ const CollectionItem = ({ media, currentItem, setCurrent }: Props) => {
 
   const handleSubmit = () => {
     router.push({
-      pathname: `/media/collection/edit/${media.id}`,
+      pathname: `/media/collections/edit/${collection.id}`,
     });
   };
 
   return (
-    <li className="relative cursor-pointer" onClick={handleSubmit}>
+    <li className="relative cursor-pointer">
       <div
         className={classNames(
-          isActive(Number(media.id))
+          isActive(Number(collection.id))
             ? "ring-2 ring-offset-2 ring-indigo-500"
             : "focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-offset-gray-100 focus-within:ring-indigo-500",
           "group block w-full aspect-w-10 aspect-h-7 rounded-lg border bg-white border-gray-200 shadow-md overflow-hidden h-full"
         )}
       >
-        <div className="flex px-3 py-2">
+        <div className="flex px-3 py-2 items-center justify-between">
           <div className="flex items-center">
             <PhotographIcon className="h-5 w-5 mr-2 text-gray-400" />
-            {media._count.media}
+            {collection._count.media}
+          </div>
+          <div className="flex items-center">
+            <button
+              className="border-transparent focus:outline-none"
+              type="button"
+              onClick={() => onDelete(Number(collection.id))}
+            >
+              <TrashIcon className="h-5 w-5  text-gray-400 hover:text-red-next" />
+            </button>
           </div>
         </div>
-
+        <div onClick={handleSubmit}>
+          {/* `${collection?.media.length > 0 ? collection.path : "empty-gallery.jpg"}` */}
+          {collection.media && collection.media.length > 0 ? (
+            <Image
+              loader={imageLoader}
+              width={512}
+              height={512}
+              src={collection?.media[0]?.path}
+              quality={75}
+              alt={`Media object #${collection.id}`}
+              className={classNames(
+                isActive(Number(collection.id)) ? "" : "group-hover:opacity-75 ",
+                "object-cover pointer-events-none"
+              )}
+            />
+          ) : (
+            <Image
+              loader={imageLoader}
+              width={512}
+              height={512}
+              src={"empty-gallery.jpg"}
+              quality={75}
+              alt={`Media object #${collection.id}`}
+              className={classNames(
+                isActive(Number(collection.id)) ? "" : "group-hover:opacity-75 ",
+                "object-cover pointer-events-none"
+              )}
+            />
+          )}
+          <div className="flex items-center px-3 py-2 text-sm -mt-1">{collection.nameEn}</div>
+        </div>
+        {/*
         <Image
           loader={imageLoader}
           width={512}
           height={512}
-          src={`${media.path ? media.path : "empty-gallery.jpg"}`}
+          src={`${collection?.media.length > 0 ? collection.path : "empty-gallery.jpg"}`}
           quality={100}
-          alt={`Media object #${media.id}`}
+          alt={`Media object #${collection.id}`}
           className={classNames(
-            isActive(Number(media.id)) ? "" : "group-hover:opacity-75 ",
+            isActive(Number(collection.id)) ? "" : "group-hover:opacity-75 ",
             "object-cover pointer-events-none"
           )}
-        />
-
-        <div className="flex items-center px-3 py-2 text-sm -mt-1">
-          {media.nameEn} {media.nameEn}
-          {media.nameEn}
-        </div>
+        /> */}
       </div>
     </li>
   );

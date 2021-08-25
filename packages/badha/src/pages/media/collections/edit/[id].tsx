@@ -15,8 +15,9 @@ import CollectionUploadModal from "../collection-upload-modal";
 
 import client from "@/api/client";
 import CollectionItem from "@/components/media/collection-item";
-import { MainLayout } from "@layouts";
 import "react-dropzone-uploader/dist/styles.css";
+import MediaItem from "@/components/media/media-item";
+import { MainLayout } from "@layouts";
 
 export async function getServerSideProps({ req, params }) {
   const session = await getSession({ req });
@@ -67,6 +68,9 @@ const fetcher = (url: string, token: string) =>
 
 const MediaIndex = (props: any) => {
   const { tags, collection } = props;
+
+  const [items, updateItems] = useState(collection.media);
+
   const [session] = useSession();
   const router = useRouter();
   const types = ["Collections", "Images", "Videos", "Documents"];
@@ -104,23 +108,18 @@ const MediaIndex = (props: any) => {
   //   }
   // };
 
-  // specify upload params and url for your files
-  const getUploadParams = ({ file, meta }) => {
-    const formData = new FormData();
-    formData.append("files", file);
-
-    return { url: "/media/upload", formData };
+  const handleSubmit = (items: any) => {
+    items.map((item: any) => {
+      // const i = JSON.parse(item);
+      updateItems((prevState: any) => [item, ...prevState]);
+    });
   };
+  const handleDelete = async (id: any) => {
+    const resp = await client.delete(`/media/${id}`, {
+      headers: { Authorization: "Bearer " + session?.access_token },
+    });
 
-  // called every time a file's `status` changes
-  const handleChangeStatus = ({ meta, file }, status) => {
-    console.log(status, meta, file);
-  };
-
-  // receives array of files that are done uploading when submit button is clicked
-  const handleSubmit = (files, allFiles) => {
-    console.log(files.map((f) => f.meta));
-    allFiles.forEach((f) => f.remove());
+    updateItems(items.filter((item: any) => item.id !== id));
   };
 
   return (
@@ -169,30 +168,23 @@ const MediaIndex = (props: any) => {
               className="grid grid-cols- 2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-6 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-8 xl:gap-x-8"
               // className="grid grid-cols- 2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-6 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8"
             >
-              <div>hello</div>
-              {/* {data &&
-                data.data.map((item: any) => (
-                  <CollectionItem
+              {data &&
+                items.map((item: any) => (
+                  <MediaItem
+                    onDelete={handleDelete}
                     // currentItem={currentItem ? currentItem.id : ""}
                     // setCurrent={handleClick}
                     media={item}
                     key={`media_item_${item.id}`}
                   />
-                ))} */}
+                ))}
             </ul>
           </section>
-
-          <div>
-            <Dropzone
-              getUploadParams={getUploadParams}
-              onChangeStatus={handleChangeStatus}
-              onSubmit={handleSubmit}
-              accept="image/*,audio/*,video/*"
-            />
-          </div>
         </main>
       </div>
       <CollectionUploadModal
+        collection={collection}
+        upateCollection={(item: any) => updateItems((items: any) => [item, ...items])}
         open={showUploadModal}
         onSubmit={handleSubmit}
         onClose={(): void => setShowUploadModal(!showUploadModal)}

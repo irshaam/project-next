@@ -1,11 +1,4 @@
-import {
-  IsBoolean,
-  IsNotEmpty,
-  IsNumber,
-  IsString,
-  IsOptional,
-  IsEnum,
-} from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsNumber, IsString, IsOptional, IsEnum } from 'class-validator';
 
 export enum PostStatus {
   DRAFT = 'draft',
@@ -51,7 +44,6 @@ export class CreatePostDto {
   topicId?: number;
 
   @IsOptional()
-  @IsString()
   featuredMedia?: string;
 
   @IsOptional()

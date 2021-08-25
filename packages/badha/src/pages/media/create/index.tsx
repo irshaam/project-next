@@ -1,9 +1,10 @@
-import { getTags } from "@/api";
 import { useRouter } from "next/router";
 
 import client from "../../../api/client";
 import { MainLayout } from "../../../components";
 import CreateMediaForm from "../../../components/pages/posts/form";
+
+import { getTags } from "@/api";
 
 export async function getServerSideProps(context: any) {
   const tags = await getTags();

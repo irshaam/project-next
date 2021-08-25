@@ -176,8 +176,9 @@ const UsersIndex = (props: any) => {
               </button>
             </Link>
             <button
+              disabled
               type="button"
-              className="inline-flex items-center px-3 py-2  border-gray-300 rounded-md hover:shadow-sm text-xs font-medium text-gray-700  hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-50 focus:ring-red-next"
+              className="disabled:opacity-50 inline-flex items-center px-3 py-2  border-gray-300 rounded-md hover:shadow-sm text-xs font-medium text-gray-700  hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-50 focus:ring-red-next"
             >
               <TrashIcon className="h-5 w-5 text-gray-400 hover:text-red-next" />
             </button>

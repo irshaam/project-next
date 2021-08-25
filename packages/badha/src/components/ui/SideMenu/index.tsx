@@ -17,11 +17,12 @@ import {
   ChatAlt2Icon,
   UsersIcon,
 } from "@heroicons/react/outline";
-import { classNames } from "@utils";
 import Link from "next/link";
 import { useRouter } from "next/router";
 
 import { AbilityContext } from "../../auth/can";
+
+import { classNames } from "@utils";
 
 const navigation = [
   { name: "Home", href: "#", icon: HomeIcon, current: true, type: "link" },
@@ -29,21 +30,21 @@ const navigation = [
     type: "title",
     name: "Manage",
     menuItems: [
-      // {
-      //   name: "Posts",
-      //   href: "/posts?type=draft",
-      //   icon: NewspaperIcon,
-      // },
+      {
+        name: "Posts",
+        href: "/posts?type=draft",
+        icon: NewspaperIcon,
+      },
       // {
       //   name: "Pages",
       //   href: "#",
       //   icon: DocumentTextIcon,
       // },
-      // {
-      //   name: "Media",
-      //   href: "/media",
-      //   icon: PhotographIcon,
-      // },
+      {
+        name: "Media",
+        href: "/media/collections",
+        icon: PhotographIcon,
+      },
       // {
       //   name: "Comments",
       //   href: "#",

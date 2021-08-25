@@ -1,5 +1,12 @@
 import { ForbiddenError } from '@casl/ability';
-import { BadRequestException, Inject, Injectable, Scope } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  MethodNotAllowedException,
+  NotFoundException,
+  Scope,
+} from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
 
@@ -12,19 +19,20 @@ import { PrismaService } from '../prisma';
 
 @Injectable({ scope: Scope.REQUEST })
 export class MediaService {
-  constructor(
-    @Inject(REQUEST) private request: Request,
-    private prisma: PrismaService,
-  ) {}
+  constructor(@Inject(REQUEST) private request: Request, private prisma: PrismaService) {}
 
-  async findAll({ type = 'collections', page = 1, take = 5 }) {
-    ForbiddenError.from(this.request.user.ability).throwUnlessCan(
-      'read',
-      'Media',
-    );
+  async findAll({ type = 'image', page = 1, take = 5 }) {
+    ForbiddenError.from(this.request.user.ability).throwUnlessCan('read', 'Media');
 
     if (page < 0) {
       throw new BadRequestException('Page value should not be negative!!');
+    }
+
+    if (!page) {
+      page = 1;
+    }
+    if (!take) {
+      take = 10;
     }
 
     let data = [];
@@ -32,34 +40,24 @@ export class MediaService {
     let totalPages = 0;
     const skip = (page - 1) * take;
 
-    switch (type) {
-      case 'collections':
-        totalCount = await this.prisma.mediaCollection.count();
-        totalPages = Math.ceil(totalCount / take);
-        data = await this.prisma.mediaCollection.findMany({
+    totalCount = await this.prisma.media.count({ where: { type: type } });
+    totalPages = Math.ceil(totalCount / take);
+    data = await this.prisma.media.findMany({
+      include: {
+        collection: {
           select: {
             id: true,
             name: true,
-            nameEn: true,
-            isFeatured: true,
-            media: {
-              select: {
-                id: true,
-              },
-              take: 1,
-            },
-            _count: {
-              select: { media: true },
-            },
           },
-          take: Number(take) || undefined,
-          skip: Number(skip) || undefined,
-          orderBy: {
-            updatedAt: 'desc',
-          },
-        });
-        break;
-    }
+        },
+      },
+      where: { type: type },
+      take: Number(take) || undefined,
+      skip: Number(skip) || undefined,
+      orderBy: {
+        updatedAt: 'desc',
+      },
+    });
 
     return {
       data,
@@ -93,6 +91,59 @@ export class MediaService {
     });
 
     return collection;
+  }
+
+  async findAllCollections({ page = 1, take = 2 }) {
+    ForbiddenError.from(this.request.user.ability).throwUnlessCan('read', 'Media');
+
+    if (page < 0) {
+      throw new BadRequestException('Page value should not be negative!!');
+    }
+
+    if (!page) {
+      page = 1;
+    }
+    if (!take) {
+      take = 18;
+    }
+
+    let data = [];
+    let totalCount = 0;
+    let totalPages = 0;
+    const skip = (page - 1) * take;
+
+    totalCount = await this.prisma.mediaCollection.count();
+    totalPages = Math.ceil(totalCount / take);
+    data = await this.prisma.mediaCollection.findMany({
+      select: {
+        id: true,
+        name: true,
+        nameEn: true,
+        isFeatured: true,
+        media: {
+          select: {
+            id: true,
+            path: true,
+          },
+          take: 1,
+        },
+        _count: {
+          select: { media: true },
+        },
+      },
+      take: Number(take) || undefined,
+      skip: Number(skip) || undefined,
+      orderBy: {
+        updatedAt: 'desc',
+      },
+    });
+
+    return {
+      data,
+      totalCount,
+      currentPage: page || 0,
+      totalPages,
+    };
   }
 
   //   const or =
@@ -162,6 +213,10 @@ export class MediaService {
             isActive: true,
             isFeatured: true,
           },
+
+          orderBy: {
+            createdAt: 'desc',
+          },
         },
       },
     });
@@ -222,4 +277,61 @@ export class MediaService {
   //     relations: ['media'],
   //   });
   // }
+
+  // Remove Collection
+  async removeCollection(id: string) {
+    const mediaExist = await this.prisma.mediaCollection.findFirst({
+      where: { id: Number(id) },
+    });
+
+    if (!mediaExist) {
+      throw new NotFoundException();
+    }
+
+    const { _count } = await this.prisma.mediaCollection.findFirst({
+      where: {
+        id: Number(id),
+      },
+      select: {
+        _count: {
+          select: { media: true },
+        },
+      },
+    });
+
+    if (_count.media > 0) {
+      throw new MethodNotAllowedException('One or more medias connected to the collection!!');
+    }
+
+    return await this.prisma.mediaCollection.delete({ where: { id: Number(id) } });
+  }
+
+  async remove(id: string) {
+    const mediaExist = await this.prisma.media.findFirst({
+      where: { id: Number(id) },
+    });
+
+    if (!mediaExist) {
+      throw new NotFoundException();
+    }
+
+    return await this.prisma.media.delete({ where: { id: Number(id) } });
+
+    // const { _count } = await this.prisma.tag.findFirst({
+    //   where: {
+    //     id: Number(id),
+    //   },
+    //   select: {
+    //     _count: {
+    //       select: { posts: true },
+    //     },
+    //   },
+    // });
+
+    // if (_count.posts > 0) {
+    //   throw new MethodNotAllowedException('One or more posts connected to the tag!!');
+    // }
+
+    // Delete
+  }
 }

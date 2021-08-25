@@ -313,6 +313,7 @@ model User {
   twitter   String?  @db.VarChar
   facebook  String?  @db.VarChar
   isActive  Boolean  @default(true)
+  isAuthor  Boolean  @default(false)
   createdAt DateTime @default(now()) @db.Timestamp(6)
   updatedAt DateTime @default(now()) @db.Timestamp(6)
 

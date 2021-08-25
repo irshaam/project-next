@@ -62,11 +62,11 @@ const PostSettings = (props: any) => {
                   <div className="space-y-6 pt-6 pb-5">
                     {/* eof authors */}
                     <div>
-                      {mode !== "draft" && (
+                      {mode !== "draft" && mode !== "create" && (
                         <Field
                           as="select"
                           name="status"
-                          className="w-full bg-white relative bg-transparent w-full rounded-md focus:ring-4 border-2 focus:border-red-next focus:border-opacity-20 focus:ring-red-next focus:ring-opacity-10"
+                          className="bg-white relative bg-transparent w-full rounded-md focus:ring-4 border-2 focus:border-red-next focus:border-opacity-20 focus:ring-red-next focus:ring-opacity-10"
                         >
                           <option value="review" disabled={mode !== "review"}>
                             Review
@@ -187,7 +187,7 @@ const PostSettings = (props: any) => {
                         <Field
                           name="showAuthors"
                           id="showAuthors"
-                          class="focus:ring-rk-dark h-5  w-5 text-rk-dark border-gray-300 rounded checkbox mr-4"
+                          className="focus:ring-rk-dark h-5  w-5 text-rk-dark border-gray-300 rounded checkbox mr-4"
                           type="checkbox"
                         />
                         <div className="text-sm font-medium text-light-gray">Show authors</div>
@@ -221,8 +221,8 @@ const PostSettings = (props: any) => {
                       <Field
                         name="showAuthors"
                         id="showAuthors"
-                        class="focus:ring-rk-dark h-5  w-5 text-rk-dark border-gray-300 rounded checkbox mr-4"
-                        // class="mr-2 leading-tight h-1"
+                        className="focus:ring-rk-dark h-5  w-5 text-rk-dark border-gray-300 rounded checkbox mr-4"
+                        // className="mr-2 leading-tight h-1"
                         type="checkbox"
                       />
                       <div>Hide Authors Details</div>
@@ -237,8 +237,8 @@ const PostSettings = (props: any) => {
                       <Field
                         name="isFeatured"
                         id="isFeatured"
-                        class="focus:ring-rk-dark h-5  w-5 text-rk-dark border-gray-300 rounded checkbox mr-4"
-                        // class="mr-2 leading-tight h-1"
+                        className="focus:ring-rk-dark h-5  w-5 text-rk-dark border-gray-300 rounded checkbox mr-4"
+                        // className="mr-2 leading-tight h-1"
                         type="checkbox"
                       />
                       <div>Feature this post</div>

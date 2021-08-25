@@ -36,6 +36,12 @@ export class PublicApiController {
       title: 'Home',
     };
 
+    const pageMeta = {
+      title: 'Home',
+      type: 'home',
+      layout: 'base',
+    };
+
     const heroBlock = await this.prisma.post.findMany({
       select: {
         id: true,
@@ -217,9 +223,7 @@ export class PublicApiController {
       id: await nanoid(),
       type: 'hero-block',
       featuredMain: { ...heroBlockFiltered[0] },
-      featuredSub: [
-        ...heroBlockFiltered.filter((hero: any, idx: any) => idx !== 0),
-      ],
+      featuredSub: [...heroBlockFiltered.filter((hero: any, idx: any) => idx !== 0)],
     };
     blocks[1] = {
       id: await nanoid(),
@@ -228,12 +232,7 @@ export class PublicApiController {
         title: 'އުމަރު، ކިޔާލަން ހާއްސަ',
         align: 'center',
       },
-      featuredMain: [
-        umaruFiltered[0],
-        umaruFiltered[1],
-        umaruFiltered[2],
-        umaruFiltered[3],
-      ],
+      featuredMain: [umaruFiltered[0], umaruFiltered[1], umaruFiltered[2], umaruFiltered[3]],
       featuredSub: [...umaruFiltered.filter((hero: any, idx: any) => idx > 3)],
     };
     blocks[2] = {
@@ -257,9 +256,8 @@ export class PublicApiController {
           },
           featuredMain: { ...editorFiltered[0] },
           featuredSub: [
-            ...editorFiltered.filter(
-              (hero: any, idx: any) => idx > 0 && idx < 8,
-            ),
+            ...editorFiltered.filter((hero: any, idx: any) => idx > 0 && idx < 8),
+            ...umaruFiltered.filter((hero: any, idx: any) => idx > 2 && idx < 8),
           ],
         },
         {
@@ -269,11 +267,7 @@ export class PublicApiController {
             readmoreUrl: '',
           },
           featuredMain: { ...umaruFiltered[0] },
-          featuredSub: [
-            ...umaruFiltered.filter(
-              (hero: any, idx: any) => idx > 0 && idx < 8,
-            ),
-          ],
+          featuredSub: [...umaruFiltered.filter((hero: any, idx: any) => idx > 0 && idx < 8)],
         },
       ],
     };
@@ -326,9 +320,7 @@ export class PublicApiController {
         readmoreUrl: '',
       },
       featuredMain: umaruFiltered[2],
-      featuredSub: [
-        ...umaruFiltered.filter((hero: any, idx: any) => idx > 2 && idx < 6),
-      ],
+      featuredSub: [...umaruFiltered.filter((hero: any, idx: any) => idx > 2 && idx < 6)],
     };
     blocks[8] = {
       id: await nanoid(),
@@ -354,11 +346,7 @@ export class PublicApiController {
             title: 'ފޮޓޯ ގެލެރީ',
             readmoreUrl: '',
           },
-          featuredMain: [
-            ...umaruFiltered.filter(
-              (hero: any, idx: any) => idx > 0 && idx < 3,
-            ),
-          ],
+          featuredMain: [...umaruFiltered.filter((hero: any, idx: any) => idx > 0 && idx < 3)],
         },
         {
           current: false,
@@ -367,17 +355,14 @@ export class PublicApiController {
             title: 'ފޮޓޯ ޚަބަރު',
             readmoreUrl: '',
           },
-          featuredMain: [
-            ...imageFiltered.filter(
-              (hero: any, idx: any) => idx > 0 && idx < 3,
-            ),
-          ],
+          featuredMain: [...imageFiltered.filter((hero: any, idx: any) => idx > 0 && idx < 3)],
         },
       ],
     };
 
     return {
       pageHeader,
+      meta: pageMeta,
       blocks,
     };
     // return this.postsService.findOne(id);
@@ -390,7 +375,13 @@ export class PublicApiController {
       where: { slug: slug },
     });
     const pageHeader = {
-      title: category.nameEn,
+      title: category.name,
+    };
+
+    const pageMeta = {
+      title: category.name,
+      type: 'category',
+      layout: 'base',
     };
 
     const posts = await this.prisma.post.findMany({
@@ -441,9 +432,7 @@ export class PublicApiController {
         readmoreUrl: null,
       },
       featuredMain: { ...postsFeatured[0] },
-      featuredSub: [
-        ...postsFeatured.filter((hero: any, idx: any) => idx > 0 && idx < 7),
-      ],
+      featuredSub: [...postsFeatured.filter((hero: any, idx: any) => idx > 0 && idx < 7)],
     };
 
     blocks[1] = {
@@ -455,9 +444,7 @@ export class PublicApiController {
         readmoreUrl: '',
       },
       featuredMain: { ...postsFeatured[0] },
-      featuredSub: [
-        ...postsFeatured.filter((hero: any, idx: any) => idx > 0 && idx < 10),
-      ],
+      featuredSub: [...postsFeatured.filter((hero: any, idx: any) => idx > 0 && idx < 10)],
     };
 
     // 2
@@ -520,6 +507,7 @@ export class PublicApiController {
 
     return {
       pageHeader,
+      meta: pageMeta,
       blocks,
     };
   }
@@ -530,7 +518,13 @@ export class PublicApiController {
       where: { slug: slug },
     });
     const pageHeader = {
-      title: category.nameEn,
+      title: category.name,
+    };
+
+    const pageMeta = {
+      title: category.name,
+      type: 'tag',
+      layout: 'base',
     };
 
     const posts = await this.prisma.post.findMany({
@@ -581,21 +575,17 @@ export class PublicApiController {
         readmoreUrl: null,
       },
       featuredMain: postsFeatured[0],
-      featuredSub: [
-        ...postsFeatured.filter((hero: any, idx: any) => idx > 0 && idx < 4),
-      ],
+      featuredSub: [...postsFeatured.filter((hero: any, idx: any) => idx > 0 && idx < 4)],
     };
 
     blocks[1] = {
       id: await nanoid(),
       type: 'post-paginate-grid-block',
       header: {
-        title: 'މަޤުބޫލު',
+        title: 'އެންމެ ފަސް',
         readmoreUrl: '',
       },
-      featuredMain: {
-        ...postsFeatured.filter((hero: any, idx: any) => idx > 0 && idx < 14),
-      },
+      featuredMain: [...postsFeatured.filter((hero: any, idx: any) => idx > 0 && idx < 14)],
       nextUrl: 'https://api.badha.io/public/paginate',
     };
 
@@ -603,6 +593,7 @@ export class PublicApiController {
 
     return {
       pageHeader,
+      meta: pageMeta,
       blocks,
     };
   }

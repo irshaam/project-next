@@ -2,7 +2,7 @@
 import isHotkey from "is-hotkey";
 import { nanoid } from "nanoid";
 import { useCallback } from "react";
-import { Editor, Transforms } from "slate";
+import { Editor, Transforms, Element, Point, Range, Text } from "slate";
 import { DefaultElement } from "slate-react";
 
 import { CustomElement } from "../../index";
@@ -14,14 +14,21 @@ import {
   BulletedListElement,
   NumberedListElement,
   LinkElement,
+  ImageElement,
 } from "../elements";
 import StyledText from "../styled-text";
-import { toggleStyle } from "../utils";
+import { isLinkNodeAtSelection, toggleStyle } from "../utils";
 
 import { _transFrom, _transToKbd } from "@utils/thaanaKeyboard";
 
 const useEditorConfig = (editor: any) => {
+  const { isVoid } = editor;
   editor.isInline = (element: any) => ["link"].includes(element.type);
+
+  editor.isVoid = (element: any) => {
+    return ["image"].includes(element.type) || isVoid(element);
+  };
+
   return { renderElement, KeyBindings, renderLeaf };
 };
 
@@ -49,8 +56,12 @@ const renderElement = (props: any) => {
       return <BulletedListElement {...props} />;
     }
 
+    case "image": {
+      return <ImageElement {...props} />;
+    }
+
     default:
-      return <ParagraphElement {...props} />;
+      return;
   }
 };
 
@@ -82,33 +93,51 @@ const KeyBindings = {
     }
 
     if (isHotkey("enter", event)) {
-      const [match] = Editor.nodes(editor, {
-        match: (n) => n.type === "heading" || n.type === "block-quote",
-      });
+      console.log(editor);
+      return;
+    }
 
-      if (match) {
-        event.preventDefault();
-        Transforms.insertNodes(editor, {
+    // if (isHotkey("enter", event)) {
+    //   const [match] = Editor.nodes(editor, {
+    //     match: (n) => n.type === "heading" || n.type === "block-quote",
+    //   });
+
+    //   if (match) {
+    //     event.preventDefault();
+    //     Transforms.insertNodes(editor, {
+    //       type: "paragraph",
+    //       children: [
+    //         {
+    //           text: "",
+    //         },
+    //       ],
+    //     } as CustomElement);
+    //   }
+    // }
+
+    if (isHotkey("mod+enter", event)) {
+      event.preventDefault();
+
+      Transforms.insertNodes(
+        editor,
+        {
           type: "paragraph",
           children: [
             {
               text: "",
             },
           ],
-        } as CustomElement);
-      }
-    }
+        } as CustomElement,
+        { select: true, at: editor.selection }
+      );
 
-    if (isHotkey("mod+enter", event)) {
-      event.preventDefault();
-      Transforms.insertNodes(editor, {
-        type: "paragraph",
-        children: [
-          {
-            text: "",
-          },
-        ],
-      } as CustomElement);
+      // if (isLinkNodeAtSelection(editor, editor.selection)) {
+      //   console.log(editor);
+      //   console.log(editor.selection);
+      //   Transforms.unwrapNodes(editor, {
+      //     match: (n) => Element.isElement(n) && n.type === "link",
+      //   });
+      // }
     }
 
     // Check if key requires translation

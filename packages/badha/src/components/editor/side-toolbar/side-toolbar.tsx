@@ -4,6 +4,15 @@ import { Editor, Range, Transforms, Element as SlateElement } from "slate";
 import { ReactEditor, useFocused, useSelected, useSlateStatic } from "slate-react";
 
 import { CustomElement } from "..";
+import BulletList from "../icons/bullet-list.svg";
+import Embed from "../icons/embed.svg";
+import Heading from "../icons/heading.svg";
+import ImageGallery from "../icons/image-gallery.svg";
+import SingleImage from "../icons/image.svg";
+import NumberList from "../icons/number-list.svg";
+import Paragraph from "../icons/paragraph.svg";
+import Quote from "../icons/top-quote.svg";
+import Video from "../icons/video.svg";
 
 import MenuItem from "./menu-item";
 
@@ -39,6 +48,17 @@ const SideToolbar = forwardRef((props: any, ref: any) => {
     // Transforms.console.log(props);
 
     // Transforms.insertNodes(editor, heading);
+  };
+
+  const addParagraphNode = () => {
+    console.log(editor);
+    console.log(props.previousSelection);
+    console.log(props.selection);
+
+    Transforms.insertNodes(props.editor, { type: "paragraph", children: [{ text: "" }] } as CustomElement, {
+      at: props.previousSelection != null ? props.previousSelection : props.selection,
+      select: true,
+    });
   };
 
   const getRangeBoundingClientRect = (range: any) => {
@@ -135,7 +155,7 @@ const SideToolbar = forwardRef((props: any, ref: any) => {
 
       if (menu) {
         menu.style.opacity = "1";
-        menu.style.color = "red";
+        // menu.style.color = "red";
         menu.style.top = `${top}px`;
         menu.style.left = `${left}px`;
       }
@@ -155,7 +175,8 @@ const SideToolbar = forwardRef((props: any, ref: any) => {
     >
       <button
         type="button"
-        onClick={toggleMenu}
+        onMouseDown={toggleMenu}
+        // onClick={toggleMenu}
         className="text-gray-400 hover:text-red transition-colors delay-75 ease-linear focus:outline-none"
       >
         {open ? (
@@ -170,7 +191,7 @@ const SideToolbar = forwardRef((props: any, ref: any) => {
           style={{ background: "#DBD2CD", width: "312px", maxHeight: "376px" }}
         >
           <div>
-            <div className="text-xs font-bold text-gray-500 py-2">PRIMARY</div>
+            {/* <div className="text-xs font-bold text-gray-500 py-2">PRIMARY</div>
             <button
               type="button"
               onMouseDown={(e) => {
@@ -183,7 +204,65 @@ const SideToolbar = forwardRef((props: any, ref: any) => {
             >
               Addd
             </button>
-            <MenuItem addBlock={addNode} />
+            <MenuItem addBlock={addNode} /> */}
+            <div className="text-xs font-bold text-gray-500 py-2">BASIC BLOCKS</div>
+            <MenuItem
+              icon={<Paragraph />}
+              name="Paragrph"
+              description="Just start with a plain text."
+              onAddBlock={() => addParagraphNode()}
+            />
+            <MenuItem
+              icon={<Heading />}
+              name="Heading"
+              description="Big section heading"
+              onAddBlock={() => alert("adding pargaraph node")}
+            />
+            <MenuItem
+              icon={<Quote />}
+              name="Blockquote"
+              description="Capture a quote"
+              onAddBlock={() => alert("adding pargaraph node")}
+            />
+            <MenuItem
+              icon={<NumberList />}
+              name="Numbered List"
+              description="Create a simple numbered list"
+              onAddBlock={() => alert("adding pargaraph node")}
+            />
+            <MenuItem
+              icon={<BulletList />}
+              name="Bullet List"
+              description="Create a simple bullet list"
+              onAddBlock={() => alert("adding pargaraph node")}
+            />
+
+            <div className="text-xs font-bold text-gray-500 py-2">MEDIA</div>
+            <MenuItem
+              icon={<SingleImage />}
+              name="Image"
+              description="Add an image"
+              onAddBlock={() => alert("adding pargaraph node")}
+            />
+            <MenuItem
+              icon={<ImageGallery />}
+              name="Image Gallery"
+              description="Create simple image gallery"
+              onAddBlock={() => alert("adding pargaraph node")}
+            />
+            <MenuItem
+              icon={<Video />}
+              name="Video"
+              description="Add a new video"
+              onAddBlock={() => alert("adding pargaraph node")}
+            />
+            <div className="text-xs font-bold text-gray-500 py-2">EMBED</div>
+            <MenuItem
+              icon={<Embed />}
+              name="Embed"
+              description="Create a embed from link"
+              onAddBlock={() => alert("adding pargaraph node")}
+            />
           </div>
         </div>
       )}

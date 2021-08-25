@@ -19,15 +19,9 @@ import { UpdateTagDto } from './dto/update-tag.dto';
 
 @Injectable({ scope: Scope.REQUEST })
 export class TagsService {
-  constructor(
-    @Inject(REQUEST) private request: Request,
-    private readonly prisma: PrismaService,
-  ) {}
+  constructor(@Inject(REQUEST) private request: Request, private readonly prisma: PrismaService) {}
   async create(data: any): Promise<Tag> {
-    ForbiddenError.from(this.request.user.ability).throwUnlessCan(
-      'create',
-      'Tag',
-    );
+    ForbiddenError.from(this.request.user.ability).throwUnlessCan('create', 'Tag');
     const {
       typeId,
       name,
@@ -82,10 +76,7 @@ export class TagsService {
   }
 
   findAll({ type }) {
-    ForbiddenError.from(this.request.user.ability).throwUnlessCan(
-      'read',
-      'Tag',
-    );
+    ForbiddenError.from(this.request.user.ability).throwUnlessCan('read', 'Tag');
     const or =
       type != 'all'
         ? {
@@ -122,10 +113,7 @@ export class TagsService {
   }
 
   async findOne(id: number) {
-    ForbiddenError.from(this.request.user.ability).throwUnlessCan(
-      'read',
-      'Tag',
-    );
+    ForbiddenError.from(this.request.user.ability).throwUnlessCan('read', 'Tag');
     const tag = await this.prisma.tag.findFirst({
       where: { id: Number(id) },
     });
@@ -146,10 +134,7 @@ export class TagsService {
   }
 
   async update(id: string, data: any) {
-    ForbiddenError.from(this.request.user.ability).throwUnlessCan(
-      'update',
-      'Tag',
-    );
+    ForbiddenError.from(this.request.user.ability).throwUnlessCan('update', 'Tag');
     // if (id != updateTagDto.id) {
     //   throw new BadRequestException();
     // }
@@ -238,10 +223,7 @@ export class TagsService {
   }
 
   async remove(id: string) {
-    ForbiddenError.from(this.request.user.ability).throwUnlessCan(
-      'delete',
-      'Tag',
-    );
+    ForbiddenError.from(this.request.user.ability).throwUnlessCan('delete', 'Tag');
 
     const tagExist = await this.prisma.tag.findFirst({
       where: { id: Number(id) },
@@ -263,9 +245,7 @@ export class TagsService {
     });
 
     if (_count.posts > 0) {
-      throw new MethodNotAllowedException(
-        'One or more posts connected to the tag!!',
-      );
+      throw new MethodNotAllowedException('One or more posts connected to the tag!!');
     }
 
     // Delete

@@ -20,6 +20,8 @@ module.exports = {
     ignoreDuringBuilds: true,
   },
   images: {
-    domains: ["bucket-next.s3.ap-southeast-1.amazonaws.com"],
+    loader: "imgix",
+    path: "https://dhauru.imgix.net/",
+    domains: ["dhauru.imgix.net", "bucket-next.s3.ap-southeast-1.amazonaws.com"],
   },
 };

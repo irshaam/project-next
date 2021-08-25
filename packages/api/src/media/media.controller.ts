@@ -1,7 +1,9 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
+  HttpCode,
   Param,
   Post,
   // Post,
@@ -31,17 +33,10 @@ import { UploadService } from './upload.service';
 
 @Controller('media')
 export class MediaController {
-  constructor(
-    private readonly mediaService: MediaService,
-    private readonly uploadService: UploadService,
-  ) {}
+  constructor(private readonly mediaService: MediaService, private readonly uploadService: UploadService) {}
 
   @Get()
-  findAll(
-    @Query('page') page?: number,
-    @Query('take') take?: number,
-    @Query('type') type?: string,
-  ) {
+  findAll(@Query('page') page?: number, @Query('take') take?: number, @Query('type') type?: string) {
     return this.mediaService.findAll({ type, page, take });
   }
 
@@ -53,16 +48,25 @@ export class MediaController {
     return this.mediaService.createCollection(createMediaCollectionDto);
   }
 
+  @Get('collections')
+  findAllCollections(@Query('page') page?: number, @Query('take') take?: number) {
+    return this.mediaService.findAllCollections({ page, take });
+  }
+
   @Get('collection/:id')
-  findAllCollections(@Param('id') id: string) {
+  findOneCollection(@Param('id') id: string) {
     return this.mediaService.findOneCollection(id);
   }
+
+  @Delete('collection/:id')
+  @HttpCode(204)
+  removeCollection(@Param('id') id: string) {
+    return this.mediaService.removeCollection(id);
+  }
+
   @Post('upload')
   @UseInterceptors(FileInterceptor('file'))
-  async uploadFile(
-    @UploadedFile() file: Express.Multer.File,
-    @Body() createMediaDto: any,
-  ) {
+  async uploadFile(@UploadedFile() file: Express.Multer.File, @Body() createMediaDto: any) {
     const { type, caption, captionEn, tags, collection } = createMediaDto;
 
     return await this.uploadService.upload(file, {
@@ -75,6 +79,15 @@ export class MediaController {
 
     console.log(createMediaDto);
   }
+
+  @Delete(':id')
+  @HttpCode(204)
+  remove(@Param('id') id: string) {
+    console.log('adasdadsdasd');
+    console.log(id);
+    return this.mediaService.remove(id);
+  }
+
   // @Public()
   // @Post('upload')
   // @UseInterceptors(FilesInterceptor('files'))
