@@ -14,6 +14,16 @@ import Paragraph from "../icons/paragraph.svg";
 import Quote from "../icons/top-quote.svg";
 import Video from "../icons/video.svg";
 
+import {
+  BULLET_LIST,
+  HEADING,
+  IMAGE_GALLERY,
+  IMAGE_SINGLE,
+  insertNode,
+  NUMBERED_LIST,
+  PARAGRAPH,
+  QUOTE,
+} from "./defaults";
 import MenuItem from "./menu-item";
 
 // eslint-disable-next-line react/display-name
@@ -57,6 +67,22 @@ const SideToolbar = forwardRef((props: any, ref: any) => {
 
     Transforms.insertNodes(props.editor, { type: "paragraph", children: [{ text: "" }] } as CustomElement, {
       at: props.previousSelection != null ? props.previousSelection : props.selection,
+      select: true,
+    });
+
+    const addBlock = (type: string) => {
+      const node = insertNode(type);
+      Transforms.insertNodes(props.editor, node as CustomElement, {
+        at: props.previousSelection,
+        select: true,
+      });
+    };
+  };
+
+  const addBlock = (type: string) => {
+    const node = insertNode(type);
+    Transforms.insertNodes(props.editor, node as CustomElement, {
+      at: props.previousSelection,
       select: true,
     });
   };
@@ -210,31 +236,31 @@ const SideToolbar = forwardRef((props: any, ref: any) => {
               icon={<Paragraph />}
               name="Paragrph"
               description="Just start with a plain text."
-              onAddBlock={() => addParagraphNode()}
+              onAddBlock={() => addBlock(PARAGRAPH)}
             />
             <MenuItem
               icon={<Heading />}
               name="Heading"
               description="Big section heading"
-              onAddBlock={() => alert("adding pargaraph node")}
+              onAddBlock={() => addBlock(HEADING)}
             />
             <MenuItem
               icon={<Quote />}
               name="Blockquote"
               description="Capture a quote"
-              onAddBlock={() => alert("adding pargaraph node")}
+              onAddBlock={() => addBlock(QUOTE)}
             />
             <MenuItem
               icon={<NumberList />}
               name="Numbered List"
               description="Create a simple numbered list"
-              onAddBlock={() => alert("adding pargaraph node")}
+              onAddBlock={() => addBlock(NUMBERED_LIST)}
             />
             <MenuItem
               icon={<BulletList />}
               name="Bullet List"
               description="Create a simple bullet list"
-              onAddBlock={() => alert("adding pargaraph node")}
+              onAddBlock={() => addBlock(BULLET_LIST)}
             />
 
             <div className="text-xs font-bold text-gray-500 py-2">MEDIA</div>
@@ -242,27 +268,27 @@ const SideToolbar = forwardRef((props: any, ref: any) => {
               icon={<SingleImage />}
               name="Image"
               description="Add an image"
-              onAddBlock={() => alert("adding pargaraph node")}
+              onAddBlock={() => addBlock(IMAGE_SINGLE)}
             />
-            <MenuItem
+            {/* <MenuItem
               icon={<ImageGallery />}
               name="Image Gallery"
               description="Create simple image gallery"
-              onAddBlock={() => alert("adding pargaraph node")}
-            />
-            <MenuItem
+              onAddBlock={() => addBlock(IMAGE_GALLERY)}
+            /> */}
+            {/* <MenuItem
               icon={<Video />}
               name="Video"
               description="Add a new video"
-              onAddBlock={() => alert("adding pargaraph node")}
-            />
-            <div className="text-xs font-bold text-gray-500 py-2">EMBED</div>
-            <MenuItem
+              onAddBlock={() => addBlock(SINGLE_VIDEO)}
+            /> */}
+            {/* <div className="text-xs font-bold text-gray-500 py-2">EMBED</div> */}
+            {/* <MenuItem
               icon={<Embed />}
               name="Embed"
               description="Create a embed from link"
-              onAddBlock={() => alert("adding pargaraph node")}
-            />
+              onAddBlock={() => addBlock(EMBED)}
+            /> */}
           </div>
         </div>
       )}

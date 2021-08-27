@@ -135,6 +135,9 @@ model Post {
   tags    Tag[]  @relation("_post_tags")
   authors User[] @relation("_post_authors")
 
+  comments Comment[]
+
+
   // meta      PostMeta?
   // revisions RevisionsOnPosts[]
   // tags      TagsOnPosts[]
@@ -335,6 +338,8 @@ model User {
   roles Role[] @relation("_user_roles")
 
 
+  postCommentApprover Comment[] @relation("CommentApprover")
+  postCommenter       Comment[] @relation("Commenter")
   @@map("user")
 }
 
@@ -354,6 +359,37 @@ model Permission {
   roles   Role[] @relation("_role_permissions")
 
   @@map("permission")
+}
+
+model Comment {
+  id Int @id @default(autoincrement())
+
+  name      String? @db.VarChar
+  comment   String? @db.Text
+  positive  Int?    @default(0)
+  ipAddress String? @db.VarChar
+  negative  Int?    @default(0)
+
+  commenter User? @relation("Commenter", fields: [commentBy], references: [id])
+  commentBy Int?
+
+
+  parent   Comment?  @relation("ParentComment", fields: [parentId], references: [id])
+  child    Comment[] @relation("ParentComment")
+  parentId Int?
+
+  post   Post? @relation(fields: [postId], references: [id])
+  postId Int?
+
+  approver   User?     @relation("CommentApprover", fields: [approvedBy], references: [id])
+  approvedBy Int?
+  approvedAt DateTime? @db.Timestamp(6)
+  isApproved Boolean   @default(false)
+
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+  updatedAt DateTime @default(now()) @db.Timestamp(6)
+
+  @@map("comment")
 }
 
 enum PostStatus {

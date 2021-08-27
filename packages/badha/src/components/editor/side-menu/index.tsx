@@ -5,6 +5,7 @@ import { Transforms, Editor } from "slate";
 import { useSlateStatic, useFocused, useSelected } from "slate-react";
 
 import { CustomElement } from "../index";
+import { insertNode } from "../side-toolbar/defaults";
 
 import MenuItem from "./menu-item";
 const SideMenu = forwardRef((props: any, ref: any) => {

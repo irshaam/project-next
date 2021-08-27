@@ -2,7 +2,6 @@ import { useAbility } from "@casl/react";
 import { CogIcon, TagIcon } from "@heroicons/react/outline";
 import { format } from "date-fns";
 import { withFormik, FormikProps, Form, Field, ErrorMessage, Formik } from "formik";
-import { nanoid } from "nanoid";
 import React, { useState, useEffect, BaseSyntheticEvent } from "react";
 import TextareaAutosize from "react-textarea-autosize";
 import { Node } from "slate";
@@ -11,6 +10,7 @@ import * as Yup from "yup";
 import { AbilityContext } from "../../components/auth/can";
 import { PostEditor } from "../../components/editor";
 import PostSettings from "../../components/post/settings";
+import { nanoid, translateToThaana, thaanaToLatin } from "../../utils";
 import { sluggify } from "../../utils/slugify";
 
 import FeaturedMedia from "./featured-media";
@@ -19,7 +19,6 @@ import HeadingInput from "@/components/post/input-heading";
 import DetailHeadingInput from "@/components/post/input-heading-detailed";
 import HeadingHighlights from "@/components/post/input-heading-highlights";
 import LatinHeading from "@/components/post/latin-heading";
-import { translateToThaana, thaanaToLatin } from "@/utils";
 interface FormValues {
   id?: number;
   /**
@@ -83,7 +82,7 @@ interface MyFormProps {
 const InnerForm = (props: FormikProps<FormValues> & MyFormProps) => {
   const ability = useAbility(AbilityContext);
   const { tags, setFieldValue, values, handleSubmit, mode, authors, post } = props;
-  const [showSettings, setShowSettings] = useState<boolean>(true);
+  const [showSettings, setShowSettings] = useState<boolean>(false);
   const [document, updateDocument] = useState<any[]>([]);
   const [count, setCount] = useState<any>(0);
 
@@ -164,7 +163,7 @@ const InnerForm = (props: FormikProps<FormValues> & MyFormProps) => {
     } else {
       const document = [
         {
-          id: nanoid(5),
+          id: nanoid(),
           type: "paragraph",
           children: [
             {
@@ -214,7 +213,7 @@ const InnerForm = (props: FormikProps<FormValues> & MyFormProps) => {
 
         <div
           className="text-xs absolute top-20 left-4 p-4 bg-gray-800 text-gray-200 rounded-lg shadow-lg overflow-scroll"
-          style={{ width: "500px", minHeight: "800px" }}
+          style={{ width: "200px", minHeight: "500px" }}
         >
           <pre>{JSON.stringify(values.content, null, 2)}</pre>
         </div>
@@ -331,7 +330,7 @@ const InnerForm = (props: FormikProps<FormValues> & MyFormProps) => {
           <CogIcon className="h-6 w-6" aria-hidden="true" />
         </button>
       </div>
-      {/* <PostSettings
+      <PostSettings
         values={values ? values : []}
         onSubmit={handleSubmit}
         show={showSettings}
@@ -342,7 +341,7 @@ const InnerForm = (props: FormikProps<FormValues> & MyFormProps) => {
         showAuthors={values.showAuthors}
         submitForReview={submitForReview}
         setStatus={(value: string) => setFieldValue("status", value)}
-      /> */}
+      />
     </Form>
   );
 };

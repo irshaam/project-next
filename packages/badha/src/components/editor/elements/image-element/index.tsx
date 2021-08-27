@@ -123,6 +123,7 @@ export const ImageElement = ({ attributes, children, element }) => {
           />
         </div>
 
+        {element.id}
         {/*upload thingy */}
 
         <div className="w-full h-full  flex items-center justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">

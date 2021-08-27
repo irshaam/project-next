@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  NotFoundException,
   Param,
   Patch,
   Post,
@@ -13,6 +14,8 @@ import {
   // Param,
   // Delete,
 } from '@nestjs/common';
+import { RealIP } from 'nestjs-real-ip';
+import { of } from 'rxjs';
 import { Public } from 'src/auth/decorators/public.decorator';
 import { PrismaService } from 'src/prisma';
 import { nanoid } from 'src/shared/utils';
@@ -643,5 +646,239 @@ export class PublicApiController {
       posts: postsFeatured,
       nextUrl: 'https://api.badha.io/public/paginate',
     };
+  }
+
+  @Public()
+  @Get('post/:nanoid')
+  async getPostById(@Param('nanoid') nanoid: string) {
+    const post = await this.prisma.post.findUnique({
+      where: { nanoid: nanoid },
+      include: {
+        category: {
+          select: {
+            id: true,
+            name: true,
+            icon: true,
+            slug: true,
+          },
+        },
+        tags: {
+          select: {
+            id: true,
+            name: true,
+            icon: true,
+            slug: true,
+          },
+        },
+        topic: {
+          select: {
+            id: true,
+            name: true,
+            icon: true,
+            slug: true,
+          },
+        },
+        location: {
+          select: {
+            id: true,
+            name: true,
+            icon: true,
+            slug: true,
+          },
+        },
+        authors: {
+          select: {
+            id: true,
+            name: true,
+            picture: true,
+            slug: true,
+          },
+        },
+        comments: {
+          where: {
+            parentId: {
+              equals: null,
+            },
+          },
+        },
+      },
+    });
+
+    const meta = {
+      title: post.heading,
+      type: 'post',
+      layout: 'base',
+    };
+
+    const comments = [];
+
+    const header = {
+      title: post.latinHeading,
+    };
+
+    return {
+      header,
+      meta,
+      post,
+      comments,
+    };
+  }
+
+  // POST COMMENT
+  @Public()
+  @Post('comment')
+  async createComment(@Body() data: any, @RealIP() ip: string) {
+    const { postId } = data;
+
+    if (!postId) {
+      throw new Error('Cannot submit a comment this time!');
+    }
+    const postExist = await this.prisma.post.findUnique({ where: { id: Number(postId) } });
+
+    if (!postExist) {
+      throw new NotFoundException();
+    }
+
+    const formData = {
+      name: data.name,
+      comment: data.comment,
+      ipAddress: ip,
+    };
+
+    if (data.postId) {
+      formData['post'] = {
+        connect: { id: data.postId },
+      };
+    }
+    if (data.parentId) {
+      formData['parent'] = {
+        connect: { id: data.parentId },
+      };
+    }
+
+    const comment = await this.prisma.comment.create({
+      data: {
+        ...formData,
+      },
+      include: {
+        commenter: {
+          select: {
+            id: true,
+          },
+        },
+        parent: {
+          select: {
+            id: true,
+            name: true,
+            createdAt: true,
+          },
+        },
+      },
+    });
+
+    return {
+      id: comment.id,
+      name: comment.name,
+      parentId: comment.parentId,
+      createdAt: comment.createdAt,
+      commentAt: {
+        id: comment.parent.id,
+        name: comment.parent.name,
+      },
+      user: comment.commenter,
+      replies: [],
+      likes: comment.positive,
+      dislike: comment.positive,
+    };
+  }
+
+  @Public()
+  @Patch('comment/like')
+  async updateCommentLike(@Body() data: any) {
+    const { commentId } = data;
+
+    if (!commentId) {
+      throw new Error('Cannot process at this time!');
+    }
+    const commentExists = await this.prisma.post.findUnique({ where: { id: Number(commentId) } });
+
+    if (!commentExists) {
+      throw new NotFoundException();
+    }
+
+    const update = await this.prisma.$executeRaw(
+      `update "comment" set positive = positive + 1 where id = ${commentId}`,
+    );
+    return {
+      success: 'true',
+    };
+  }
+  @Public()
+  @Patch('comment/dislike')
+  async updateCommentDisLike(@Body() data: any) {
+    const { commentId } = data;
+
+    if (!commentId) {
+      throw new Error('Cannot process at this time!');
+    }
+    const commentExists = await this.prisma.post.findUnique({ where: { id: Number(commentId) } });
+
+    if (!commentExists) {
+      throw new NotFoundException();
+    }
+
+    const update = await this.prisma.$executeRaw(
+      `update "comment" set negative = negative + 1 where id = ${commentId}`,
+    );
+    return {
+      success: 'true',
+    };
+  }
+
+  @Public()
+  @Get('/navigation')
+  getNavigation() {
+    return [
+      { name: 'ހަބަރު', slug: 'local-news', type: 'category', tags: [], open: false },
+      { name: 'ރިޕޯޓް', slug: 'report', type: 'category', tags: [], open: false },
+      {
+        name: 'ވިޔަފާރި',
+        slug: 'business',
+        type: 'category',
+        tags: [
+          {
+            name: 'އެޑްވަޓޯރިއަލް',
+            slug: 'advertorial',
+            type: 'tag',
+          },
+          {
+            name: 'އިގްތިސޯދު',
+            slug: 'economy',
+            type: 'tag',
+          },
+          {
+            name: 'ޓޫރިޒަމް',
+            slug: 'tourism',
+            type: 'tag',
+          },
+        ],
+      },
+      { name: 'މީހުން', slug: 'people', type: 'category', tags: [], open: false },
+      { name: 'ދިރިއުޅުން', slug: 'living', type: 'category', tags: [], open: false },
+      { name: 'ދިރިއުޅުން', slug: 'living', type: 'category', tags: [], open: false },
+      {
+        name: 'ކުޅިވަރު',
+        slug: 'sports',
+        type: 'category',
+        tags: [
+          { name: 'ބޭރު ކުޅިވަރު', slug: 'world-sports', type: 'tag' },
+          { name: 'ރާއްޖެ ކުޅިވަރު', slug: 'local-sports', type: 'tag' },
+        ],
+      },
+      { name: 'ދުނިޔެ', slug: 'world', type: 'category', tags: [], open: false },
+      { name: 'ސައިންސް', slug: 'science', type: 'category', tags: [], open: false },
+      { name: 'ޓެކްނޮލޮޖީ', slug: 'technology', type: 'category', tags: [], open: false },
+      { name: 'އިންޓަރެކްޓިވް', slug: 'interactive', type: 'category', tags: [], open: false },
+    ];
   }
 }

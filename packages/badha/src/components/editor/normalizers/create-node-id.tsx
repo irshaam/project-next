@@ -1,7 +1,7 @@
 import cloneDeep from "lodash/cloneDeep";
-import { nanoid } from "nanoid";
 import { NodeEntry, Editor } from "slate";
 
+import { nanoid } from "../../../utils";
 import { queryNode } from "../queries";
 import { someNode } from "../queries/someNode";
 import { defaultsDeepToNodes } from "../transforms";
@@ -40,7 +40,7 @@ export const withNodeId = (editor: any) => {
   const idKey = "id";
   const filterText = true;
 
-  const idPropsCreator = () => ({ [idKey]: nanoid(5) });
+  const idPropsCreator = () => ({ [idKey]: nanoid() });
 
   const filterNode = (nodeEntry: NodeEntry<TNode>) => {
     return nodeEntry && (!filterText || nodeEntry[0]?.type !== undefined);
@@ -91,7 +91,7 @@ export const withNodeId = (editor: any) => {
             at: [],
           })
         ) {
-          id = nanoid(5);
+          id = nanoid();
         }
 
         return apply({

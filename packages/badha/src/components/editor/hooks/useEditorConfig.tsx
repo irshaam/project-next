@@ -26,8 +26,11 @@ const useEditorConfig = (editor: any) => {
   editor.isInline = (element: any) => ["link"].includes(element.type);
 
   editor.isVoid = (element: any) => {
-    return ["image"].includes(element.type) || isVoid(element);
+    return ["image-single"].includes(element.type) || isVoid(element);
   };
+  // editor.isVoid = (element: any) => {
+  //   return ["image"].includes(element.type) || isVoid(element);
+  // };
 
   return { renderElement, KeyBindings, renderLeaf };
 };
@@ -39,7 +42,7 @@ const renderElement = (props: any) => {
     }
     case "link":
       return <LinkElement {...props} url={props.element.url} />;
-    case "heading": {
+    case "heading-base": {
       return <HeadingElement content {...props} />;
     }
     case "paragraph": {
@@ -56,7 +59,7 @@ const renderElement = (props: any) => {
       return <BulletedListElement {...props} />;
     }
 
-    case "image": {
+    case "image-singe": {
       return <ImageElement {...props} />;
     }
 

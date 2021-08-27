@@ -1,4 +1,5 @@
 import { getSession, useSession } from "next-auth/client";
+import router from "next/router";
 import toast, { Toaster } from "react-hot-toast";
 
 import client from "../../../api/client";
@@ -78,6 +79,16 @@ const CreatePost = ({ tags, post, authors }: { tags: any; post: any; authors: an
         },
       }
     );
+
+    toast.promise(submitForReview, {
+      loading: "Submitting...",
+      success: (data: any): any => {
+        return router.push("/posts?type=draft");
+      },
+      error: <b>Could not submit.</b>,
+    });
+
+    const response = await submitForReview;
   };
 
   const handleSubmit = async (values: any) => {
@@ -96,7 +107,9 @@ const CreatePost = ({ tags, post, authors }: { tags: any; post: any; authors: an
 
     toast.promise(updatePost, {
       loading: "Saving...",
-      success: <b>Post saved!</b>,
+      success: (data: any): any => {
+        return data.data.status === "review" ? router.push("/posts?type=copydesk") : `Post updated..`;
+      },
       error: <b>Could not save.</b>,
     });
 

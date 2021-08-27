@@ -80,3 +80,5 @@ export const getThaanaChar = (char: string): string => {
 export const imageLoader = ({ src, width, quality }: ImageLoaderProps) => {
   return `${process.env.NEXT_PUBLIC_CDN_URL}/${src}?w=${width}&q=${quality || 75}`;
 };
+
+export * from "./nanoid";

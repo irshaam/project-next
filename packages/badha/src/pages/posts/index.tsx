@@ -1,3 +1,4 @@
+import { useAbility } from "@casl/react";
 import { TrashIcon, PencilAltIcon } from "@heroicons/react/outline";
 import { PencilIcon } from "@heroicons/react/solid";
 import { format } from "date-fns";
@@ -10,10 +11,13 @@ import DataTable from "react-data-table-component";
 
 import client from "../../api/client";
 import { MainLayout } from "../../components";
+import { AbilityContext } from "../../components/auth/can";
 
 import { tableStyle } from "@utils";
 
 const PostIndex = (props: any) => {
+  const ability = useAbility(AbilityContext);
+
   const router = useRouter();
   const [session] = useSession();
   const [data, setData] = useState([]);
@@ -70,20 +74,48 @@ const PostIndex = (props: any) => {
         // eslint-disable-next-line react/display-name
         cell: (row: any) => (
           <div data-tag="allowRowEvents">
-            <Link href={`/posts/edit/${row.nanoid}`} passHref>
-              <button
-                type="button"
-                className="mr-3 inline-flex items-center px-3 py-2  border-gray-300 rounded-md hover:shadow-sm text-xs font-medium text-gray-700  hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-50 focus:ring-indigo-500"
-              >
-                <PencilAltIcon className="h-5 w-5 text-gray-400 hover:text-indigo-600" />
-              </button>
-            </Link>
-            <button
+            {row.status === "draft" &&
+              row.authors.some((user: any) => user.id === Number(session?.user.id)) &&
+              ability.can("create", "Post") && (
+                <Link href={`/posts/edit/${row.nanoid}`} passHref>
+                  <button
+                    type="button"
+                    className="mr-3 inline-flex items-center px-3 py-2  border-gray-300 rounded-md hover:shadow-sm text-xs font-medium text-gray-700  hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-50 focus:ring-indigo-500"
+                  >
+                    <PencilAltIcon className="h-5 w-5 text-gray-400 hover:text-indigo-600" />
+                  </button>
+                </Link>
+              )}
+            {row.status === "rejected" &&
+              row.authors.some((user: any) => user.id === Number(session?.user.id)) &&
+              ability.can("create", "Post") && (
+                <Link href={`/posts/edit/${row.nanoid}`} passHref>
+                  <button
+                    type="button"
+                    className="mr-3 inline-flex items-center px-3 py-2  border-gray-300 rounded-md hover:shadow-sm text-xs font-medium text-gray-700  hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-50 focus:ring-indigo-500"
+                  >
+                    <PencilAltIcon className="h-5 w-5 text-gray-400 hover:text-indigo-600" />
+                  </button>
+                </Link>
+              )}
+
+            {row.status === "review" && ability.can("moderate", "Post") && (
+              <Link href={`/posts/edit/${row.nanoid}`} passHref>
+                <button
+                  type="button"
+                  className="mr-3 inline-flex items-center px-3 py-2  border-gray-300 rounded-md hover:shadow-sm text-xs font-medium text-gray-700  hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-50 focus:ring-indigo-500"
+                >
+                  <PencilAltIcon className="h-5 w-5 text-gray-400 hover:text-indigo-600" />
+                </button>
+              </Link>
+            )}
+
+            {/* <button
               type="button"
               className="inline-flex items-center px-3 py-2  border-gray-300 rounded-md hover:shadow-sm text-xs font-medium text-gray-700  hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-50 focus:ring-red"
             >
               <TrashIcon className="h-5 w-5 text-gray-400 hover:text-red" />
-            </button>
+            </button> */}
           </div>
         ),
       },
@@ -154,11 +186,11 @@ const PostIndex = (props: any) => {
         cell: (row: any) => (
           <div data-tag="allowRowEvents" className="w-full">
             <div className="text-right text-gray-800 font-mv-typewriter-bold tracking-normal text-md text-base">
-              <Link href={`/posts/edit/${row.nanoid}`} passHref>
-                <a href="#" className="hover:text-gray-800">
-                  {row.headingDetailed}
-                </a>
-              </Link>
+              {/* <Link href={`/posts/edit/${row.nanoid}`} passHref> */}
+              <a href="#" className="hover:text-gray-800">
+                {row.headingDetailed}
+              </a>
+              {/* </Link> */}
             </div>
           </div>
         ),

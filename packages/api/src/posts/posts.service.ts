@@ -329,10 +329,15 @@ export class PostsService {
   async update(id: string, data: any) {
     let formData = {};
     // Check user persmissions to change status
-    if (data.status != 'draft' || data.status != 'review') {
-      ForbiddenError.from(this.request.user.ability).throwUnlessCan('moderate', 'Post');
-      console.log('adasd');
+    const { status } = data;
+    console.log();
+    if (status !== 'draft') {
+      console.log(status);
     }
+    // if (data.status != 'draft' || data.status != 'review') {
+    //   ForbiddenError.from(this.request.user.ability).throwUnlessCan('moderate', 'Post');
+    //   console.log('adasd');
+    // }
 
     if (data.status === 'rejected' && data.editedBy != this.request.user.id) {
       console.log(this.request.user.id);
